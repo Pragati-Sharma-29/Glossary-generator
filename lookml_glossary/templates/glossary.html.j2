@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LookML Glossary</title>
+    <style>
+        :root { --primary: #4285f4; --kpi: #ea4335; --metric: #34a853; --dim: #fbbc04; --bg: #f8f9fa; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: #202124; line-height: 1.6; padding: 2rem; }
+        h1 { color: var(--primary); margin-bottom: 1rem; }
+        h2 { margin: 2rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #dadce0; }
+        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .summary-card { background: #fff; border-radius: 8px; padding: 1rem; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .summary-card .count { font-size: 2rem; font-weight: 700; color: var(--primary); }
+        .summary-card .label { font-size: 0.85rem; color: #5f6368; }
+        .term-card { background: #fff; border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .term-card h3 { margin-bottom: 0.5rem; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; color: #fff; margin-right: 0.5rem; }
+        .badge-kpi { background: var(--kpi); }
+        .badge-metric { background: var(--metric); }
+        .badge-dimension { background: var(--dim); color: #202124; }
+        .badge-explore { background: var(--primary); }
+        .badge-view { background: #9c27b0; }
+        .badge-measure { background: #5f6368; }
+        .meta { font-size: 0.9rem; color: #5f6368; margin: 0.25rem 0; }
+        .meta code { background: #e8eaed; padding: 1px 6px; border-radius: 4px; font-size: 0.85rem; }
+        .links a { color: var(--primary); text-decoration: none; margin-right: 1rem; }
+        .links a:hover { text-decoration: underline; }
+        .search-box { width: 100%; max-width: 500px; padding: 0.6rem 1rem; border: 1px solid #dadce0; border-radius: 24px; font-size: 1rem; margin-bottom: 1.5rem; }
+        .search-box:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(66,133,244,0.2); }
+    </style>
+</head>
+<body>
+    <h1>LookML Glossary</h1>
+    <input type="text" class="search-box" id="search" placeholder="Search glossary terms...">
+
+    <div class="summary">
+        <div class="summary-card"><div class="count">{{ summary.total_terms }}</div><div class="label">Total Terms</div></div>
+        <div class="summary-card"><div class="count">{{ summary.kpis }}</div><div class="label">KPIs</div></div>
+        <div class="summary-card"><div class="count">{{ summary.metrics }}</div><div class="label">Metrics</div></div>
+        <div class="summary-card"><div class="count">{{ summary.dimensions }}</div><div class="label">Dimensions</div></div>
+        <div class="summary-card"><div class="count">{{ summary.views }}</div><div class="label">Views</div></div>
+        <div class="summary-card"><div class="count">{{ summary.explores }}</div><div class="label">Explores</div></div>
+    </div>
+
+    {% if grouped.kpis %}
+    <h2>Key Performance Indicators (KPIs)</h2>
+    {% for term in grouped.kpis %}
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-kpi">KPI</span>{{ term.term_name }}</h3>
+        <p>{{ term.description }}</p>
+        {% if term.table_name is defined %}<p class="meta">Table: <code>{{ term.table_name }}</code></p>{% endif %}
+        {% if term.view_name is defined %}<p class="meta">View: <code>{{ term.view_name }}</code></p>{% endif %}
+        {% if term.measure_type is defined %}<p class="meta">Measure type: {{ term.measure_type }}</p>{% endif %}
+        {% if term.sql_expression is defined %}<p class="meta">SQL: <code>{{ term.sql_expression }}</code></p>{% endif %}
+        {% if term.value_format is defined and term.value_format %}<p class="meta">Format: {{ term.value_format }}</p>{% endif %}
+        {% if term.dashboard_links is defined and term.dashboard_links %}
+        <p class="links">Dashboards: {% for link in term.dashboard_links %}<a href="{{ link.url }}">{{ link.title }}</a>{% endfor %}</p>
+        {% endif %}
+        {% if term.recommended_links is defined and term.recommended_links %}
+        <p class="links">Links: {% for link in term.recommended_links %}<a href="{{ link.url }}">{{ link.title }}</a>{% endfor %}</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if grouped.metrics %}
+    <h2>Metrics</h2>
+    {% for term in grouped.metrics %}
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-metric">Metric</span>{{ term.term_name }}</h3>
+        <p>{{ term.description }}</p>
+        {% if term.table_name is defined %}<p class="meta">Table: <code>{{ term.table_name }}</code></p>{% endif %}
+        {% if term.view_name is defined %}<p class="meta">View: <code>{{ term.view_name }}</code></p>{% endif %}
+        {% if term.measure_type is defined %}<p class="meta">Measure type: {{ term.measure_type }}</p>{% endif %}
+        {% if term.sql_expression is defined %}<p class="meta">SQL: <code>{{ term.sql_expression }}</code></p>{% endif %}
+        {% if term.dashboard_links is defined and term.dashboard_links %}
+        <p class="links">Dashboards: {% for link in term.dashboard_links %}<a href="{{ link.url }}">{{ link.title }}</a>{% endfor %}</p>
+        {% endif %}
+        {% if term.recommended_links is defined and term.recommended_links %}
+        <p class="links">Links: {% for link in term.recommended_links %}<a href="{{ link.url }}">{{ link.title }}</a>{% endfor %}</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if grouped.explores %}
+    <h2>Explores</h2>
+    {% for term in grouped.explores %}
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-explore">Explore</span>{{ term.term_name }}</h3>
+        <p>{{ term.description }}</p>
+        {% if term.model_name is defined %}<p class="meta">Model: <code>{{ term.model_name }}</code></p>{% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if grouped.views %}
+    <h2>Views</h2>
+    {% for term in grouped.views %}
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-view">View</span>{{ term.term_name }}</h3>
+        <p>{{ term.description }}</p>
+        {% if term.table_name is defined %}<p class="meta">Table: <code>{{ term.table_name }}</code></p>{% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if grouped.dimensions %}
+    <h2>Dimensions</h2>
+    {% for term in grouped.dimensions %}
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-dimension">Dimension</span>{{ term.term_name }}</h3>
+        <p>{{ term.description }}</p>
+        {% if term.table_name is defined %}<p class="meta">Table: <code>{{ term.table_name }}</code></p>{% endif %}
+        {% if term.view_name is defined %}<p class="meta">View: <code>{{ term.view_name }}</code></p>{% endif %}
+        {% if term.sql_expression is defined %}<p class="meta">SQL: <code>{{ term.sql_expression }}</code></p>{% endif %}
+        {% if term.recommended_links is defined and term.recommended_links %}
+        <p class="links">Links: {% for link in term.recommended_links %}<a href="{{ link.url }}">{{ link.title }}</a>{% endfor %}</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if grouped.measures %}
+    <h2>Other Measures</h2>
+    {% for term in grouped.measures %}
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-measure">Measure</span>{{ term.term_name }}</h3>
+        <p>{{ term.description }}</p>
+        {% if term.table_name is defined %}<p class="meta">Table: <code>{{ term.table_name }}</code></p>{% endif %}
+        {% if term.view_name is defined %}<p class="meta">View: <code>{{ term.view_name }}</code></p>{% endif %}
+        {% if term.sql_expression is defined %}<p class="meta">SQL: <code>{{ term.sql_expression }}</code></p>{% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <script>
+        document.getElementById('search').addEventListener('input', function() {
+            const q = this.value.toLowerCase();
+            document.querySelectorAll('[data-searchable]').forEach(card => {
+                card.style.display = card.textContent.toLowerCase().includes(q) ? '' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>
