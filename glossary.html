@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LookML Glossary</title>
+    <style>
+        :root { --primary: #4285f4; --kpi: #ea4335; --metric: #34a853; --dim: #fbbc04; --bg: #f8f9fa; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: #202124; line-height: 1.6; padding: 2rem; }
+        h1 { color: var(--primary); margin-bottom: 1rem; }
+        h2 { margin: 2rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #dadce0; }
+        .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .summary-card { background: #fff; border-radius: 8px; padding: 1rem; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .summary-card .count { font-size: 2rem; font-weight: 700; color: var(--primary); }
+        .summary-card .label { font-size: 0.85rem; color: #5f6368; }
+        .term-card { background: #fff; border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .term-card h3 { margin-bottom: 0.5rem; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; color: #fff; margin-right: 0.5rem; }
+        .badge-kpi { background: var(--kpi); }
+        .badge-metric { background: var(--metric); }
+        .badge-dimension { background: var(--dim); color: #202124; }
+        .badge-explore { background: var(--primary); }
+        .badge-view { background: #9c27b0; }
+        .badge-measure { background: #5f6368; }
+        .meta { font-size: 0.9rem; color: #5f6368; margin: 0.25rem 0; }
+        .meta code { background: #e8eaed; padding: 1px 6px; border-radius: 4px; font-size: 0.85rem; }
+        .links a { color: var(--primary); text-decoration: none; margin-right: 1rem; }
+        .links a:hover { text-decoration: underline; }
+        .search-box { width: 100%; max-width: 500px; padding: 0.6rem 1rem; border: 1px solid #dadce0; border-radius: 24px; font-size: 1rem; margin-bottom: 1.5rem; }
+        .search-box:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(66,133,244,0.2); }
+    </style>
+</head>
+<body>
+    <h1>LookML Glossary</h1>
+    <input type="text" class="search-box" id="search" placeholder="Search glossary terms...">
+
+    <div class="summary">
+        <div class="summary-card"><div class="count">29</div><div class="label">Total Terms</div></div>
+        <div class="summary-card"><div class="count">5</div><div class="label">KPIs</div></div>
+        <div class="summary-card"><div class="count">8</div><div class="label">Metrics</div></div>
+        <div class="summary-card"><div class="count">16</div><div class="label">Dimensions</div></div>
+        <div class="summary-card"><div class="count">3</div><div class="label">Views</div></div>
+        <div class="summary-card"><div class="count">2</div><div class="label">Explores</div></div>
+    </div>
+
+    <h2>Key Performance Indicators (KPIs)</h2>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-kpi">KPI</span>User Count</h3>
+        <p>Total number of unique registered users</p>
+<p class="meta">Table: <code>public.users</code></p><p class="meta">View: <code>users</code></p><p class="meta">Measure type: count_distinct</p><p class="meta">SQL: <code>${id}</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-kpi">KPI</span>Total Revenue</h3>
+        <p>Sum of all order sale prices</p>
+<p class="meta">Table: <code>public.orders</code></p><p class="meta">View: <code>orders</code></p><p class="meta">Measure type: sum</p><p class="meta">SQL: <code>${sale_price}</code></p><p class="meta">Format: usd</p>        <p class="links">Links: <a href="/dashboards/revenue_overview">Revenue Dashboard</a><a href="/dashboards/finance_detail">Finance Deep Dive</a></p>
+    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-kpi">KPI</span>Order Count</h3>
+        <p>Total number of orders</p>
+<p class="meta">Table: <code>public.orders</code></p><p class="meta">View: <code>orders</code></p><p class="meta">Measure type: count</p>        <p class="links">Links: <a href="/dashboards/orders_overview">Orders Dashboard</a></p>
+    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-kpi">KPI</span>Average Order Value</h3>
+        <p>Average revenue per order</p>
+<p class="meta">Table: <code>public.orders</code></p><p class="meta">View: <code>orders</code></p><p class="meta">Measure type: average</p><p class="meta">SQL: <code>${sale_price}</code></p><p class="meta">Format: usd</p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-kpi">KPI</span>Conversion Rate</h3>
+        <p>Ratio of completed orders to total orders</p>
+<p class="meta">Table: <code>public.orders</code></p><p class="meta">View: <code>orders</code></p><p class="meta">Measure type: number</p><p class="meta">SQL: <code>1.0 * ${total_orders_completed} / NULLIF(${order_count}, 0)</code></p><p class="meta">Format: percent_2</p>    </div>
+
+    <h2>Metrics</h2>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-metric">Metric</span>Total Orders Completed</h3>
+        <p>Number of completed orders</p>
+<p class="meta">Table: <code>public.orders</code></p><p class="meta">View: <code>orders</code></p><p class="meta">Measure type: count</p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-metric">Metric</span>Product Count</h3>
+        <p>Total number of products in catalogue</p>
+<p class="meta">Table: <code>public.products</code></p><p class="meta">View: <code>products</code></p><p class="meta">Measure type: count</p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-metric">Metric</span>Average Price</h3>
+        <p>Average retail price across all products</p>
+<p class="meta">Table: <code>public.products</code></p><p class="meta">View: <code>products</code></p><p class="meta">Measure type: average</p><p class="meta">SQL: <code>${retail_price}</code></p>    </div>
+
+    <h2>Explores</h2>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-explore">Explore</span>Orders</h3>
+        <p>Explore for analysing customer orders, revenue and fulfilment metrics</p>
+<p class="meta">Model: <code>ecommerce</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-explore">Explore</span>Products</h3>
+        <p>Product catalogue exploration with inventory and pricing data</p>
+<p class="meta">Model: <code>ecommerce</code></p>    </div>
+
+    <h2>Views</h2>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-view">View</span>Users</h3>
+        <p>Registered customer profiles and demographics</p>
+<p class="meta">Table: <code>public.users</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-view">View</span>Orders</h3>
+        <p>All customer orders with associated revenue and status data</p>
+<p class="meta">Table: <code>public.orders</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-view">View</span>Products</h3>
+        <p>Product catalogue with pricing and inventory information</p>
+<p class="meta">Table: <code>public.products</code></p>    </div>
+
+    <h2>Dimensions</h2>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-dimension">Dimension</span>Id</h3>
+        <p>Unique user identifier</p>
+<p class="meta">Table: <code>public.users</code></p><p class="meta">View: <code>users</code></p><p class="meta">SQL: <code>${TABLE}.id</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-dimension">Dimension</span>Name</h3>
+        <p>Full name of the user</p>
+<p class="meta">Table: <code>public.users</code></p><p class="meta">View: <code>users</code></p><p class="meta">SQL: <code>${TABLE}.name</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-dimension">Dimension</span>Email</h3>
+        <p>User email address</p>
+<p class="meta">Table: <code>public.users</code></p><p class="meta">View: <code>users</code></p><p class="meta">SQL: <code>${TABLE}.email</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-dimension">Dimension</span>Age</h3>
+        <p>Age of the customer in years</p>
+<p class="meta">Table: <code>public.users</code></p><p class="meta">View: <code>users</code></p><p class="meta">SQL: <code>${TABLE}.age</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-dimension">Dimension</span>Country</h3>
+        <p>Country of residence</p>
+<p class="meta">Table: <code>public.users</code></p><p class="meta">View: <code>users</code></p><p class="meta">SQL: <code>${TABLE}.country</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-dimension">Dimension</span>Created</h3>
+        <p>When the user account was created</p>
+<p class="meta">Table: <code>public.users</code></p><p class="meta">View: <code>users</code></p><p class="meta">SQL: <code>${TABLE}.created_at</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-dimension">Dimension</span>Id</h3>
+        <p>Unique order identifier</p>
+<p class="meta">Table: <code>public.orders</code></p><p class="meta">View: <code>orders</code></p><p class="meta">SQL: <code>${TABLE}.id</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-dimension">Dimension</span>User Id</h3>
+        <p>Foreign key to the users table</p>
+<p class="meta">Table: <code>public.orders</code></p><p class="meta">View: <code>orders</code></p><p class="meta">SQL: <code>${TABLE}.user_id</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-dimension">Dimension</span>Status</h3>
+        <p>Current order status (pending, complete, cancelled, returned)</p>
+<p class="meta">Table: <code>public.orders</code></p><p class="meta">View: <code>orders</code></p><p class="meta">SQL: <code>${TABLE}.status</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-dimension">Dimension</span>Sale Price</h3>
+        <p>Final sale price of the order after discounts</p>
+<p class="meta">Table: <code>public.orders</code></p><p class="meta">View: <code>orders</code></p><p class="meta">SQL: <code>${TABLE}.sale_price</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-dimension">Dimension</span>Created</h3>
+        <p>Timestamp when the order was placed</p>
+<p class="meta">Table: <code>public.orders</code></p><p class="meta">View: <code>orders</code></p><p class="meta">SQL: <code>${TABLE}.created_at</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-dimension">Dimension</span>Id</h3>
+        <p>Unique product identifier</p>
+<p class="meta">Table: <code>public.products</code></p><p class="meta">View: <code>products</code></p><p class="meta">SQL: <code>${TABLE}.id</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-dimension">Dimension</span>Name</h3>
+        <p>Product display name</p>
+<p class="meta">Table: <code>public.products</code></p><p class="meta">View: <code>products</code></p><p class="meta">SQL: <code>${TABLE}.name</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-dimension">Dimension</span>Category</h3>
+        <p>Product category classification</p>
+<p class="meta">Table: <code>public.products</code></p><p class="meta">View: <code>products</code></p><p class="meta">SQL: <code>${TABLE}.category</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-dimension">Dimension</span>Brand</h3>
+        <p>Product brand name</p>
+<p class="meta">Table: <code>public.products</code></p><p class="meta">View: <code>products</code></p><p class="meta">SQL: <code>${TABLE}.brand</code></p>    </div>
+    <div class="term-card" data-searchable>
+        <h3><span class="badge badge-dimension">Dimension</span>Retail Price</h3>
+        <p>Manufacturer suggested retail price</p>
+<p class="meta">Table: <code>public.products</code></p><p class="meta">View: <code>products</code></p><p class="meta">SQL: <code>${TABLE}.retail_price</code></p>    </div>
+
+
+    <script>
+        document.getElementById('search').addEventListener('input', function() {
+            const q = this.value.toLowerCase();
+            document.querySelectorAll('[data-searchable]').forEach(card => {
+                card.style.display = card.textContent.toLowerCase().includes(q) ? '' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>
