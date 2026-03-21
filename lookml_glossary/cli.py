@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-from .generator import generate_html, generate_json, generate_markdown
+from .generator import generate_csv, generate_html, generate_json, generate_markdown, generate_webapp
 from .parser import parse_lookml_model
 
 
@@ -17,9 +17,9 @@ def main() -> None:
     )
     parser.add_argument(
         "-f", "--format",
-        choices=["json", "markdown", "html"],
+        choices=["json", "markdown", "html", "csv", "webapp"],
         default="markdown",
-        help="Output format (default: markdown)",
+        help="Output format: json, markdown, html, csv, or webapp (default: markdown)",
     )
     parser.add_argument(
         "-o", "--output",
@@ -45,6 +45,8 @@ def main() -> None:
         "json": generate_json,
         "markdown": generate_markdown,
         "html": generate_html,
+        "csv": generate_csv,
+        "webapp": generate_webapp,
     }
     gen_fn = generators[args.format]
 

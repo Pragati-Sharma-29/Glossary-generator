@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LookML Glossary</title>
+    <style>
+        :root{--p:#4285f4;--kpi:#ea4335;--met:#34a853;--dim:#fbbc04;--view:#9c27b0;--exp:#1a73e8;--bg:#f8f9fa;--card:#fff;--border:#dadce0;--text:#202124;--muted:#5f6368}
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+        .container{max-width:1400px;margin:0 auto;padding:2rem}
+        h1{color:var(--p);margin-bottom:.5rem;font-size:2rem}
+        .subtitle{color:var(--muted);margin-bottom:2rem}
+        /* Tabs */
+        .tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:2rem;gap:0}
+        .tab{padding:.75rem 1.5rem;cursor:pointer;border:none;background:none;font-size:1rem;color:var(--muted);border-bottom:3px solid transparent;transition:.2s}
+        .tab:hover{color:var(--text)}
+        .tab.active{color:var(--p);border-bottom-color:var(--p);font-weight:600}
+        .tab-content{display:none}
+        .tab-content.active{display:block}
+        /* Summary cards */
+        .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1rem;margin-bottom:2rem}
+        .s-card{background:var(--card);border-radius:10px;padding:1rem;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+        .s-card .num{font-size:2.2rem;font-weight:700;color:var(--p)}
+        .s-card .lbl{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+        /* Diagram */
+        .diagram-wrap{background:var(--card);border-radius:12px;padding:2rem;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow-x:auto;margin-bottom:2rem}
+        .diagram{display:flex;flex-direction:column;gap:2rem;min-width:700px}
+        .model-box{border:2px solid var(--p);border-radius:12px;padding:1.5rem}
+        .model-label{font-size:1.1rem;font-weight:700;color:var(--p);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+        .model-label::before{content:"";display:inline-block;width:12px;height:12px;background:var(--p);border-radius:3px}
+        .explore-row{display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1rem}
+        .explore-box{border:2px solid var(--exp);border-radius:10px;padding:1rem;min-width:200px;flex:1}
+        .explore-label{font-weight:600;color:var(--exp);margin-bottom:.5rem;font-size:.95rem}
+        .arrow-down{text-align:center;color:var(--muted);font-size:1.2rem;margin:.5rem 0}
+        .views-row{display:flex;gap:1.5rem;flex-wrap:wrap}
+        .view-box{border:2px solid var(--view);border-radius:10px;padding:1rem;min-width:220px;flex:1;max-width:350px}
+        .view-label{font-weight:600;color:var(--view);margin-bottom:.25rem;font-size:.95rem}
+        .view-table{font-size:.8rem;color:var(--muted);margin-bottom:.75rem;font-family:monospace}
+        .field-section{margin-bottom:.5rem}
+        .field-section-title{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.25rem;display:flex;align-items:center;gap:.4rem}
+        .field-section-title.kpi{color:var(--kpi)}
+        .field-section-title.metric{color:var(--met)}
+        .field-section-title.dim{color:var(--dim)}
+        .field-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.75rem;margin:2px;background:#e8eaed;color:var(--text)}
+        .field-pill.kpi{background:#fce8e6;color:var(--kpi)}
+        .field-pill.metric{background:#e6f4ea;color:#1e8e3e}
+        .field-pill.dim{background:#fef7e0;color:#e37400}
+        /* Table */
+        .toolbar{display:flex;gap:1rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap}
+        .search-box{flex:1;min-width:250px;padding:.6rem 1rem;border:1px solid var(--border);border-radius:24px;font-size:1rem}
+        .search-box:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 2px rgba(66,133,244,.2)}
+        .btn{padding:.6rem 1.2rem;border:none;border-radius:8px;font-size:.9rem;cursor:pointer;font-weight:600;transition:.2s}
+        .btn-primary{background:var(--p);color:#fff}
+        .btn-primary:hover{background:#1a73e8}
+        .filter-group{display:flex;gap:.5rem;flex-wrap:wrap}
+        .filter-btn{padding:4px 12px;border:1px solid var(--border);border-radius:16px;background:var(--card);font-size:.8rem;cursor:pointer;transition:.2s}
+        .filter-btn.active{background:var(--p);color:#fff;border-color:var(--p)}
+        table{width:100%;border-collapse:collapse;background:var(--card);border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+        thead{background:#e8eaed}
+        th{padding:.75rem 1rem;text-align:left;font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);white-space:nowrap}
+        td{padding:.75rem 1rem;border-top:1px solid #f1f3f4;font-size:.9rem;vertical-align:top}
+        tr:hover td{background:#f8f9fa}
+        .badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:.72rem;font-weight:600;color:#fff}
+        .badge-kpi{background:var(--kpi)}
+        .badge-metric{background:var(--met)}
+        .badge-dimension{background:var(--dim);color:var(--text)}
+        .badge-explore{background:var(--exp)}
+        .badge-view{background:var(--view)}
+        .badge-measure{background:var(--muted)}
+        td code{background:#e8eaed;padding:1px 5px;border-radius:4px;font-size:.82rem}
+        td a{color:var(--p);text-decoration:none}
+        td a:hover{text-decoration:underline}
+        .links-list{list-style:none;padding:0;margin:0}
+        .links-list li{margin:2px 0}
+        .empty-state{text-align:center;padding:3rem;color:var(--muted)}
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>LookML Glossary</h1>
+    <p class="subtitle">Auto-generated from LookML model &mdash; {{ summary.total_terms }} terms</p>
+
+    <div class="summary">
+        <div class="s-card"><div class="num">{{ summary.total_terms }}</div><div class="lbl">Total Terms</div></div>
+        <div class="s-card"><div class="num">{{ summary.kpis }}</div><div class="lbl">KPIs</div></div>
+        <div class="s-card"><div class="num">{{ summary.metrics }}</div><div class="lbl">Metrics</div></div>
+        <div class="s-card"><div class="num">{{ summary.dimensions }}</div><div class="lbl">Dimensions</div></div>
+        <div class="s-card"><div class="num">{{ summary.views }}</div><div class="lbl">Views</div></div>
+        <div class="s-card"><div class="num">{{ summary.explores }}</div><div class="lbl">Explores</div></div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" data-tab="diagram">Model Diagram</button>
+        <button class="tab" data-tab="terms">All Terms</button>
+    </div>
+
+    <!-- ===================== DIAGRAM TAB ===================== -->
+    <div id="tab-diagram" class="tab-content active">
+        <div class="diagram-wrap">
+            <div class="diagram">
+                {% for model in hierarchy %}
+                <div class="model-box">
+                    <div class="model-label">Model: {{ model.name }}</div>
+
+                    {% if model.explores %}
+                    <div class="explore-row">
+                        {% for exp in model.explores %}
+                        <div class="explore-box">
+                            <div class="explore-label">Explore: {{ exp.label }}</div>
+                            <div style="font-size:.82rem;color:var(--muted)">{{ exp.description }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="arrow-down">&#9660; contains views</div>
+
+                    <div class="views-row">
+                        {% for view in model.views %}
+                        <div class="view-box">
+                            <div class="view-label">{{ view.label }}</div>
+                            {% if view.table_name %}
+                            <div class="view-table">{{ view.table_name }}</div>
+                            {% endif %}
+
+                            {% if view.kpis %}
+                            <div class="field-section">
+                                <div class="field-section-title kpi">&#9679; KPIs ({{ view.kpis | length }})</div>
+                                {% for f in view.kpis %}
+                                <span class="field-pill kpi">{{ f.name }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            {% if view.metrics %}
+                            <div class="field-section">
+                                <div class="field-section-title metric">&#9679; Metrics ({{ view.metrics | length }})</div>
+                                {% for f in view.metrics %}
+                                <span class="field-pill metric">{{ f.name }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            {% if view.dimensions %}
+                            <div class="field-section">
+                                <div class="field-section-title dim">&#9679; Dimensions ({{ view.dimensions | length }})</div>
+                                {% for f in view.dimensions %}
+                                <span class="field-pill dim">{{ f.name }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== TERMS TAB ===================== -->
+    <div id="tab-terms" class="tab-content">
+        <div class="toolbar">
+            <input type="text" class="search-box" id="search" placeholder="Search terms...">
+            <div class="filter-group">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="kpi">KPIs</button>
+                <button class="filter-btn" data-filter="metric">Metrics</button>
+                <button class="filter-btn" data-filter="dimension">Dimensions</button>
+                <button class="filter-btn" data-filter="view">Views</button>
+                <button class="filter-btn" data-filter="explore">Explores</button>
+            </div>
+            <button class="btn btn-primary" id="download-csv">&#11123; Download CSV</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Term Name</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Table</th>
+                    <th>View</th>
+                    <th>Links</th>
+                </tr>
+            </thead>
+            <tbody id="terms-body">
+                {% for t in all_terms %}
+                <tr data-type="{{ t.type }}" data-metric="{{ t.get('is_metric', '') }}" data-kpi="{{ t.get('is_kpi', '') }}">
+                    <td><strong>{{ t.term_name }}</strong></td>
+                    <td>
+                        {% if t.get('is_kpi') %}
+                        <span class="badge badge-kpi">KPI</span>
+                        {% elif t.get('is_metric') %}
+                        <span class="badge badge-metric">Metric</span>
+                        {% elif t.type == 'dimension' %}
+                        <span class="badge badge-dimension">Dimension</span>
+                        {% elif t.type == 'explore' %}
+                        <span class="badge badge-explore">Explore</span>
+                        {% elif t.type == 'view' %}
+                        <span class="badge badge-view">View</span>
+                        {% else %}
+                        <span class="badge badge-measure">Measure</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ t.description }}
+                        {% if t.get('measure_type') %}
+                        <br><small style="color:var(--muted)">measure type: {{ t.measure_type }}</small>
+                        {% endif %}
+                        {% if t.get('sql_expression') %}
+                        <br><code>{{ t.sql_expression }}</code>
+                        {% endif %}
+                    </td>
+                    <td>{% if t.get('table_name') %}<code>{{ t.table_name }}</code>{% endif %}</td>
+                    <td>{% if t.get('view_name') %}{{ t.view_name }}{% endif %}</td>
+                    <td>
+                        {% if t.get('dashboard_links') %}
+                        <ul class="links-list">
+                            {% for lnk in t.dashboard_links %}
+                            <li><a href="{{ lnk.url }}">{{ lnk.title }}</a></li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% if t.get('recommended_links') %}
+                        <ul class="links-list">
+                            {% for lnk in t.recommended_links %}
+                            <li><a href="{{ lnk.url }}">{{ lnk.title }}</a></li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    });
+});
+
+// Search & filter
+const rows = document.querySelectorAll('#terms-body tr');
+let activeFilter = 'all';
+
+function applyFilters() {
+    const q = document.getElementById('search').value.toLowerCase();
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const type = row.dataset.type;
+        const isKpi = row.dataset.kpi === 'True';
+        const isMetric = row.dataset.metric === 'True';
+        let typeMatch = activeFilter === 'all';
+        if (activeFilter === 'kpi') typeMatch = isKpi;
+        else if (activeFilter === 'metric') typeMatch = isMetric || type === 'metric';
+        else if (activeFilter !== 'all') typeMatch = type === activeFilter;
+        row.style.display = (text.includes(q) && typeMatch) ? '' : 'none';
+    });
+}
+
+document.getElementById('search').addEventListener('input', applyFilters);
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeFilter = btn.dataset.filter;
+        applyFilters();
+    });
+});
+
+// CSV download
+document.getElementById('download-csv').addEventListener('click', () => {
+    const csvColumns = {{ csv_columns | tojson }};
+    const csvRows = {{ csv_rows | tojson }};
+    let csvContent = csvColumns.join(',') + '\n';
+    csvRows.forEach(row => {
+        csvContent += csvColumns.map(col => {
+            let val = (row[col] || '').toString().replace(/"/g, '""');
+            return '"' + val + '"';
+        }).join(',') + '\n';
+    });
+    const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'lookml_glossary.csv';
+    link.click();
+    URL.revokeObjectURL(link.href);
+});
+</script>
+</body>
+</html>

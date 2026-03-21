@@ -12,7 +12,7 @@ from lookml_glossary.parser import (
     parse_lookml_file,
     GlossaryTerm,
 )
-from lookml_glossary.generator import generate_json, generate_markdown
+from lookml_glossary.generator import generate_csv, generate_json, generate_markdown, generate_webapp
 
 
 EXAMPLES_DIR = os.path.join(os.path.dirname(__file__), "..", "examples")
@@ -93,6 +93,65 @@ class TestGenerateMarkdown:
         assert "# LookML Glossary" in md
         assert "KPI" in md
         assert "Metric" in md
+
+
+class TestGenerateCsv:
+    def test_csv_has_header_and_rows(self):
+        terms = parse_lookml_model(MODEL_PATH)
+        buf = io.StringIO()
+        generate_csv(terms, buf)
+        lines = buf.getvalue().strip().split("\n")
+        assert lines[0].startswith("term_name,")
+        assert len(lines) == len(terms) + 1  # header + data rows
+
+    def test_csv_contains_kpi_flag(self):
+        terms = parse_lookml_model(MODEL_PATH)
+        buf = io.StringIO()
+        generate_csv(terms, buf)
+        content = buf.getvalue()
+        assert "Yes" in content  # is_metric or is_kpi column
+
+    def test_csv_contains_table_names(self):
+        terms = parse_lookml_model(MODEL_PATH)
+        buf = io.StringIO()
+        generate_csv(terms, buf)
+        content = buf.getvalue()
+        assert "public.orders" in content
+        assert "public.users" in content
+
+    def test_csv_contains_recommended_links(self):
+        terms = parse_lookml_model(MODEL_PATH)
+        buf = io.StringIO()
+        generate_csv(terms, buf)
+        content = buf.getvalue()
+        assert "Revenue Dashboard" in content
+
+
+class TestGenerateWebapp:
+    def test_webapp_output(self):
+        terms = parse_lookml_model(MODEL_PATH)
+        buf = io.StringIO()
+        generate_webapp(terms, buf)
+        html = buf.getvalue()
+        assert "LookML Glossary" in html
+        assert "Model Diagram" in html
+        assert "Download CSV" in html
+
+    def test_webapp_contains_diagram_elements(self):
+        terms = parse_lookml_model(MODEL_PATH)
+        buf = io.StringIO()
+        generate_webapp(terms, buf)
+        html = buf.getvalue()
+        assert "ecommerce" in html
+        assert "Orders" in html
+        assert "public.orders" in html
+
+    def test_webapp_has_csv_download_script(self):
+        terms = parse_lookml_model(MODEL_PATH)
+        buf = io.StringIO()
+        generate_webapp(terms, buf)
+        html = buf.getvalue()
+        assert "lookml_glossary.csv" in html
 
 
 class TestSingleView:
