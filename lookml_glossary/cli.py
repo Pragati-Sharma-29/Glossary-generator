@@ -52,10 +52,10 @@ def main() -> None:
     gen_fn = generators[args.format]
 
     if args.output:
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    with open(args.output, "w") as f:
-        gen_fn(terms, f)
-    print(f"Glossary written to {args.output} ({len(terms)} terms)", file=sys.stderr)
+        os.makedirs(os.path.dirname(args.output), exist_ok=True)
+        with open(args.output, "w") as f:
+            gen_fn(terms, f)
+        print(f"Glossary written to {args.output} ({len(terms)} terms)", file=sys.stderr)
     else:
         gen_fn(terms, sys.stdout)
 
