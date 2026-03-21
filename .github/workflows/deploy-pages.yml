@@ -26,6 +26,9 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+      
+      - name: Ensure output directory exists
+        run: mkdir -p _site
 
       - name: Generate glossary webapp
         run: python -m lookml_glossary examples/ecommerce.model.lkml -f webapp -o _site/index.html

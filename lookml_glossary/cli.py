@@ -1,6 +1,7 @@
 """Command-line interface for the LookML Glossary Generator."""
 
 import argparse
+import os
 import sys
 
 from .generator import generate_csv, generate_html, generate_json, generate_markdown, generate_webapp
@@ -51,6 +52,7 @@ def main() -> None:
     gen_fn = generators[args.format]
 
     if args.output:
+        os.makedirs(os.path.dirname(args.output), exist_ok=True)
         with open(args.output, "w") as f:
             gen_fn(terms, f)
         print(f"Glossary written to {args.output} ({len(terms)} terms)", file=sys.stderr)
