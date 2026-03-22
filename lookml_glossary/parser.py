@@ -1,11 +1,16 @@
 """Parse LookML model files and extract glossary-relevant elements."""
 
+import fnmatch
+import logging
 import os
 import re
 from dataclasses import dataclass, field
+from pathlib import PurePosixPath
 from typing import Optional
 
 import lkml
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -245,6 +250,43 @@ def extract_dashboard_links(parsed: dict) -> dict[str, list[DashboardLink]]:
     return dashboard_map
 
 
+def _resolve_imported_project_roots(project_root: str) -> list[str]:
+    """Parse manifest.lkml for local_dependency declarations and return their paths.
+
+    Remote dependencies are logged but cannot be resolved from the filesystem.
+    """
+    manifest_path = os.path.join(project_root, "manifest.lkml")
+    roots: list[str] = []
+    if not os.path.exists(manifest_path):
+        return roots
+    try:
+        with open(manifest_path, "r") as f:
+            content = f.read()
+        for m in re.finditer(
+            r'local_dependency:\s*\{([^}]*)\}', content, re.DOTALL
+        ):
+            body = m.group(1)
+            project_m = re.search(r'project:\s*"([^"]*)"', body)
+            if project_m:
+                # Local dependencies are sibling directories by convention
+                dep_path = os.path.normpath(os.path.join(project_root, "..", project_m.group(1)))
+                if os.path.isdir(dep_path):
+                    roots.append(os.path.realpath(dep_path))
+                    logger.info("Resolved local_dependency '%s' -> %s", project_m.group(1), dep_path)
+                else:
+                    logger.warning("local_dependency '%s' not found at %s", project_m.group(1), dep_path)
+        for m in re.finditer(
+            r'remote_dependency:\s*(\w+)\s*\{([^}]*)\}', content, re.DOTALL
+        ):
+            url_m = re.search(r'url:\s*"([^"]*)"', m.group(2))
+            url = url_m.group(1) if url_m else "unknown"
+            logger.info("Remote dependency '%s' (%s) cannot be resolved from filesystem. "
+                        "Clone it locally and pass via -I flag.", m.group(1), url)
+    except Exception:
+        pass
+    return roots
+
+
 def parse_lookml_model(
     model_path: str,
     include_paths: list[str] | None = None,
@@ -259,24 +301,32 @@ def parse_lookml_model(
         A list of GlossaryTerm objects.
     """
     model_dir = os.path.dirname(os.path.abspath(model_path))
-    search_dirs = [model_dir] + (include_paths or [])
+    imported_roots = _resolve_imported_project_roots(model_dir)
+    search_dirs = [model_dir] + (include_paths or []) + imported_roots
     model_name = os.path.basename(model_path).replace(".model.lkml", "").replace(".lkml", "")
 
     parsed = parse_lookml_file(model_path)
 
     # Collect all LookML files to parse (includes)
-    files_to_parse = []
+    files_to_parse: list[str] = []
+    seen_files: set[str] = set()
     safe_roots = [os.path.realpath(d) for d in search_dirs]
     for inc in parsed.get("includes", []):
         pattern = inc.replace("//", "/")
         for search_dir in search_dirs:
             for root, _, filenames in os.walk(search_dir, followlinks=False):
                 for fn in filenames:
-                    if fn.endswith(".lkml") and _matches_include(fn, pattern):
-                        resolved = os.path.realpath(os.path.join(root, fn))
+                    if not fn.endswith(".lkml"):
+                        continue
+                    fpath = os.path.join(root, fn)
+                    if _matches_include(fpath, pattern, search_dir):
+                        resolved = os.path.realpath(fpath)
+                        if resolved in seen_files:
+                            continue
                         if any(resolved.startswith(sr + os.sep) or resolved == sr
                                for sr in safe_roots):
                             files_to_parse.append(resolved)
+                            seen_files.add(resolved)
 
     # Parse dashboards first to build the link map
     dashboard_map: dict[str, list[DashboardLink]] = {}
@@ -299,6 +349,11 @@ def parse_lookml_model(
         from_view = explore.get("from", exp_name)
         explore_view_map[from_view] = exp_name
         explore_desc_map[exp_name] = explore.get("description", "")
+        # Also map joined views
+        for join in explore.get("joins", []):
+            join_name = join.get("from", join.get("name", ""))
+            if join_name:
+                explore_view_map[join_name] = exp_name
 
     # Views in the model file
     for view in parsed.get("views", []):
@@ -325,16 +380,42 @@ def parse_lookml_model(
 
     # Enrich terms with synonyms, related terms, and related entries
     from .enrichment import enrich_terms
-    enrich_terms(all_terms, model_dir)
+    enrich_terms(all_terms, model_dir, imported_roots)
 
     return all_terms
 
 
-def _matches_include(filename: str, pattern: str) -> bool:
-    """Simple check if a filename matches a LookML include pattern."""
+def _matches_include(filepath: str, pattern: str, search_dir: str) -> bool:
+    """Check if a file path matches a LookML include pattern.
+
+    Supports full glob patterns including:
+      - *.view.lkml            (all view files in the search dir)
+      - **/*.view.lkml         (all view files recursively)
+      - views/subfolder/*.lkml (subdirectory patterns)
+      - specific_file.view.lkml (exact match)
+    """
     pattern = pattern.strip().lstrip("/")
-    if "*" in pattern:
-        # Handle *.view.lkml, *.lkml, etc.
-        suffix = pattern.split("*")[-1]
-        return filename.endswith(suffix)
-    return filename == pattern or filename == os.path.basename(pattern)
+
+    # Compute the relative path from the search directory
+    try:
+        rel_path = os.path.relpath(filepath, search_dir)
+    except ValueError:
+        # On Windows, relpath can fail across drives
+        return False
+
+    # Normalize to forward slashes for consistent matching
+    rel_path = PurePosixPath(rel_path).as_posix()
+
+    # Exact match (filename only or relative path)
+    if rel_path == pattern or os.path.basename(filepath) == pattern:
+        return True
+
+    # Glob match against relative path
+    if fnmatch.fnmatch(rel_path, pattern):
+        return True
+
+    # For patterns without path separators, match against basename only
+    if "/" not in pattern and fnmatch.fnmatch(os.path.basename(filepath), pattern):
+        return True
+
+    return False
