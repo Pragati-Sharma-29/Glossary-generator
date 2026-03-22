@@ -13,7 +13,7 @@ from .parser import GlossaryTerm
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "templates")
 
 CSV_COLUMNS = [
-    "term_name", "description", "type", "is_metric", "is_kpi",
+    "term_name", "description", "type",
     "table_name", "view_name", "explore_name", "model_name",
     "measure_type", "sql_expression", "value_format", "tags",
     "dashboard_links", "recommended_links",
@@ -70,8 +70,6 @@ def _term_to_csv_row(term: GlossaryTerm) -> dict:
         "term_name": d.get("term_name", ""),
         "description": d.get("description", ""),
         "type": d.get("type", ""),
-        "is_metric": "Yes" if d.get("is_metric") else "",
-        "is_kpi": "Yes" if d.get("is_kpi") else "",
         "table_name": d.get("table_name", ""),
         "view_name": d.get("view_name", ""),
         "explore_name": d.get("explore_name", ""),
@@ -154,40 +152,45 @@ def generate_webapp(terms: list[GlossaryTerm], output: TextIO) -> None:
     ))
 
 
-def _build_hierarchy(terms: list[GlossaryTerm]) -> dict:
-    """Build the model->explore->view->fields hierarchy for the diagram."""
+def _build_hierarchy(terms: list[GlossaryTerm]) -> list:
+    """Build the model->explore->view->fields hierarchy for the diagram.
+
+    Views and explores are derived from field-level metadata since dedicated
+    view/explore terms no longer exist.
+    """
     models: dict[str, dict] = {}
     for t in terms:
         model = t.model_name or "unknown"
         if model not in models:
             models[model] = {"name": model, "explores": {}, "views": {}}
 
-        if t.term_type == "explore":
+        # Auto-create explore entries from field metadata
+        if t.explore_name and t.explore_name not in models[model]["explores"]:
             models[model]["explores"][t.explore_name] = {
                 "name": t.explore_name,
-                "label": t.name,
-                "description": t.description,
+                "label": _clean_label(t.explore_name),
+                "description": "",
             }
-        elif t.term_type == "view":
-            models[model]["views"][t.view_name] = {
-                "name": t.view_name,
-                "label": t.name,
+
+        # Auto-create view entries from field metadata
+        vname = t.view_name or ""
+        if vname and vname not in models[model]["views"]:
+            models[model]["views"][vname] = {
+                "name": vname,
+                "label": _clean_label(vname),
                 "table_name": t.table_name or "",
                 "explore": t.explore_name or "",
                 "dimensions": [],
-                "metrics": [],
-                "kpis": [],
+                "measures": [],
             }
-        else:
-            vname = t.view_name or ""
-            if vname and vname in models[model]["views"]:
-                entry = {"name": t.name, "type": t.term_type}
-                if t.is_kpi:
-                    models[model]["views"][vname]["kpis"].append(entry)
-                elif t.is_metric or t.term_type == "metric":
-                    models[model]["views"][vname]["metrics"].append(entry)
-                elif t.term_type == "dimension":
-                    models[model]["views"][vname]["dimensions"].append(entry)
+
+        # Add field to its view
+        if vname and vname in models[model]["views"]:
+            entry = {"name": t.name, "type": t.term_type}
+            if t.term_type == "dimension":
+                models[model]["views"][vname]["dimensions"].append(entry)
+            elif t.term_type == "measure":
+                models[model]["views"][vname]["measures"].append(entry)
 
     # Convert inner dicts to lists for the template
     result = []
@@ -200,27 +203,20 @@ def _build_hierarchy(terms: list[GlossaryTerm]) -> dict:
     return result
 
 
+def _clean_label(name: str) -> str:
+    """Convert a LookML identifier to a human-readable label."""
+    return name.replace("_", " ").strip().title()
+
+
 def _group_terms(terms: list[GlossaryTerm]) -> dict[str, list[dict]]:
     """Group terms by type for templated output."""
     groups: dict[str, list[dict]] = {
-        "explores": [],
-        "views": [],
-        "metrics": [],
-        "kpis": [],
         "dimensions": [],
         "measures": [],
     }
     for t in terms:
         d = _term_to_dict(t)
-        if t.term_type == "explore":
-            groups["explores"].append(d)
-        elif t.term_type == "view":
-            groups["views"].append(d)
-        elif t.term_type == "kpi":
-            groups["kpis"].append(d)
-        elif t.is_metric or t.term_type == "metric":
-            groups["metrics"].append(d)
-        elif t.term_type == "dimension":
+        if t.term_type == "dimension":
             groups["dimensions"].append(d)
         else:
             groups["measures"].append(d)
@@ -231,10 +227,6 @@ def _build_summary(terms: list[GlossaryTerm]) -> dict:
     """Build a summary of the glossary contents."""
     return {
         "total_terms": len(terms),
-        "explores": sum(1 for t in terms if t.term_type == "explore"),
-        "views": sum(1 for t in terms if t.term_type == "view"),
-        "metrics": sum(1 for t in terms if t.is_metric),
-        "kpis": sum(1 for t in terms if t.is_kpi),
         "dimensions": sum(1 for t in terms if t.term_type == "dimension"),
-        "measures": sum(1 for t in terms if t.term_type in ("measure", "metric", "kpi")),
+        "measures": sum(1 for t in terms if t.term_type == "measure"),
     }
