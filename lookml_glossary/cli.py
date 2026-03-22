@@ -98,6 +98,14 @@ def _cmd_validate(args: argparse.Namespace) -> None:
     else:
         print(output)
 
+    # Optionally overwrite the snapshot with current state
+    if args.update_snapshot:
+        from .generator import generate_json
+        resolved_snap = _validate_output_path(args.snapshot)
+        with open(resolved_snap, "w") as f:
+            generate_json(current_terms, f)
+        print(f"Snapshot updated: {args.snapshot} ({len(current_terms)} terms)", file=sys.stderr)
+
     # Exit non-zero if any drift at or above --fail-on level
     fail_threshold = SEVERITY_RANK.get(args.fail_on, 0)
     failing = [d for d in all_items if SEVERITY_RANK.get(d.severity, 99) <= fail_threshold]
@@ -162,6 +170,12 @@ def main() -> None:
         choices=["info", "warning", "error"],
         default="error",
         help="Exit non-zero if any drift at this severity or above (default: error)",
+    )
+    val_parser.add_argument(
+        "--update-snapshot",
+        action="store_true",
+        default=False,
+        help="Overwrite the snapshot file with the current glossary after validation.",
     )
 
     # --- backward compat: bare positional → generate --------------------------

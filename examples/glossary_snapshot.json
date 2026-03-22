@@ -1,0 +1,1510 @@
+{
+  "glossary": [
+    {
+      "term_name": "Id",
+      "field_id": "users.id",
+      "description": "Unique user identifier | View: Users (table: public.users)",
+      "type": "dimension",
+      "table_name": "public.users",
+      "view_name": "users",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.id",
+      "synonyms": [
+        {
+          "term_name": "Id",
+          "field_id": "orders.id",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "products.id",
+          "view_name": "products",
+          "explore_name": "products"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Name",
+          "field_id": "users.name",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Email",
+          "field_id": "users.email",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Age",
+          "field_id": "users.age",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Country",
+          "field_id": "users.country",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created",
+          "field_id": "users.created",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.users",
+          "id": "public.users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.users"
+        }
+      ]
+    },
+    {
+      "term_name": "Name",
+      "field_id": "users.name",
+      "description": "Full name of the user | View: Users (table: public.users)",
+      "type": "dimension",
+      "table_name": "public.users",
+      "view_name": "users",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.name",
+      "synonyms": [
+        {
+          "term_name": "Name",
+          "field_id": "products.name",
+          "view_name": "products",
+          "explore_name": "products"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Id",
+          "field_id": "users.id",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Email",
+          "field_id": "users.email",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Age",
+          "field_id": "users.age",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Country",
+          "field_id": "users.country",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created",
+          "field_id": "users.created",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.users",
+          "id": "public.users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.users"
+        }
+      ]
+    },
+    {
+      "term_name": "Email",
+      "field_id": "users.email",
+      "description": "User email address | View: Users (table: public.users)",
+      "type": "dimension",
+      "table_name": "public.users",
+      "view_name": "users",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.email",
+      "related_terms": [
+        {
+          "term_name": "Id",
+          "field_id": "users.id",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Name",
+          "field_id": "users.name",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Age",
+          "field_id": "users.age",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Country",
+          "field_id": "users.country",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created",
+          "field_id": "users.created",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.users",
+          "id": "public.users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.users"
+        }
+      ]
+    },
+    {
+      "term_name": "Age",
+      "field_id": "users.age",
+      "description": "Age of the customer in years | View: Users (table: public.users)",
+      "type": "dimension",
+      "table_name": "public.users",
+      "view_name": "users",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.age",
+      "related_terms": [
+        {
+          "term_name": "Id",
+          "field_id": "users.id",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Name",
+          "field_id": "users.name",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Email",
+          "field_id": "users.email",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Country",
+          "field_id": "users.country",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created",
+          "field_id": "users.created",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.users",
+          "id": "public.users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.users"
+        }
+      ]
+    },
+    {
+      "term_name": "Country",
+      "field_id": "users.country",
+      "description": "Country of residence | View: Users (table: public.users)",
+      "type": "dimension",
+      "table_name": "public.users",
+      "view_name": "users",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.country",
+      "related_terms": [
+        {
+          "term_name": "Id",
+          "field_id": "users.id",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Name",
+          "field_id": "users.name",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Email",
+          "field_id": "users.email",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Age",
+          "field_id": "users.age",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created",
+          "field_id": "users.created",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.users",
+          "id": "public.users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.users"
+        }
+      ]
+    },
+    {
+      "term_name": "Created",
+      "field_id": "users.created",
+      "description": "When the user account was created | View: Users (table: public.users)",
+      "type": "dimension",
+      "table_name": "public.users",
+      "view_name": "users",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.created_at",
+      "synonyms": [
+        {
+          "term_name": "Created",
+          "field_id": "orders.created",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Id",
+          "field_id": "users.id",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Name",
+          "field_id": "users.name",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Email",
+          "field_id": "users.email",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Age",
+          "field_id": "users.age",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Country",
+          "field_id": "users.country",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.users",
+          "id": "public.users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.users"
+        }
+      ]
+    },
+    {
+      "term_name": "User Count",
+      "field_id": "users.user_count",
+      "description": "Total number of unique registered users | View: Users (table: public.users)",
+      "type": "measure",
+      "table_name": "public.users",
+      "view_name": "users",
+      "model_name": "ecommerce",
+      "sql_expression": "${id}",
+      "measure_type": "count_distinct",
+      "tags": [
+        "key_metric"
+      ],
+      "is_metric": true,
+      "is_kpi": true,
+      "related_terms": [
+        {
+          "term_name": "Id",
+          "field_id": "users.id",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Name",
+          "field_id": "users.name",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Email",
+          "field_id": "users.email",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Age",
+          "field_id": "users.age",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Country",
+          "field_id": "users.country",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.users",
+          "id": "public.users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.users"
+        }
+      ]
+    },
+    {
+      "term_name": "Id",
+      "field_id": "orders.id",
+      "description": "Unique order identifier | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.id",
+      "synonyms": [
+        {
+          "term_name": "Id",
+          "field_id": "users.id",
+          "view_name": "users",
+          "explore_name": ""
+        },
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "products.id",
+          "view_name": "products",
+          "explore_name": "products"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Status",
+          "field_id": "orders.status",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created",
+          "field_id": "orders.created",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Total Revenue",
+          "field_id": "orders.total_revenue",
+          "type": "measure",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "User Id",
+      "field_id": "orders.user_id",
+      "description": "Foreign key to the users table | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.user_id",
+      "synonyms": [
+        {
+          "term_name": "Id",
+          "field_id": "users.id",
+          "view_name": "users",
+          "explore_name": ""
+        },
+        {
+          "term_name": "Id",
+          "field_id": "orders.id",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "products.id",
+          "view_name": "products",
+          "explore_name": "products"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Id",
+          "field_id": "orders.id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Status",
+          "field_id": "orders.status",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created",
+          "field_id": "orders.created",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Total Revenue",
+          "field_id": "orders.total_revenue",
+          "type": "measure",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Status",
+      "field_id": "orders.status",
+      "description": "Current order status (pending, complete, cancelled, returned) | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.status",
+      "related_terms": [
+        {
+          "term_name": "Id",
+          "field_id": "orders.id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created",
+          "field_id": "orders.created",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Total Revenue",
+          "field_id": "orders.total_revenue",
+          "type": "measure",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Sale Price",
+      "field_id": "orders.sale_price",
+      "description": "Final sale price of the order after discounts | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.sale_price",
+      "synonyms": [
+        {
+          "term_name": "Average Price",
+          "field_id": "products.average_price",
+          "view_name": "products",
+          "explore_name": "products"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Id",
+          "field_id": "orders.id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Status",
+          "field_id": "orders.status",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created",
+          "field_id": "orders.created",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Total Revenue",
+          "field_id": "orders.total_revenue",
+          "type": "measure",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Created",
+      "field_id": "orders.created",
+      "description": "Timestamp when the order was placed | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.created_at",
+      "synonyms": [
+        {
+          "term_name": "Created",
+          "field_id": "users.created",
+          "view_name": "users",
+          "explore_name": ""
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Id",
+          "field_id": "orders.id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Status",
+          "field_id": "orders.status",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Total Revenue",
+          "field_id": "orders.total_revenue",
+          "type": "measure",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Total Revenue",
+      "field_id": "orders.total_revenue",
+      "description": "Sum of all order sale prices | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "measure",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${sale_price}",
+      "measure_type": "sum",
+      "value_format": "usd",
+      "tags": [
+        "kpi",
+        "finance"
+      ],
+      "is_metric": true,
+      "is_kpi": true,
+      "recommended_links": [
+        {
+          "title": "Revenue Dashboard",
+          "url": "/dashboards/revenue_overview"
+        },
+        {
+          "title": "Finance Deep Dive",
+          "url": "/dashboards/finance_detail"
+        }
+      ],
+      "synonyms": [
+        {
+          "term_name": "Average Order Value",
+          "field_id": "orders.average_order_value",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Total Orders Completed",
+          "field_id": "orders.total_orders_completed",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "orders.id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Status",
+          "field_id": "orders.status",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Order Count",
+      "field_id": "orders.order_count",
+      "description": "Total number of orders | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "measure",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "measure_type": "count",
+      "tags": [
+        "kpi"
+      ],
+      "is_metric": true,
+      "is_kpi": true,
+      "recommended_links": [
+        {
+          "title": "Orders Dashboard",
+          "url": "/dashboards/orders_overview"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Average Order Value",
+          "field_id": "orders.average_order_value",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "orders.id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Status",
+          "field_id": "orders.status",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Average Order Value",
+      "field_id": "orders.average_order_value",
+      "description": "Average revenue per order | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "measure",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${sale_price}",
+      "measure_type": "average",
+      "value_format": "usd",
+      "tags": [
+        "key_metric"
+      ],
+      "is_metric": true,
+      "is_kpi": true,
+      "synonyms": [
+        {
+          "term_name": "Total Revenue",
+          "field_id": "orders.total_revenue",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Order Count",
+          "field_id": "orders.order_count",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "orders.id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Status",
+          "field_id": "orders.status",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Total Orders Completed",
+      "field_id": "orders.total_orders_completed",
+      "description": "Number of completed orders | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "measure",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "measure_type": "count",
+      "is_metric": true,
+      "related_terms": [
+        {
+          "term_name": "Total Revenue",
+          "field_id": "orders.total_revenue",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "orders.id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Status",
+          "field_id": "orders.status",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Conversion Rate",
+      "field_id": "orders.conversion_rate",
+      "description": "Ratio of completed orders to total orders | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "measure",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "1.0 * ${total_orders_completed} / NULLIF(${order_count}, 0)",
+      "measure_type": "number",
+      "value_format": "percent_2",
+      "tags": [
+        "kpi"
+      ],
+      "is_metric": true,
+      "is_kpi": true,
+      "related_terms": [
+        {
+          "term_name": "Id",
+          "field_id": "orders.id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Status",
+          "field_id": "orders.status",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created",
+          "field_id": "orders.created",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Id",
+      "field_id": "products.id",
+      "description": "Unique product identifier | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
+      "type": "dimension",
+      "table_name": "public.products",
+      "view_name": "products",
+      "explore_name": "products",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.id",
+      "synonyms": [
+        {
+          "term_name": "Id",
+          "field_id": "users.id",
+          "view_name": "users",
+          "explore_name": ""
+        },
+        {
+          "term_name": "Id",
+          "field_id": "orders.id",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Name",
+          "field_id": "products.name",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Category",
+          "field_id": "products.category",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Brand",
+          "field_id": "products.brand",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Retail Price",
+          "field_id": "products.retail_price",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Product Count",
+          "field_id": "products.product_count",
+          "type": "measure",
+          "view_name": "products"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.products",
+          "id": "public.products",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.products"
+        }
+      ]
+    },
+    {
+      "term_name": "Name",
+      "field_id": "products.name",
+      "description": "Product display name | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
+      "type": "dimension",
+      "table_name": "public.products",
+      "view_name": "products",
+      "explore_name": "products",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.name",
+      "synonyms": [
+        {
+          "term_name": "Name",
+          "field_id": "users.name",
+          "view_name": "users",
+          "explore_name": ""
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Id",
+          "field_id": "products.id",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Category",
+          "field_id": "products.category",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Brand",
+          "field_id": "products.brand",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Retail Price",
+          "field_id": "products.retail_price",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Product Count",
+          "field_id": "products.product_count",
+          "type": "measure",
+          "view_name": "products"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.products",
+          "id": "public.products",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.products"
+        }
+      ]
+    },
+    {
+      "term_name": "Category",
+      "field_id": "products.category",
+      "description": "Product category classification | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
+      "type": "dimension",
+      "table_name": "public.products",
+      "view_name": "products",
+      "explore_name": "products",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.category",
+      "related_terms": [
+        {
+          "term_name": "Id",
+          "field_id": "products.id",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Name",
+          "field_id": "products.name",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Brand",
+          "field_id": "products.brand",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Retail Price",
+          "field_id": "products.retail_price",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Product Count",
+          "field_id": "products.product_count",
+          "type": "measure",
+          "view_name": "products"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.products",
+          "id": "public.products",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.products"
+        }
+      ]
+    },
+    {
+      "term_name": "Brand",
+      "field_id": "products.brand",
+      "description": "Product brand name | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
+      "type": "dimension",
+      "table_name": "public.products",
+      "view_name": "products",
+      "explore_name": "products",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.brand",
+      "related_terms": [
+        {
+          "term_name": "Id",
+          "field_id": "products.id",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Name",
+          "field_id": "products.name",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Category",
+          "field_id": "products.category",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Retail Price",
+          "field_id": "products.retail_price",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Product Count",
+          "field_id": "products.product_count",
+          "type": "measure",
+          "view_name": "products"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.products",
+          "id": "public.products",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.products"
+        }
+      ]
+    },
+    {
+      "term_name": "Retail Price",
+      "field_id": "products.retail_price",
+      "description": "Manufacturer suggested retail price | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
+      "type": "dimension",
+      "table_name": "public.products",
+      "view_name": "products",
+      "explore_name": "products",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.retail_price",
+      "synonyms": [
+        {
+          "term_name": "Average Price",
+          "field_id": "products.average_price",
+          "view_name": "products",
+          "explore_name": "products"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Average Price",
+          "field_id": "products.average_price",
+          "type": "measure",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "products.id",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Name",
+          "field_id": "products.name",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Category",
+          "field_id": "products.category",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Brand",
+          "field_id": "products.brand",
+          "type": "dimension",
+          "view_name": "products"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.products",
+          "id": "public.products",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.products"
+        }
+      ]
+    },
+    {
+      "term_name": "Product Count",
+      "field_id": "products.product_count",
+      "description": "Total number of products in catalogue | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
+      "type": "measure",
+      "table_name": "public.products",
+      "view_name": "products",
+      "explore_name": "products",
+      "model_name": "ecommerce",
+      "measure_type": "count",
+      "is_metric": true,
+      "related_terms": [
+        {
+          "term_name": "Id",
+          "field_id": "products.id",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Name",
+          "field_id": "products.name",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Category",
+          "field_id": "products.category",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Brand",
+          "field_id": "products.brand",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Retail Price",
+          "field_id": "products.retail_price",
+          "type": "dimension",
+          "view_name": "products"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.products",
+          "id": "public.products",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.products"
+        }
+      ]
+    },
+    {
+      "term_name": "Average Price",
+      "field_id": "products.average_price",
+      "description": "Average retail price across all products | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
+      "type": "measure",
+      "table_name": "public.products",
+      "view_name": "products",
+      "explore_name": "products",
+      "model_name": "ecommerce",
+      "sql_expression": "${retail_price}",
+      "measure_type": "average",
+      "value_format": "usd",
+      "is_metric": true,
+      "synonyms": [
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Retail Price",
+          "field_id": "products.retail_price",
+          "view_name": "products",
+          "explore_name": "products"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Retail Price",
+          "field_id": "products.retail_price",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "products.id",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Name",
+          "field_id": "products.name",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Category",
+          "field_id": "products.category",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Brand",
+          "field_id": "products.brand",
+          "type": "dimension",
+          "view_name": "products"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.products",
+          "id": "public.products",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.products"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_terms": 24,
+    "dimensions": 16,
+    "measures": 8
+  }
+}
