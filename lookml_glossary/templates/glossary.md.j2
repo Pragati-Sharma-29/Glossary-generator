@@ -10,6 +10,19 @@
 
 ---
 
+{% macro enrichment_section(term) %}
+{% if term.synonyms is defined and term.synonyms %}
+- **Synonyms:** {{ term.synonyms | map(attribute='term_name') | join(', ') }}
+{% endif %}
+{% if term.related_terms is defined and term.related_terms %}
+- **Related Terms:** {{ term.related_terms | map(attribute='term_name') | join(', ') }}
+{% endif %}
+{% if term.related_entries is defined and term.related_entries %}
+- **Source Table:** {% for re in term.related_entries %}`{{ re.name }}`{% if not loop.last %}, {% endif %}{% endfor %}
+
+{% endif %}
+{% endmacro %}
+
 {% if grouped.measures %}
 ## Measures
 
@@ -33,6 +46,7 @@
 {% if term.tags is defined and term.tags %}
 - **Tags:** {{ term.tags | join(", ") }}
 {% endif %}
+{{ enrichment_section(term) }}
 {% if term.dashboard_links is defined and term.dashboard_links %}
 - **Dashboard Links:**
   {% for link in term.dashboard_links %}
@@ -65,6 +79,7 @@
 {% if term.sql_expression is defined %}
 - **SQL:** `{{ term.sql_expression }}`
 {% endif %}
+{{ enrichment_section(term) }}
 {% if term.recommended_links is defined and term.recommended_links %}
 - **Recommended Links:**
   {% for link in term.recommended_links %}
