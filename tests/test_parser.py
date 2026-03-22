@@ -102,12 +102,15 @@ class TestGenerateMarkdown:
 
 class TestGenerateCsv:
     def test_csv_has_header_and_rows(self):
+        import csv
         terms = parse_lookml_model(MODEL_PATH)
         buf = io.StringIO()
         generate_csv(terms, buf)
-        lines = buf.getvalue().strip().split("\n")
-        assert lines[0].startswith("term_name,")
-        assert len(lines) == len(terms) + 1  # header + data rows
+        buf.seek(0)
+        reader = csv.reader(buf)
+        rows = list(reader)
+        assert rows[0][0] == "term_name"
+        assert len(rows) == len(terms) + 1  # header + data rows
 
     def test_csv_contains_measure_type(self):
         terms = parse_lookml_model(MODEL_PATH)
