@@ -36,6 +36,14 @@ jobs:
       - name: Generate glossary JSON
         run: python -m lookml_glossary examples/ecommerce.model.lkml -f json -o _site/glossary.json
 
+      - name: Include drift report if available
+        run: |
+          if [ -f examples/latest_drift_report.json ]; then
+            cp examples/latest_drift_report.json _site/drift_report.json
+          else
+            echo '{"drift":[],"summary":{"total":0,"errors":0,"warnings":0,"info":0}}' > _site/drift_report.json
+          fi
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

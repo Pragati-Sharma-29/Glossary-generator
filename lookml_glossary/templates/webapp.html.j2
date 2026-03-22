@@ -68,12 +68,39 @@
         .links-list{list-style:none;padding:0;margin:0}
         .links-list li{margin:2px 0}
         .empty-state{text-align:center;padding:3rem;color:var(--muted)}
+        /* Drift notification banner */
+        .drift-banner{display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:1rem 1.5rem;margin-bottom:1.5rem;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+        .drift-banner.has-errors{background:#f8d7da;border-color:#f5c2c7}
+        .drift-banner.no-drift{background:#d1e7dd;border-color:#badbcc}
+        .drift-banner-title{font-weight:700;font-size:1rem;margin-bottom:.25rem;display:flex;align-items:center;gap:.5rem}
+        .drift-banner-title .icon{font-size:1.2rem}
+        .drift-banner .dismiss{position:absolute;top:.75rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted);line-height:1}
+        .drift-banner .dismiss:hover{color:var(--text)}
+        .drift-summary{font-size:.9rem;color:var(--muted);margin-bottom:.5rem}
+        .drift-details{margin-top:.5rem}
+        .drift-details summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--p);user-select:none}
+        .drift-table{width:100%;border-collapse:collapse;margin-top:.5rem;font-size:.82rem}
+        .drift-table th{text-align:left;padding:4px 8px;background:#e8eaed;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+        .drift-table td{padding:4px 8px;border-top:1px solid #f1f3f4}
+        .drift-table .sev-error{color:#dc3545;font-weight:600}
+        .drift-table .sev-warning{color:#e37400;font-weight:600}
+        .drift-table .sev-info{color:var(--p);font-weight:600}
     </style>
 </head>
 <body>
 <div class="container">
     <h1>LookML Glossary</h1>
     <p class="subtitle">Auto-generated from LookML model &mdash; {{ summary.total_terms }} terms</p>
+
+    <div class="drift-banner" id="drift-banner">
+        <button class="dismiss" id="drift-dismiss" title="Dismiss">&times;</button>
+        <div class="drift-banner-title">
+            <span class="icon" id="drift-icon"></span>
+            <span id="drift-title"></span>
+        </div>
+        <div class="drift-summary" id="drift-summary"></div>
+        <div class="drift-details" id="drift-details"></div>
+    </div>
 
     <div class="summary">
         <div class="s-card"><div class="num">{{ summary.total_terms }}</div><div class="lbl">Total Terms</div></div>
@@ -285,6 +312,70 @@ document.getElementById('download-csv').addEventListener('click', () => {
     link.click();
     URL.revokeObjectURL(link.href);
 });
+
+// Drift notification
+(function() {
+    const banner = document.getElementById('drift-banner');
+    const dismissBtn = document.getElementById('drift-dismiss');
+
+    dismissBtn.addEventListener('click', function() {
+        banner.style.display = 'none';
+        try { sessionStorage.setItem('drift-dismissed', '1'); } catch(e) {}
+    });
+
+    if (sessionStorage.getItem('drift-dismissed') === '1') return;
+
+    fetch('drift_report.json')
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(data) {
+            if (!data || !data.summary) return;
+            var s = data.summary;
+            var drift = data.drift || [];
+
+            banner.style.display = 'block';
+
+            if (s.total === 0) {
+                banner.className = 'drift-banner no-drift';
+                document.getElementById('drift-icon').textContent = '\u2705';
+                document.getElementById('drift-title').textContent = 'Glossary is up to date';
+                document.getElementById('drift-summary').textContent = 'No drift detected \u2014 all terms match the current LookML source.';
+                return;
+            }
+
+            if (s.errors > 0) {
+                banner.className = 'drift-banner has-errors';
+                document.getElementById('drift-icon').textContent = '\u26A0\uFE0F';
+                document.getElementById('drift-title').textContent = 'Glossary drift detected';
+            } else {
+                banner.className = 'drift-banner';
+                document.getElementById('drift-icon').textContent = '\u2139\uFE0F';
+                document.getElementById('drift-title').textContent = 'Glossary updated';
+            }
+
+            var parts = [];
+            if (s.errors > 0) parts.push(s.errors + ' error' + (s.errors > 1 ? 's' : ''));
+            if (s.warnings > 0) parts.push(s.warnings + ' warning' + (s.warnings > 1 ? 's' : ''));
+            if (s.info > 0) parts.push(s.info + ' info');
+            document.getElementById('drift-summary').textContent =
+                'The LookML model changed since the last glossary snapshot: ' + parts.join(', ') + '. The glossary has been regenerated to reflect the latest state.';
+
+            if (drift.length > 0) {
+                var html = '<details><summary>View ' + drift.length + ' change' + (drift.length > 1 ? 's' : '') + '</summary>';
+                html += '<table class="drift-table"><thead><tr><th>Severity</th><th>Category</th><th>Field</th><th>Message</th></tr></thead><tbody>';
+                for (var i = 0; i < drift.length; i++) {
+                    var d = drift[i];
+                    var cls = 'sev-' + d.severity;
+                    html += '<tr><td class="' + cls + '">' + d.severity + '</td>';
+                    html += '<td>' + d.category + '</td>';
+                    html += '<td><code>' + d.field_id + '</code></td>';
+                    html += '<td>' + d.message + '</td></tr>';
+                }
+                html += '</tbody></table></details>';
+                document.getElementById('drift-details').innerHTML = html;
+            }
+        })
+        .catch(function() {});
+})();
 </script>
 </body>
 </html>
