@@ -1,19 +1,84 @@
 # LookML Glossary Generator
 
-A Python agent that parses LookML model files and generates a structured glossary of business terms including measures, dimensions, table names, and dashboard links — enriched with synonym detection, related terms, and source table resolution. Includes a **drift validator** that detects when LookML changes make glossary terms obsolete.
+A Python agent that parses LookML model files and generates a structured, enriched glossary of business terms. It extracts measures, dimensions, table names, and dashboard links — then enriches them with synonym detection, related terms, source table resolution, and Liquid template branch analysis. Includes a **drift validator** that detects when LookML changes make glossary terms obsolete, with CI integration for automated monitoring.
+
+## How It Works
+
+```
+                         LookML Glossary Generator — Flow Diagram
+
+ INPUTS                          AGENT PIPELINE                              OUTPUTS
+ ──────                          ──────────────                              ───────
+
+ ┌──────────────────┐
+ │  .model.lkml     │
+ │  (entry point)   │──┐
+ └──────────────────┘  │
+                       │     ┌─────────────────────────────────────┐
+ ┌──────────────────┐  │     │  1. PARSE                           │
+ │  .view.lkml      │──┼────▶│     • Read model + resolve includes │
+ │  (included)      │  │     │     • Parallel file I/O (threads)   │
+ └──────────────────┘  │     │     • Extract dimensions, measures, │
+                       │     │       dimension groups, explores     │
+ ┌──────────────────┐  │     │     • Resolve glob includes (**/*)  │
+ │  .dashboard.lkml │──┤     │     • Cross-project imports         │
+ │  (included)      │  │     └──────────────┬──────────────────────┘
+ └──────────────────┘  │                    │
+                       │                    ▼
+ ┌──────────────────┐  │     ┌─────────────────────────────────────┐
+ │  manifest.lkml   │──┘     │  2. ENRICH                          │
+ │  (constants,     │        │     • Synonym detection (hash        │
+ │   imports)       │        │       buckets, O(n) avg)             │
+ └──────────────────┘        │     • Related terms (bounded heap,   │
+                             │       per-explore, parallel)         │
+                             │     • Source table resolution        │
+                             │       (file index, O(1) lookup)      │
+                             │     • Liquid template branch         │
+                             │       extraction (all SQL variants)  │
+                             └──────────────┬──────────────────────┘
+                                            │
+                                            ▼
+                             ┌─────────────────────────────────────┐
+                             │  3. GENERATE                        │     ┌──────────────┐
+                             │     • Format glossary terms         │────▶│  glossary.json│
+                             │     • Build model diagrams          │     │  glossary.csv │
+                             │     • Render templates              │     │  glossary.md  │
+                             └──────────────┬──────────────────────┘     │  glossary.html│
+                                            │                           │  webapp.html  │
+                                            ▼                           └──────────────┘
+                             ┌─────────────────────────────────────┐
+                             │  4. VALIDATE (optional)             │     ┌──────────────┐
+                             │     • Compare against snapshot      │────▶│ drift_report  │
+                             │     • Detect removed/changed fields │     │  (text/json)  │
+                             │     • Report drift by severity      │     └──────────────┘
+                             │     • Auto-update snapshot          │
+                             └─────────────────────────────────────┘
+```
 
 ## Features
 
+### Parsing
 - Parses `.model.lkml` files and all included views/dashboards
-- Extracts **measures** (sum, count, average, etc.) and **dimensions**
-- Includes **table names**, **view names**, and **explore context** embedded in each term's description
+- **Parallel file I/O** — included files are parsed concurrently via `ThreadPoolExecutor`
+- **Full glob include resolution** — supports `**/*.view.lkml`, subdirectory patterns, and exact paths
+- **Cross-project imports** — resolves `local_dependency` from `manifest.lkml`; logs `remote_dependency` with instructions
+- Extracts **measures** (sum, count, average, etc.), **dimensions**, and **dimension groups**
+- Captures **table names**, **view names**, and **explore context** in each term's description
 - Captures **dashboard links** and **recommended links** from LookML `link` blocks
-- **Synonym detection** — finds fields with identical or near-identical labels across explores
-- **Related terms** — identifies complementary fields in the same explore via view co-location and label similarity
-- **Source table resolution** — resolves the physical database table backing each field by parsing view files (`sql_table_name`, `derived_table`, implicit naming)
-- **Drift validation** — compares a saved glossary snapshot against current LookML source to detect removed fields, SQL changes, type changes, and more
-- **CI integration** — GitHub Actions workflow automatically validates drift when LookML files are modified in a merged PR
-- Outputs glossary in **JSON**, **CSV**, **Markdown**, **HTML**, or **interactive Webapp** (with model diagram, search, filters, and CSV download)
+
+### Enrichment
+- **Synonym detection** — O(n) average via hash-bucket indexing on normalized labels, view+SQL keys, and token overlap
+- **Related terms** — top-5 per field using a bounded min-heap with view pre-bucketing and per-explore parallelism
+- **Source table resolution** — one-time file index with O(1) view lookups, resolving `sql_table_name`, `derived_table`, `explore_source`, and implicit naming
+- **Liquid template branch extraction** — parses `{% if %}`, `{% case %}`, `{% for %}` via AST to enumerate all possible SQL outputs without evaluating runtime expressions
+
+### Drift Validation
+- Compares a saved JSON glossary snapshot against current LookML source
+- Detects removed fields, SQL changes, type changes, tag changes, and more
+- **CI integration** — GitHub Actions workflow validates drift automatically on merged PRs
+
+### Output Formats
+- **JSON**, **CSV**, **Markdown**, **HTML**, and **interactive Webapp** (with model diagram, search, filters, and CSV download)
 
 ## Installation
 
@@ -145,6 +210,10 @@ terms = parse_lookml_model("path/to/model.model.lkml")
 
 for term in terms:
     print(f"{term.term_type}: {term.name} - {term.description}")
+    if term.is_dynamic_sql:
+        print(f"  Dynamic SQL with {len(term.sql_branches)} branches:")
+        for branch in term.sql_branches:
+            print(f"    - {branch}")
     if term.synonyms:
         print(f"  Synonyms: {[s['term_name'] for s in term.synonyms]}")
     if term.related_terms:
@@ -167,7 +236,7 @@ Each glossary entry contains:
 | `explore_name` | LookML explore name |
 | `model_name` | LookML model name |
 | `measure_type` | Type of measure (sum, count, average, etc.) |
-| `sql_expression` | The SQL definition |
+| `sql_expression` | The SQL definition (may contain Liquid tags for dynamic fields) |
 | `value_format` | Display format |
 | `tags` | LookML tags |
 | `dashboard_links` | Links to dashboards using this field |
@@ -175,31 +244,79 @@ Each glossary entry contains:
 | `synonyms` | Fields with identical/near-identical names across explores |
 | `related_terms` | Complementary fields in the same explore (max 5) |
 | `related_entries` | Resolved source table(s) for the field |
+| `is_dynamic_sql` | `true` if the SQL contains Liquid template tags |
+| `sql_branches` | All possible SQL outputs from Liquid branch analysis |
 
 ## Enrichment Details
 
 ### Synonym Detection
 
-Fields across all explores are compared for:
-- **Identical or near-identical labels** — using token-based similarity (e.g., "Revenue" matches "Total Revenue")
-- **Same underlying view and SQL column** — fields backed by the same data
+Fields across all explores are matched via three hash-bucket strategies (O(n) average):
+
+1. **Exact normalized label** — "Total Revenue" and "Revenue" normalize to the same key
+2. **Same view + SQL expression** — fields backed by the same underlying column
+3. **Token overlap** — words in common scored by Jaccard similarity (threshold 0.7)
 
 ### Related Terms
 
-For each field, up to 5 related terms are identified from the same explore based on:
-- **View co-location** — fields in the same view are considered related
-- **Label semantic similarity** — complementary concepts scored by word overlap
+For each field, up to 5 related terms are selected from the same explore using a bounded min-heap:
+
+1. **Same-view terms scored first** — guaranteed +0.5 base score fills the heap quickly
+2. **Cross-view pruning** — when the heap minimum reaches 0.5, cross-view terms (max possible 0.5) are skipped entirely
+3. **Per-explore parallelism** — each explore runs in its own thread
 
 ### Source Table Resolution
 
-Each field's source table is resolved by parsing LookML view files, handling four patterns in priority order:
+Each field's source table is resolved by parsing LookML view files. A one-time file index maps every `view: name {` definition to its file path for O(1) lookups.
 
-1. **`sql_table_name`** — explicit physical table reference
-2. **`derived_table` with `sql`** — extracts FROM/JOIN table references from SQL-based PDTs
+Four resolution patterns in priority order:
+
+1. **`sql_table_name`** — explicit physical table reference (supports `${constant}` and `@{constant}` templating)
+2. **`derived_table` with `sql`** — extracts FROM/JOIN table references using sqlparse (no size limit)
 3. **`derived_table` with `explore_source`** — native derived tables
 4. **Implicit** — view name used as table name when no explicit source is defined
 
-Supports `manifest.lkml` constants, templated `${schema}` references, recursive view reference resolution (depth limit 3), and file/view block caching.
+Supports recursive view reference resolution (depth limit 10) and cross-project file discovery.
+
+### Liquid Template Branch Extraction
+
+LookML fields can use Liquid templates (`{% if %}`, `{% case %}`) to produce different SQL at runtime depending on user attributes, filters, or dialect. Since the glossary generator has no runtime context, it performs **static analysis**:
+
+1. Parses the Liquid template into an AST using `python-liquid`
+2. Walks every `if/elsif/else` and `case/when` branch
+3. Collects all possible SQL text outputs (Cartesian product of nested branches)
+4. Caps at 64 combinations to prevent exponential blowup
+5. Falls back to regex splitting if `python-liquid` is not installed
+
+**Example**: A dimension with region-specific SQL:
+
+```lookml
+dimension: region_column {
+  sql:
+    {% if _user_attributes['region'] == 'EU' %}
+      ${TABLE}.region_eu
+    {% elsif _user_attributes['region'] == 'APAC' %}
+      ${TABLE}.region_apac
+    {% else %}
+      ${TABLE}.region_global
+    {% endif %} ;;
+}
+```
+
+Produces a glossary entry with:
+
+```json
+{
+  "is_dynamic_sql": true,
+  "sql_branches": [
+    "${TABLE}.region_eu",
+    "${TABLE}.region_apac",
+    "${TABLE}.region_global"
+  ]
+}
+```
+
+For derived tables with Liquid, table references are extracted from **all branches** — so `FROM {% if env %}prod.events{% else %}staging.events{% endif %}` correctly finds both `prod.events` and `staging.events`.
 
 ## Output Formats
 
@@ -293,6 +410,29 @@ jobs:
    - Report drift in the GitHub Actions summary
    - Auto-commit an updated snapshot if changes are detected
 
+## Architecture
+
+```
+lookml_glossary/
+├── parser.py        # LookML parsing, include resolution, cross-project imports
+├── enrichment.py    # Synonym detection, related terms, source table resolution
+├── liquid.py        # Liquid template AST parsing and branch extraction
+├── generator.py     # JSON, CSV, Markdown, HTML, Webapp output
+├── validator.py     # Drift detection against glossary snapshots
+├── cli.py           # Command-line interface
+└── templates/       # Jinja2 templates for HTML/Markdown/Webapp output
+```
+
+### Dependencies
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `lkml` | 1.3.7 | LookML file parsing |
+| `pyyaml` | 6.0.1 | YAML support |
+| `jinja2` | 3.1.6 | Output template rendering |
+| `sqlparse` | >=0.5.0 | SQL table extraction from derived tables |
+| `python-liquid` | >=2.0.0 | Liquid template AST parsing |
+
 ## Running Tests
 
 ```bash
@@ -300,6 +440,15 @@ pip install lookml-glossary
 pip install pytest
 pytest tests/
 ```
+
+77 tests across 4 test files:
+
+| Test file | Tests | Covers |
+|-----------|-------|--------|
+| `test_parser.py` | 16 | Parsing, JSON/CSV/Markdown/HTML/Webapp generation |
+| `test_validator.py` | 17 | Drift detection, severity levels, snapshot format |
+| `test_enrichment.py` | 25 | Synonyms, SQL extraction, file index, globs, heap, parallelism |
+| `test_liquid.py` | 19 | Liquid branch extraction, if/case/nested, integration |
 
 ## Building from Source
 
@@ -309,10 +458,22 @@ python -m build
 # Produces dist/lookml_glossary-2.0.0.tar.gz and dist/lookml_glossary-2.0.0-py3-none-any.whl
 ```
 
+## Known Limitations
+
+| Limitation | Details |
+|------------|---------|
+| No database verification | Resolved table names are not confirmed against a live warehouse |
+| No runtime Liquid evaluation | Branch extraction is static — `_user_attributes`, `_filters`, and `_in_query` values are not evaluated |
+| No `extends`/`refinements` | Views using `extends:` or LookML refinements are parsed independently, not merged |
+| Remote dependencies need manual clone | `remote_dependency` URLs cannot be fetched automatically; clone locally and pass via `-I` |
+| No usage/popularity data | Field query frequency requires Looker's System Activity, which needs a live Looker API connection |
+| No data governance metadata | Certifications, data quality labels, and field-level ownership live in Looker's content layer |
+| GIL limits CPU parallelism | Threads help I/O but Python's GIL constrains CPU-bound work; large projects may benefit from `multiprocessing` |
+
 ## Example Output
 
 ```bash
 lookml-glossary generate examples/ecommerce.model.lkml -f json | python -m json.tool
 ```
 
-Produces a glossary with dimensions and measures — each annotated with table names, descriptions, dashboard links, synonyms, related terms, and source tables.
+Produces a glossary with dimensions and measures — each annotated with table names, descriptions, dashboard links, synonyms, related terms, source tables, and Liquid branch analysis for dynamic fields.
