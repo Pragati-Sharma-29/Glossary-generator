@@ -96,8 +96,8 @@ class TestGenerateMarkdown:
         generate_markdown(terms, buf)
         md = buf.getvalue()
         assert "# LookML Glossary" in md
-        assert "KPI" in md
-        assert "Metric" in md
+        assert "## Measures" in md
+        assert "## Dimensions" in md
 
 
 class TestGenerateCsv:
@@ -109,12 +109,12 @@ class TestGenerateCsv:
         assert lines[0].startswith("term_name,")
         assert len(lines) == len(terms) + 1  # header + data rows
 
-    def test_csv_contains_kpi_flag(self):
+    def test_csv_contains_measure_type(self):
         terms = parse_lookml_model(MODEL_PATH)
         buf = io.StringIO()
         generate_csv(terms, buf)
         content = buf.getvalue()
-        assert "Yes" in content  # is_metric or is_kpi column
+        assert "measure" in content  # type column contains measure
 
     def test_csv_contains_table_names(self):
         terms = parse_lookml_model(MODEL_PATH)

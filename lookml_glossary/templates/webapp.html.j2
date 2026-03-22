@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LookML Glossary</title>
     <style>
-        :root{--p:#4285f4;--kpi:#ea4335;--met:#34a853;--dim:#fbbc04;--view:#9c27b0;--exp:#1a73e8;--bg:#f8f9fa;--card:#fff;--border:#dadce0;--text:#202124;--muted:#5f6368}
+        :root{--p:#4285f4;--met:#34a853;--dim:#fbbc04;--view:#9c27b0;--exp:#1a73e8;--bg:#f8f9fa;--card:#fff;--border:#dadce0;--text:#202124;--muted:#5f6368}
         *{box-sizing:border-box;margin:0;padding:0}
         body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
         .container{max-width:1400px;margin:0 auto;padding:2rem}
@@ -39,11 +39,9 @@
         .view-table{font-size:.8rem;color:var(--muted);margin-bottom:.75rem;font-family:monospace}
         .field-section{margin-bottom:.5rem}
         .field-section-title{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.25rem;display:flex;align-items:center;gap:.4rem}
-        .field-section-title.kpi{color:var(--kpi)}
         .field-section-title.metric{color:var(--met)}
         .field-section-title.dim{color:var(--dim)}
         .field-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.75rem;margin:2px;background:#e8eaed;color:var(--text)}
-        .field-pill.kpi{background:#fce8e6;color:var(--kpi)}
         .field-pill.metric{background:#e6f4ea;color:#1e8e3e}
         .field-pill.dim{background:#fef7e0;color:#e37400}
         /* Table */
@@ -62,12 +60,8 @@
         td{padding:.75rem 1rem;border-top:1px solid #f1f3f4;font-size:.9rem;vertical-align:top}
         tr:hover td{background:#f8f9fa}
         .badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:.72rem;font-weight:600;color:#fff}
-        .badge-kpi{background:var(--kpi)}
-        .badge-metric{background:var(--met)}
+        .badge-measure{background:var(--met)}
         .badge-dimension{background:var(--dim);color:var(--text)}
-        .badge-explore{background:var(--exp)}
-        .badge-view{background:var(--view)}
-        .badge-measure{background:var(--muted)}
         td code{background:#e8eaed;padding:1px 5px;border-radius:4px;font-size:.82rem}
         td a{color:var(--p);text-decoration:none}
         td a:hover{text-decoration:underline}
@@ -83,11 +77,8 @@
 
     <div class="summary">
         <div class="s-card"><div class="num">{{ summary.total_terms }}</div><div class="lbl">Total Terms</div></div>
-        <div class="s-card"><div class="num">{{ summary.kpis }}</div><div class="lbl">KPIs</div></div>
-        <div class="s-card"><div class="num">{{ summary.metrics }}</div><div class="lbl">Metrics</div></div>
+        <div class="s-card"><div class="num">{{ summary.measures }}</div><div class="lbl">Measures</div></div>
         <div class="s-card"><div class="num">{{ summary.dimensions }}</div><div class="lbl">Dimensions</div></div>
-        <div class="s-card"><div class="num">{{ summary.views }}</div><div class="lbl">Views</div></div>
-        <div class="s-card"><div class="num">{{ summary.explores }}</div><div class="lbl">Explores</div></div>
     </div>
 
     <div class="tabs">
@@ -124,19 +115,10 @@
                             <div class="view-table">{{ view.table_name }}</div>
                             {% endif %}
 
-                            {% if view.kpis %}
+                            {% if view.measures %}
                             <div class="field-section">
-                                <div class="field-section-title kpi">&#9679; KPIs ({{ view.kpis | length }})</div>
-                                {% for f in view.kpis %}
-                                <span class="field-pill kpi">{{ f.name }}</span>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-
-                            {% if view.metrics %}
-                            <div class="field-section">
-                                <div class="field-section-title metric">&#9679; Metrics ({{ view.metrics | length }})</div>
-                                {% for f in view.metrics %}
+                                <div class="field-section-title metric">&#9679; Measures ({{ view.measures | length }})</div>
+                                {% for f in view.measures %}
                                 <span class="field-pill metric">{{ f.name }}</span>
                                 {% endfor %}
                             </div>
@@ -165,11 +147,8 @@
             <input type="text" class="search-box" id="search" placeholder="Search terms...">
             <div class="filter-group">
                 <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="kpi">KPIs</button>
-                <button class="filter-btn" data-filter="metric">Metrics</button>
+                <button class="filter-btn" data-filter="measure">Measures</button>
                 <button class="filter-btn" data-filter="dimension">Dimensions</button>
-                <button class="filter-btn" data-filter="view">Views</button>
-                <button class="filter-btn" data-filter="explore">Explores</button>
             </div>
             <button class="btn btn-primary" id="download-csv">&#11123; Download CSV</button>
         </div>
@@ -187,19 +166,11 @@
             </thead>
             <tbody id="terms-body">
                 {% for t in all_terms %}
-                <tr data-type="{{ t.type }}" data-metric="{{ t.get('is_metric', '') }}" data-kpi="{{ t.get('is_kpi', '') }}">
+                <tr data-type="{{ t.type }}">
                     <td><strong>{{ t.term_name }}</strong></td>
                     <td>
-                        {% if t.get('is_kpi') %}
-                        <span class="badge badge-kpi">KPI</span>
-                        {% elif t.get('is_metric') %}
-                        <span class="badge badge-metric">Metric</span>
-                        {% elif t.type == 'dimension' %}
+                        {% if t.type == 'dimension' %}
                         <span class="badge badge-dimension">Dimension</span>
-                        {% elif t.type == 'explore' %}
-                        <span class="badge badge-explore">Explore</span>
-                        {% elif t.type == 'view' %}
-                        <span class="badge badge-view">View</span>
                         {% else %}
                         <span class="badge badge-measure">Measure</span>
                         {% endif %}
@@ -257,12 +228,7 @@ function applyFilters() {
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
         const type = row.dataset.type;
-        const isKpi = row.dataset.kpi === 'True';
-        const isMetric = row.dataset.metric === 'True';
-        let typeMatch = activeFilter === 'all';
-        if (activeFilter === 'kpi') typeMatch = isKpi;
-        else if (activeFilter === 'metric') typeMatch = isMetric || type === 'metric';
-        else if (activeFilter !== 'all') typeMatch = type === activeFilter;
+        let typeMatch = activeFilter === 'all' || type === activeFilter;
         row.style.display = (text.includes(q) && typeMatch) ? '' : 'none';
     });
 }

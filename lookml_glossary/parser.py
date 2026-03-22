@@ -173,7 +173,7 @@ def extract_terms_from_view(
         is_metric = mtype in METRIC_MEASURE_TYPES
         is_kpi = bool(set(tags) & KPI_TAGS)
 
-        term_type = "kpi" if is_kpi else ("metric" if is_metric else "measure")
+        term_type = "measure"
 
         # Attach dashboard links from dashboard_map if available
         field_ref = f"{view_name}.{name}"
