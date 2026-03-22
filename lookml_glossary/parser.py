@@ -91,38 +91,52 @@ def parse_lookml_file(filepath: str) -> dict:
         return lkml.load(f.read())
 
 
+def _enrich_description(
+    base_desc: str,
+    view_name: str,
+    explore_name: str,
+    explore_desc: str,
+    table_name: Optional[str],
+) -> str:
+    """Enrich a term description with view and explore context."""
+    parts = [base_desc]
+    view_info = f"View: {_clean_label(view_name)}"
+    if table_name:
+        view_info += f" (table: {table_name})"
+    parts.append(view_info)
+    if explore_name:
+        explore_info = f"Explore: {_clean_label(explore_name)}"
+        if explore_desc:
+            explore_info += f" — {explore_desc}"
+        parts.append(explore_info)
+    return " | ".join(parts)
+
+
 def extract_terms_from_view(
     view: dict,
     model_name: str = "",
     explore_name: str = "",
     dashboard_map: dict[str, list[DashboardLink]] | None = None,
+    explore_desc: str = "",
 ) -> list[GlossaryTerm]:
-    """Extract glossary terms from a single LookML view."""
+    """Extract glossary terms from a single LookML view.
+
+    Only creates terms for dimensions, measures, metrics, and KPIs.
+    View and explore context is captured in each term's description.
+    """
     terms = []
     view_name = view.get("name", "unknown")
     table_name = _extract_table_name(view)
     dashboard_map = dashboard_map or {}
-
-    # View-level term
-    view_desc = view.get("description", "")
-    if not view_desc:
-        view_desc = f"Data view sourcing from table: {table_name or 'N/A'}"
-    terms.append(GlossaryTerm(
-        name=_clean_label(view_name),
-        description=view_desc,
-        term_type="view",
-        table_name=table_name,
-        view_name=view_name,
-        explore_name=explore_name,
-        model_name=model_name,
-    ))
 
     # Dimensions
     for dim in view.get("dimensions", []):
         name = dim.get("name", "")
         terms.append(GlossaryTerm(
             name=_clean_label(name),
-            description=_build_description(dim, name),
+            description=_enrich_description(
+                _build_description(dim, name), view_name, explore_name, explore_desc, table_name,
+            ),
             term_type="dimension",
             sql_expression=dim.get("sql", ""),
             table_name=table_name,
@@ -138,7 +152,9 @@ def extract_terms_from_view(
         name = dg.get("name", "")
         terms.append(GlossaryTerm(
             name=_clean_label(name),
-            description=_build_description(dg, name),
+            description=_enrich_description(
+                _build_description(dg, name), view_name, explore_name, explore_desc, table_name,
+            ),
             term_type="dimension",
             sql_expression=dg.get("sql", ""),
             table_name=table_name,
@@ -165,7 +181,9 @@ def extract_terms_from_view(
 
         terms.append(GlossaryTerm(
             name=_clean_label(name),
-            description=_build_description(measure, name),
+            description=_enrich_description(
+                _build_description(measure, name), view_name, explore_name, explore_desc, table_name,
+            ),
             term_type=term_type,
             sql_expression=measure.get("sql", ""),
             table_name=table_name,
@@ -247,30 +265,22 @@ def parse_lookml_model(
     # Extract terms from views in the model file itself
     all_terms: list[GlossaryTerm] = []
 
-    # Build explore name map from model
+    # Build explore name and description maps from model
     explore_view_map: dict[str, str] = {}
+    explore_desc_map: dict[str, str] = {}
     for explore in parsed.get("explores", []):
         exp_name = explore.get("name", "")
         from_view = explore.get("from", exp_name)
         explore_view_map[from_view] = exp_name
-
-        # Explore-level term
-        exp_desc = explore.get("description", "")
-        if not exp_desc:
-            exp_desc = f"Explore for analyzing {_clean_label(exp_name)} data"
-        all_terms.append(GlossaryTerm(
-            name=_clean_label(exp_name),
-            description=exp_desc,
-            term_type="explore",
-            model_name=model_name,
-            explore_name=exp_name,
-        ))
+        explore_desc_map[exp_name] = explore.get("description", "")
 
     # Views in the model file
     for view in parsed.get("views", []):
         vname = view.get("name", "")
         exp = explore_view_map.get(vname, "")
-        all_terms.extend(extract_terms_from_view(view, model_name, exp, dashboard_map))
+        all_terms.extend(extract_terms_from_view(
+            view, model_name, exp, dashboard_map, explore_desc_map.get(exp, ""),
+        ))
 
     # Views in included files
     for fpath in files_to_parse:
@@ -281,9 +291,9 @@ def parse_lookml_model(
             for view in inc_parsed.get("views", []):
                 vname = view.get("name", "")
                 exp = explore_view_map.get(vname, "")
-                all_terms.extend(
-                    extract_terms_from_view(view, model_name, exp, dashboard_map)
-                )
+                all_terms.extend(extract_terms_from_view(
+                    view, model_name, exp, dashboard_map, explore_desc_map.get(exp, ""),
+                ))
         except Exception:
             pass
 
