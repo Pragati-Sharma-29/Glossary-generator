@@ -25,6 +25,7 @@ def _term_to_dict(term: GlossaryTerm) -> dict:
     """Convert a GlossaryTerm to a serialisable dictionary."""
     entry = {
         "term_name": term.name,
+        "field_id": term.field_id,
         "description": term.description,
         "type": term.term_type,
     }
