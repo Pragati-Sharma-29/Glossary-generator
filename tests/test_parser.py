@@ -122,7 +122,7 @@ class TestGenerateCsv:
         generate_csv(terms, buf)
         content = buf.getvalue()
         assert "public.orders" in content
-        assert "public.users" in content
+        assert "analytics.dim_users" in content
 
     def test_csv_contains_recommended_links(self):
         terms = parse_lookml_model(MODEL_PATH)

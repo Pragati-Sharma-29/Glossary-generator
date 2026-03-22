@@ -36,10 +36,10 @@ view: orders {
 
   measure: total_revenue {
     type: sum
-    sql: ${sale_price} ;;
+    sql: ${sale_price} - ${TABLE}.discount_amount ;;
     value_format_name: usd
-    description: "Sum of all order sale prices"
-    tags: ["kpi", "finance"]
+    description: "Sum of all order sale prices after discounts"
+    tags: ["kpi", "finance", "revenue"]
 
     link: {
       label: "Revenue Dashboard"
@@ -64,16 +64,11 @@ view: orders {
   }
 
   measure: average_order_value {
-    type: average
-    sql: ${sale_price} ;;
+    type: number
+    sql: 1.0 * ${total_revenue} / NULLIF(${order_count}, 0) ;;
     value_format_name: usd
-    description: "Average revenue per order"
-    tags: ["key_metric"]
-  }
-
-  measure: total_orders_completed {
-    type: count
-    description: "Number of completed orders"
+    description: "Average revenue per order (computed from total_revenue / order_count)"
+    tags: ["key_metric", "kpi"]
   }
 
   measure: conversion_rate {
@@ -82,5 +77,21 @@ view: orders {
     value_format_name: percent_2
     description: "Ratio of completed orders to total orders"
     tags: ["kpi"]
+  }
+
+  measure: gross_margin {
+    type: sum
+    sql: ${sale_price} - ${TABLE}.cost ;;
+    value_format_name: usd
+    description: "Total gross margin across all orders"
+    tags: ["kpi", "finance"]
+  }
+
+  measure: repeat_order_rate {
+    type: number
+    sql: 1.0 * COUNT(DISTINCT CASE WHEN ${TABLE}.order_sequence > 1 THEN ${user_id} END) / NULLIF(COUNT(DISTINCT ${user_id}), 0) ;;
+    value_format_name: percent_2
+    description: "Percentage of customers who placed more than one order"
+    tags: ["retention"]
   }
 }

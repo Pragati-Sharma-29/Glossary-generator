@@ -1,5 +1,5 @@
 view: users {
-  sql_table_name: public.users ;;
+  sql_table_name: analytics.dim_users ;;
   description: "Registered customer profiles and demographics"
 
   dimension: id {
@@ -22,15 +22,26 @@ view: users {
   }
 
   dimension: age {
-    type: number
+    type: tier
+    tiers: [18, 25, 35, 50, 65]
     sql: ${TABLE}.age ;;
-    description: "Age of the customer in years"
+    style: integer
+    description: "Customer age bracket"
   }
 
   dimension: country {
     type: string
-    sql: ${TABLE}.country ;;
-    description: "Country of residence"
+    sql: ${TABLE}.country_code ;;
+    description: "ISO country code of residence"
+  }
+
+  dimension: lifetime_value_tier {
+    type: tier
+    tiers: [0, 100, 500, 1000, 5000]
+    sql: ${TABLE}.lifetime_spend ;;
+    style: integer
+    description: "Customer segmentation by total historical spend"
+    tags: ["segmentation"]
   }
 
   dimension_group: created {
