@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lookml-glossary"
+version = "2.0.0"
+description = "Parse LookML models and generate a structured glossary with drift validation"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+dependencies = [
+    "lkml==1.3.7",
+    "pyyaml==6.0.1",
+    "jinja2==3.1.6",
+]
+
+[project.scripts]
+lookml-glossary = "lookml_glossary.cli:main"
+
+[project.urls]
+Repository = "https://github.com/Pragati-Sharma-29/Glossary-generator"
+
+[tool.setuptools.packages.find]
+include = ["lookml_glossary*"]
+
+[tool.setuptools.package-data]
+lookml_glossary = ["templates/*.j2"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

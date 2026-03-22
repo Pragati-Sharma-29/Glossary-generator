@@ -17,8 +17,46 @@ A Python agent that parses LookML model files and generates a structured glossar
 
 ## Installation
 
+### From PyPI (recommended)
+
 ```bash
-pip install -r requirements.txt
+pip install lookml-glossary
+```
+
+This installs the `lookml-glossary` CLI command and the `lookml_glossary` Python package.
+
+### From source
+
+```bash
+git clone https://github.com/Pragati-Sharma-29/Glossary-generator.git
+cd Glossary-generator
+pip install .
+```
+
+### Development install
+
+```bash
+git clone https://github.com/Pragati-Sharma-29/Glossary-generator.git
+cd Glossary-generator
+pip install -e ".[dev]"
+```
+
+## Quick Start
+
+### Add to your LookML project
+
+```bash
+# 1. Install the package
+pip install lookml-glossary
+
+# 2. Generate a glossary from your model
+lookml-glossary generate your_model.model.lkml -f webapp -o glossary.html
+
+# 3. Create a baseline snapshot for drift detection
+lookml-glossary generate your_model.model.lkml -f json -o glossary_snapshot.json
+
+# 4. Later, check if your LookML changed
+lookml-glossary validate your_model.model.lkml -s glossary_snapshot.json
 ```
 
 ## Usage
@@ -27,25 +65,25 @@ pip install -r requirements.txt
 
 ```bash
 # Generate Markdown glossary (default)
-python -m lookml_glossary generate examples/ecommerce.model.lkml
+lookml-glossary generate your_model.model.lkml
 
 # Generate JSON
-python -m lookml_glossary generate examples/ecommerce.model.lkml -f json
+lookml-glossary generate your_model.model.lkml -f json
 
 # Generate HTML with search
-python -m lookml_glossary generate examples/ecommerce.model.lkml -f html -o glossary.html
+lookml-glossary generate your_model.model.lkml -f html -o glossary.html
 
 # Generate CSV
-python -m lookml_glossary generate examples/ecommerce.model.lkml -f csv -o glossary.csv
+lookml-glossary generate your_model.model.lkml -f csv -o glossary.csv
 
 # Generate interactive webapp with model diagram
-python -m lookml_glossary generate examples/ecommerce.model.lkml -f webapp -o glossary.html
+lookml-glossary generate your_model.model.lkml -f webapp -o glossary.html
 
 # Include additional directories for LookML files
-python -m lookml_glossary generate model.lkml -I ./views -I ./dashboards
+lookml-glossary generate model.lkml -I ./views -I ./dashboards
 ```
 
-> **Backward compatibility**: You can omit the `generate` subcommand when passing a `.lkml` path directly (e.g., `python -m lookml_glossary model.lkml -f json`).
+> **Note**: `python -m lookml_glossary` also works. You can omit the `generate` subcommand when passing a `.lkml` path directly (e.g., `lookml-glossary model.lkml -f json`).
 
 ### Validate Glossary Drift
 
@@ -53,22 +91,22 @@ The validator compares a previously saved JSON glossary snapshot against the cur
 
 ```bash
 # First, generate a baseline snapshot
-python -m lookml_glossary generate examples/ecommerce.model.lkml -f json -o examples/glossary_snapshot.json
+lookml-glossary generate your_model.model.lkml -f json -o glossary_snapshot.json
 
 # Validate against the snapshot (shows warnings and errors)
-python -m lookml_glossary validate examples/ecommerce.model.lkml -s examples/glossary_snapshot.json
+lookml-glossary validate your_model.model.lkml -s glossary_snapshot.json
 
 # Show all severity levels including info
-python -m lookml_glossary validate examples/ecommerce.model.lkml -s examples/glossary_snapshot.json --severity info
+lookml-glossary validate your_model.model.lkml -s glossary_snapshot.json --severity info
 
 # Output drift report as JSON
-python -m lookml_glossary validate examples/ecommerce.model.lkml -s examples/glossary_snapshot.json -f json
+lookml-glossary validate your_model.model.lkml -s glossary_snapshot.json -f json
 
 # Exit non-zero on warnings (not just errors) — useful for CI
-python -m lookml_glossary validate examples/ecommerce.model.lkml -s examples/glossary_snapshot.json --fail-on warning
+lookml-glossary validate your_model.model.lkml -s glossary_snapshot.json --fail-on warning
 
 # Validate and update the snapshot to the current state
-python -m lookml_glossary validate examples/ecommerce.model.lkml -s examples/glossary_snapshot.json --update-snapshot
+lookml-glossary validate your_model.model.lkml -s glossary_snapshot.json --update-snapshot
 ```
 
 #### Drift Categories
@@ -175,53 +213,106 @@ Supports `manifest.lkml` constants, templated `${schema}` references, recursive 
 
 ## CI: Automatic Drift Validation
 
-A GitHub Actions workflow (`.github/workflows/validate-glossary.yml`) automatically validates glossary drift whenever a PR that modifies `*.lkml` files is merged to `main`.
+Add drift detection to your LookML project by creating `.github/workflows/validate-glossary.yml`:
 
-### What the workflow does
+```yaml
+name: Validate Glossary Drift
 
-1. **Triggers** on PR merge to `main`, but only if the PR touched any `*.lkml` file
-2. **Runs the validator** against the committed baseline snapshot (`examples/glossary_snapshot.json`)
-3. **Posts a drift report** as a comment on the merged PR with a summary table of all detected changes
-4. **Writes a JSON report** to the GitHub Actions step summary for quick review
-5. **Auto-updates the snapshot** — if drift is detected, the workflow commits an updated snapshot back to `main` so the baseline stays current
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+    paths:
+      - "**/*.lkml"
 
-### Setting up drift validation for your project
+jobs:
+  validate:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
-1. Generate your initial baseline snapshot and commit it:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install lookml-glossary
+        run: pip install lookml-glossary
+
+      - name: Run drift validation
+        id: validate
+        continue-on-error: true
+        run: |
+          lookml-glossary validate \
+            path/to/your_model.model.lkml \
+            -s glossary_snapshot.json \
+            --severity info \
+            --fail-on error \
+            -f json \
+            -o drift_report.json
+
+      - name: Update snapshot if drift detected
+        if: steps.validate.outcome == 'failure'
+        run: |
+          lookml-glossary validate \
+            path/to/your_model.model.lkml \
+            -s glossary_snapshot.json \
+            --fail-on error \
+            --update-snapshot || true
+
+      - name: Commit updated snapshot
+        if: steps.validate.outcome == 'failure'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add glossary_snapshot.json
+          git diff --cached --quiet || git commit -m "chore: update glossary snapshot after LookML drift"
+          git push
+```
+
+### Setup steps
+
+1. Install the package and generate your initial snapshot:
    ```bash
-   python -m lookml_glossary generate your_model.model.lkml -f json -o examples/glossary_snapshot.json
-   git add examples/glossary_snapshot.json
+   pip install lookml-glossary
+   lookml-glossary generate your_model.model.lkml -f json -o glossary_snapshot.json
+   git add glossary_snapshot.json
    git commit -m "Add glossary baseline snapshot"
    ```
 
-2. Update the model path and snapshot path in `.github/workflows/validate-glossary.yml` to match your project:
-   ```yaml
-   - name: Run drift validation
-     run: |
-       python -m lookml_glossary validate \
-         path/to/your_model.model.lkml \
-         -s path/to/glossary_snapshot.json \
-         --severity info \
-         --fail-on error \
-         -f json \
-         -o drift_report.json
-   ```
+2. Copy the workflow above into `.github/workflows/validate-glossary.yml` and update the model path.
 
-3. Ensure the workflow has `contents: write` permission so it can commit snapshot updates.
-
-From then on, every merged PR that changes LookML files will automatically produce a drift report.
+3. Every merged PR that changes `*.lkml` files will now:
+   - Run the validator against the snapshot
+   - Report drift in the GitHub Actions summary
+   - Auto-commit an updated snapshot if changes are detected
 
 ## Running Tests
 
 ```bash
+pip install lookml-glossary
 pip install pytest
 pytest tests/
+```
+
+## Building from Source
+
+```bash
+pip install build
+python -m build
+# Produces dist/lookml_glossary-2.0.0.tar.gz and dist/lookml_glossary-2.0.0-py3-none-any.whl
 ```
 
 ## Example Output
 
 ```bash
-python -m lookml_glossary examples/ecommerce.model.lkml -f json | python -m json.tool
+lookml-glossary generate examples/ecommerce.model.lkml -f json | python -m json.tool
 ```
 
 Produces a glossary with dimensions and measures — each annotated with table names, descriptions, dashboard links, synonyms, related terms, and source tables.
