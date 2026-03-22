@@ -151,14 +151,25 @@ def _load_manifest_constants(project_root: str) -> dict[str, str]:
         for m in re.finditer(r'constant:\s*(\w+)\s*\{\s*value:\s*"([^"]*)"', content):
             constants[m.group(1)] = m.group(2)
         logger.info("Loaded %d manifest constants.", len(constants))
-    except Exception as e:
-        logger.warning("Failed to read manifest.lkml: %s", e)
+    except Exception:
+        logger.warning("Failed to read manifest.lkml.")
     return constants
+
+
+def _is_safe_path(filepath: str, project_root: str) -> bool:
+    """Verify a resolved path stays within the project root."""
+    real = os.path.realpath(filepath)
+    root = os.path.realpath(project_root)
+    return real.startswith(root + os.sep) or real == root
 
 
 def _find_view_file(view_name: str, project_root: str,
                     file_cache: dict[str, str]) -> Optional[str]:
-    """Find the file containing a view definition."""
+    """Find the file containing a view definition.
+
+    All paths are validated to stay within project_root and symlinks
+    are not followed during directory walks.
+    """
     # Priority 1: standard paths
     candidates = [
         os.path.join(project_root, "views", f"{view_name}.view.lkml"),
@@ -166,24 +177,28 @@ def _find_view_file(view_name: str, project_root: str,
         os.path.join(project_root, "models", f"{view_name}.view.lkml"),
     ]
     for path in candidates:
-        if os.path.exists(path):
+        if os.path.exists(path) and _is_safe_path(path, project_root):
             return path
 
     # Priority 2: recursive search for *.view.lkml containing the view
     target = f"view: {view_name} " + "{"
-    for root, _, filenames in os.walk(project_root):
+    for root, _, filenames in os.walk(project_root, followlinks=False):
         for fn in filenames:
             if fn.endswith(".view.lkml"):
                 fpath = os.path.join(root, fn)
+                if not _is_safe_path(fpath, project_root):
+                    continue
                 content = _read_cached(fpath, file_cache)
                 if content and target in content:
                     return fpath
 
     # Priority 3: search model/explore files
-    for root, _, filenames in os.walk(project_root):
+    for root, _, filenames in os.walk(project_root, followlinks=False):
         for fn in filenames:
             if fn.endswith((".model.lkml", ".explore.lkml")):
                 fpath = os.path.join(root, fn)
+                if not _is_safe_path(fpath, project_root):
+                    continue
                 content = _read_cached(fpath, file_cache)
                 if content and target in content:
                     return fpath
@@ -231,7 +246,7 @@ def _resolve_templated_value(raw: str, constants: dict[str, str]) -> str:
         name = m.group(1)
         if name in constants:
             return constants[name]
-        logger.warning("Unresolved reference in sql_table_name: %s", m.group(0))
+        logger.warning("Unresolved constant '%s' in sql_table_name for view resolution.", name)
         return f"unknown_{name}"
 
     result = re.sub(r'\$\{(\w+)\}', replacer, raw)
@@ -250,10 +265,18 @@ def _parse_table_name(raw: str) -> tuple[str, str]:
     return "", cleaned
 
 
+_MAX_SQL_LENGTH = 50000
+
+
 def _extract_sql_tables(sql: str) -> tuple[list[dict], list[str]]:
     """Extract physical table refs and view references from derived_table SQL."""
     source_tables = []
     view_references = []
+
+    # Guard against ReDoS on excessively large SQL
+    if len(sql) > _MAX_SQL_LENGTH:
+        logger.warning("SQL too large (%d chars) for table extraction; skipping.", len(sql))
+        return source_tables, view_references
 
     # Find CTE aliases to exclude
     cte_pattern = re.compile(r'\bWITH\b(.*?)(?=\bSELECT\b)', re.IGNORECASE | re.DOTALL)

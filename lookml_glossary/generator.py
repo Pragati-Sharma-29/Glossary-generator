@@ -25,6 +25,7 @@ def _term_to_dict(term: GlossaryTerm) -> dict:
     """Convert a GlossaryTerm to a serialisable dictionary."""
     entry = {
         "term_name": term.name,
+        "field_id": term.field_id,
         "description": term.description,
         "type": term.term_type,
     }
@@ -114,7 +115,7 @@ def generate_markdown(terms: list[GlossaryTerm], output: TextIO) -> None:
     """Write glossary terms as Markdown."""
     env = Environment(
         loader=FileSystemLoader(TEMPLATE_DIR),
-        autoescape=select_autoescape([]),
+        autoescape=select_autoescape(["j2"]),
         trim_blocks=True,
         lstrip_blocks=True,
     )

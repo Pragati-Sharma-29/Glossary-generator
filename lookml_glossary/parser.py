@@ -1,6 +1,7 @@
 """Parse LookML model files and extract glossary-relevant elements."""
 
 import os
+import re
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -67,13 +68,27 @@ def _extract_table_name(view: dict) -> Optional[str]:
     return None
 
 
+def _strip_sql_comments(sql: str) -> str:
+    """Remove SQL comments to avoid leaking secrets embedded in comments."""
+    sql = re.sub(r'/\*.*?\*/', '', sql, flags=re.DOTALL)  # block comments
+    sql = re.sub(r'--.*$', '', sql, flags=re.MULTILINE)   # line comments
+    return sql.strip()
+
+
+_SAFE_URL_PREFIXES = ("http://", "https://", "/")
+
+
 def _extract_links(dimension_or_measure: dict) -> list[DashboardLink]:
-    """Extract link entries from a dimension or measure."""
+    """Extract link entries from a dimension or measure.
+
+    Only allows http://, https://, and relative (/) URLs to prevent
+    javascript: and data: XSS attacks.
+    """
     links = []
     for link in dimension_or_measure.get("links", []):
         label = link.get("label", "Link")
         url = link.get("url", "")
-        if url:
+        if url and url.lower().startswith(_SAFE_URL_PREFIXES):
             links.append(DashboardLink(title=label, url=url))
     return links
 
@@ -142,7 +157,7 @@ def extract_terms_from_view(
                 _build_description(dim, name), view_name, explore_name, explore_desc, table_name,
             ),
             term_type="dimension",
-            sql_expression=dim.get("sql", ""),
+            sql_expression=_strip_sql_comments(dim.get("sql", "")),
             table_name=table_name,
             view_name=view_name,
             explore_name=explore_name,
@@ -161,7 +176,7 @@ def extract_terms_from_view(
                 _build_description(dg, name), view_name, explore_name, explore_desc, table_name,
             ),
             term_type="dimension",
-            sql_expression=dg.get("sql", ""),
+            sql_expression=_strip_sql_comments(dg.get("sql", "")),
             table_name=table_name,
             view_name=view_name,
             explore_name=explore_name,
@@ -191,7 +206,7 @@ def extract_terms_from_view(
                 _build_description(measure, name), view_name, explore_name, explore_desc, table_name,
             ),
             term_type=term_type,
-            sql_expression=measure.get("sql", ""),
+            sql_expression=_strip_sql_comments(measure.get("sql", "")),
             table_name=table_name,
             view_name=view_name,
             explore_name=explore_name,
@@ -251,13 +266,17 @@ def parse_lookml_model(
 
     # Collect all LookML files to parse (includes)
     files_to_parse = []
+    safe_roots = [os.path.realpath(d) for d in search_dirs]
     for inc in parsed.get("includes", []):
         pattern = inc.replace("//", "/")
         for search_dir in search_dirs:
-            for root, _, filenames in os.walk(search_dir):
+            for root, _, filenames in os.walk(search_dir, followlinks=False):
                 for fn in filenames:
                     if fn.endswith(".lkml") and _matches_include(fn, pattern):
-                        files_to_parse.append(os.path.join(root, fn))
+                        resolved = os.path.realpath(os.path.join(root, fn))
+                        if any(resolved.startswith(sr + os.sep) or resolved == sr
+                               for sr in safe_roots):
+                            files_to_parse.append(resolved)
 
     # Parse dashboards first to build the link map
     dashboard_map: dict[str, list[DashboardLink]] = {}
