@@ -63,6 +63,9 @@ def _term_to_dict(term: GlossaryTerm) -> dict:
         entry["related_terms"] = term.related_terms
     if term.related_entries:
         entry["related_entries"] = term.related_entries
+    if term.is_dynamic_sql:
+        entry["is_dynamic_sql"] = True
+        entry["sql_branches"] = term.sql_branches
     return entry
 
 

@@ -45,6 +45,8 @@ class GlossaryTerm:
     related_terms: list[dict] = field(default_factory=list)
     related_entries: list[dict] = field(default_factory=list)
     field_id: str = ""  # "view_name.field_name" unique identifier
+    is_dynamic_sql: bool = False  # True if SQL contains Liquid templates
+    sql_branches: list[str] = field(default_factory=list)  # all possible SQL outputs
 
 
 # Measure types that represent metrics / KPIs
@@ -79,6 +81,24 @@ def _strip_sql_comments(sql: str) -> str:
     sql = re.sub(r'/\*.*?\*/', '', sql, flags=re.DOTALL)  # block comments
     sql = re.sub(r'--.*$', '', sql, flags=re.MULTILINE)   # line comments
     return sql.strip()
+
+
+def _extract_sql_and_branches(raw_sql: str) -> tuple[str, bool, list[str]]:
+    """Process a raw SQL expression: strip comments, detect Liquid, extract branches.
+
+    Returns (cleaned_sql, is_dynamic, branches).
+    """
+    from .liquid import has_liquid, extract_liquid_branches
+
+    cleaned = _strip_sql_comments(raw_sql)
+    if not has_liquid(cleaned):
+        return cleaned, False, []
+
+    branches = extract_liquid_branches(cleaned)
+    # Strip comments from each branch individually
+    branches = [_strip_sql_comments(b) for b in branches]
+    branches = [b for b in branches if b]  # remove empties
+    return cleaned, True, branches
 
 
 _SAFE_URL_PREFIXES = ("http://", "https://", "/")
@@ -157,13 +177,14 @@ def extract_terms_from_view(
     # Dimensions
     for dim in view.get("dimensions", []):
         name = dim.get("name", "")
+        sql_expr, is_dynamic, branches = _extract_sql_and_branches(dim.get("sql", ""))
         terms.append(GlossaryTerm(
             name=_clean_label(name),
             description=_enrich_description(
                 _build_description(dim, name), view_name, explore_name, explore_desc, table_name,
             ),
             term_type="dimension",
-            sql_expression=_strip_sql_comments(dim.get("sql", "")),
+            sql_expression=sql_expr,
             table_name=table_name,
             view_name=view_name,
             explore_name=explore_name,
@@ -171,24 +192,29 @@ def extract_terms_from_view(
             tags=dim.get("tags", []),
             recommended_links=_extract_links(dim),
             field_id=f"{view_name}.{name}",
+            is_dynamic_sql=is_dynamic,
+            sql_branches=branches,
         ))
 
     # Dimension groups
     for dg in view.get("dimension_groups", []):
         name = dg.get("name", "")
+        sql_expr, is_dynamic, branches = _extract_sql_and_branches(dg.get("sql", ""))
         terms.append(GlossaryTerm(
             name=_clean_label(name),
             description=_enrich_description(
                 _build_description(dg, name), view_name, explore_name, explore_desc, table_name,
             ),
             term_type="dimension",
-            sql_expression=_strip_sql_comments(dg.get("sql", "")),
+            sql_expression=sql_expr,
             table_name=table_name,
             view_name=view_name,
             explore_name=explore_name,
             model_name=model_name,
             tags=dg.get("tags", []),
             field_id=f"{view_name}.{name}",
+            is_dynamic_sql=is_dynamic,
+            sql_branches=branches,
         ))
 
     # Measures (metrics & KPIs)
@@ -206,13 +232,14 @@ def extract_terms_from_view(
         field_ref = f"{view_name}.{name}"
         dash_links = dashboard_map.get(field_ref, [])
 
+        sql_expr, is_dynamic, branches = _extract_sql_and_branches(measure.get("sql", ""))
         terms.append(GlossaryTerm(
             name=_clean_label(name),
             description=_enrich_description(
                 _build_description(measure, name), view_name, explore_name, explore_desc, table_name,
             ),
             term_type=term_type,
-            sql_expression=_strip_sql_comments(measure.get("sql", "")),
+            sql_expression=sql_expr,
             table_name=table_name,
             view_name=view_name,
             explore_name=explore_name,
@@ -225,6 +252,8 @@ def extract_terms_from_view(
             dashboard_links=dash_links,
             recommended_links=_extract_links(measure),
             field_id=f"{view_name}.{name}",
+            is_dynamic_sql=is_dynamic,
+            sql_branches=branches,
         ))
 
     return terms

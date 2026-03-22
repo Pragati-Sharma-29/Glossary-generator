@@ -419,7 +419,33 @@ def _extract_sql_tables(sql: str) -> tuple[list[dict], list[str]]:
     """Extract physical table refs and Looker view references from derived_table SQL.
 
     Uses sqlparse for robust extraction with no size limit.
+    If the SQL contains Liquid templates, extracts tables from all branches.
     """
+    from .liquid import has_liquid, extract_liquid_branches
+
+    # If SQL contains Liquid templates, extract tables from all branches
+    if has_liquid(sql):
+        all_tables: list[dict] = []
+        all_views: list[str] = []
+        seen_tables: set[str] = set()
+        seen_views: set[str] = set()
+        for branch in extract_liquid_branches(sql):
+            tables, views = _extract_sql_tables_single(branch)
+            for t in tables:
+                if t["full_name"] not in seen_tables:
+                    seen_tables.add(t["full_name"])
+                    all_tables.append(t)
+            for v in views:
+                if v not in seen_views:
+                    seen_views.add(v)
+                    all_views.append(v)
+        return all_tables, all_views
+
+    return _extract_sql_tables_single(sql)
+
+
+def _extract_sql_tables_single(sql: str) -> tuple[list[dict], list[str]]:
+    """Extract tables from a single (non-Liquid) SQL string."""
     source_tables: list[dict] = []
     view_references: list[str] = []
 
@@ -497,7 +523,7 @@ def _collect_table_refs(tokens, source_tables: list[dict], cte_aliases: set[str]
             elif isinstance(token, Identifier):
                 _add_table_from_identifier(token, source_tables, cte_aliases)
                 expect_table = False
-            elif token.ttype is not sqlparse.tokens.Whitespace:
+            elif not token.is_whitespace:
                 expect_table = False
 
         # Recurse into parenthesized subqueries
