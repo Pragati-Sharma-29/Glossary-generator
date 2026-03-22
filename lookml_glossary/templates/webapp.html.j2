@@ -161,6 +161,9 @@
                     <th>Description</th>
                     <th>Table</th>
                     <th>View</th>
+                    <th>Synonyms</th>
+                    <th>Related Terms</th>
+                    <th>Source Table</th>
                     <th>Links</th>
                 </tr>
             </thead>
@@ -185,6 +188,27 @@
                     </td>
                     <td>{% if t.get('table_name') %}<code>{{ t.table_name }}</code>{% endif %}</td>
                     <td>{% if t.get('view_name') %}{{ t.view_name }}{% endif %}</td>
+                    <td>
+                        {% if t.get('synonyms') %}
+                        {% for s in t.synonyms %}
+                        <span class="field-pill">{{ s.term_name }}</span>
+                        {% endfor %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if t.get('related_terms') %}
+                        {% for r in t.related_terms %}
+                        <span class="field-pill">{{ r.term_name }}</span>
+                        {% endfor %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if t.get('related_entries') %}
+                        {% for re in t.related_entries %}
+                        <code>{{ re.name }}</code><br>
+                        {% endfor %}
+                        {% endif %}
+                    </td>
                     <td>
                         {% if t.get('dashboard_links') %}
                         <ul class="links-list">

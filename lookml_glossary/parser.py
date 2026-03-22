@@ -34,6 +34,10 @@ class GlossaryTerm:
     recommended_links: list[DashboardLink] = field(default_factory=list)
     is_metric: bool = False
     is_kpi: bool = False
+    synonyms: list[dict] = field(default_factory=list)
+    related_terms: list[dict] = field(default_factory=list)
+    related_entries: list[dict] = field(default_factory=list)
+    field_id: str = ""  # "view_name.field_name" unique identifier
 
 
 # Measure types that represent metrics / KPIs
@@ -145,6 +149,7 @@ def extract_terms_from_view(
             model_name=model_name,
             tags=dim.get("tags", []),
             recommended_links=_extract_links(dim),
+            field_id=f"{view_name}.{name}",
         ))
 
     # Dimension groups
@@ -162,6 +167,7 @@ def extract_terms_from_view(
             explore_name=explore_name,
             model_name=model_name,
             tags=dg.get("tags", []),
+            field_id=f"{view_name}.{name}",
         ))
 
     # Measures (metrics & KPIs)
@@ -197,6 +203,7 @@ def extract_terms_from_view(
             is_kpi=is_kpi,
             dashboard_links=dash_links,
             recommended_links=_extract_links(measure),
+            field_id=f"{view_name}.{name}",
         ))
 
     return terms
@@ -296,6 +303,10 @@ def parse_lookml_model(
                 ))
         except Exception:
             pass
+
+    # Enrich terms with synonyms, related terms, and related entries
+    from .enrichment import enrich_terms
+    enrich_terms(all_terms, model_dir)
 
     return all_terms
 
