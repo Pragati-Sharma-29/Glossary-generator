@@ -1,9 +1,11 @@
 """Enrich glossary terms with synonyms, related terms, and related entries."""
 
+import heapq
 import logging
 import os
 import re
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Optional
 
 import sqlparse
@@ -144,42 +146,91 @@ def find_synonyms(terms: list[GlossaryTerm]) -> None:
 _MAX_RELATED = 5
 
 
+def _find_related_for_explore(explore_terms: list[GlossaryTerm]) -> None:
+    """Find related terms within a single explore using a bounded min-heap.
+
+    For each term, maintains a heap of size _MAX_RELATED so we never store
+    more than K candidates — turning the O(n·n·log n) sort into O(n·log K).
+    Same-view terms get a +0.5 bonus, so we pre-bucket by view to guarantee
+    those are scored first and can raise the heap threshold early, allowing
+    many cross-view comparisons to be skipped entirely.
+    """
+    # Pre-bucket by view for fast same-view lookups
+    by_view: dict[str, list[GlossaryTerm]] = defaultdict(list)
+    for t in explore_terms:
+        by_view[t.view_name or ""].append(t)
+
+    for a in explore_terms:
+        # Min-heap of (score, tiebreaker, term) — bounded at _MAX_RELATED
+        heap: list[tuple[float, int, GlossaryTerm]] = []
+        min_score = 0.1  # threshold to beat to enter the heap
+        tie = 0  # tiebreaker for heap ordering (avoids comparing GlossaryTerm)
+
+        # Phase 1: same-view terms (guaranteed +0.5 base score)
+        if a.view_name:
+            for b in by_view[a.view_name]:
+                if a.field_id == b.field_id:
+                    continue
+                score = 0.5 + _label_similarity(a.name, b.name) * 0.5
+                if score > min_score:
+                    if len(heap) < _MAX_RELATED:
+                        heapq.heappush(heap, (score, tie, b))
+                    else:
+                        heapq.heapreplace(heap, (score, tie, b))
+                        min_score = heap[0][0]
+                    tie += 1
+
+        # Phase 2: cross-view terms — skip if they can't beat the heap minimum
+        # Max possible cross-view score is 0.0 (no view bonus) + 0.5 (perfect label) = 0.5
+        if min_score < 0.5:
+            for b in explore_terms:
+                if a.field_id == b.field_id:
+                    continue
+                # Skip same-view (already scored above)
+                if a.view_name and a.view_name == b.view_name:
+                    continue
+                score = _label_similarity(a.name, b.name) * 0.5
+                if score > min_score:
+                    if len(heap) < _MAX_RELATED:
+                        heapq.heappush(heap, (score, tie, b))
+                    else:
+                        heapq.heapreplace(heap, (score, tie, b))
+                        min_score = heap[0][0]
+                    tie += 1
+
+        # Extract top-K in descending order
+        top_k = sorted(heap, key=lambda x: x[0], reverse=True)
+        for score, _, b in top_k:
+            entry = {"term_name": b.name, "field_id": b.field_id,
+                     "type": b.term_type, "view_name": b.view_name or ""}
+            if entry not in a.related_terms:
+                a.related_terms.append(entry)
+
+
 def find_related_terms(terms: list[GlossaryTerm]) -> None:
     """Find related terms: measures/dimensions in the SAME explore that share
-    the same view name or have complementary labels. Mutates terms in-place."""
+    the same view name or have complementary labels. Mutates terms in-place.
+
+    Each explore is processed independently, so they run in parallel threads.
+    Within each explore, a bounded min-heap keeps only the top-K candidates
+    per term, avoiding a full sort of all candidates.
+    """
     # Group terms by explore
     by_explore: dict[str, list[GlossaryTerm]] = {}
     for t in terms:
         key = t.explore_name or "__no_explore__"
         by_explore.setdefault(key, []).append(t)
 
-    for explore_terms in by_explore.values():
-        n = len(explore_terms)
-        for i in range(n):
-            a = explore_terms[i]
-            candidates: list[tuple[float, GlossaryTerm]] = []
-            for j in range(n):
-                if i == j:
-                    continue
-                b = explore_terms[j]
-                if a.field_id == b.field_id:
-                    continue
-                score = 0.0
-                # Same view = strong relation
-                if a.view_name and a.view_name == b.view_name:
-                    score += 0.5
-                # Semantic similarity of labels
-                score += _label_similarity(a.name, b.name) * 0.5
-                if score > 0.1:
-                    candidates.append((score, b))
-
-            # Sort by score descending, take top N
-            candidates.sort(key=lambda x: x[0], reverse=True)
-            for score, b in candidates[:_MAX_RELATED]:
-                entry = {"term_name": b.name, "field_id": b.field_id,
-                         "type": b.term_type, "view_name": b.view_name or ""}
-                if entry not in a.related_terms:
-                    a.related_terms.append(entry)
+    # Process explores in parallel (each is independent)
+    explores = list(by_explore.values())
+    if len(explores) <= 1:
+        for explore_terms in explores:
+            _find_related_for_explore(explore_terms)
+    else:
+        with ThreadPoolExecutor() as executor:
+            futures = [executor.submit(_find_related_for_explore, et) for et in explores]
+            for f in as_completed(futures):
+                f.result()  # propagate exceptions
 
 
 # ---------------------------------------------------------------------------

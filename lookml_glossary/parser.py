@@ -4,6 +4,7 @@ import fnmatch
 import logging
 import os
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 from typing import Optional
@@ -328,18 +329,39 @@ def parse_lookml_model(
                             files_to_parse.append(resolved)
                             seen_files.add(resolved)
 
-    # Parse dashboards first to build the link map
-    dashboard_map: dict[str, list[DashboardLink]] = {}
-    for fpath in files_to_parse:
-        if ".dashboard." in fpath or fpath.endswith(".dashboard.lkml"):
-            try:
-                dash_parsed = parse_lookml_file(fpath)
-                dashboard_map.update(extract_dashboard_links(dash_parsed))
-            except Exception:
-                pass
+    # --- Parallel file parsing stage ---
+    # Parse all included files in parallel threads (I/O-bound).
+    dashboard_files = [f for f in files_to_parse
+                       if ".dashboard." in f or f.endswith(".dashboard.lkml")]
+    view_files = [f for f in files_to_parse if f not in set(dashboard_files)]
 
-    # Extract terms from views in the model file itself
-    all_terms: list[GlossaryTerm] = []
+    # Parse files in parallel
+    parsed_dashboards: dict[str, dict] = {}
+    parsed_views: dict[str, dict] = {}
+
+    def _safe_parse(fpath: str) -> tuple[str, dict | None]:
+        try:
+            return fpath, parse_lookml_file(fpath)
+        except Exception:
+            return fpath, None
+
+    all_parse_files = dashboard_files + view_files
+    if all_parse_files:
+        with ThreadPoolExecutor() as executor:
+            futures = {executor.submit(_safe_parse, fp): fp for fp in all_parse_files}
+            for future in as_completed(futures):
+                fpath, result = future.result()
+                if result is None:
+                    continue
+                if fpath in set(dashboard_files):
+                    parsed_dashboards[fpath] = result
+                else:
+                    parsed_views[fpath] = result
+
+    # Build dashboard link map from parsed dashboards
+    dashboard_map: dict[str, list[DashboardLink]] = {}
+    for dash_parsed in parsed_dashboards.values():
+        dashboard_map.update(extract_dashboard_links(dash_parsed))
 
     # Build explore name and description maps from model
     explore_view_map: dict[str, str] = {}
@@ -355,7 +377,8 @@ def parse_lookml_model(
             if join_name:
                 explore_view_map[join_name] = exp_name
 
-    # Views in the model file
+    # Extract terms from views in the model file itself
+    all_terms: list[GlossaryTerm] = []
     for view in parsed.get("views", []):
         vname = view.get("name", "")
         exp = explore_view_map.get(vname, "")
@@ -363,20 +386,14 @@ def parse_lookml_model(
             view, model_name, exp, dashboard_map, explore_desc_map.get(exp, ""),
         ))
 
-    # Views in included files
-    for fpath in files_to_parse:
-        if ".dashboard." in fpath:
-            continue
-        try:
-            inc_parsed = parse_lookml_file(fpath)
-            for view in inc_parsed.get("views", []):
-                vname = view.get("name", "")
-                exp = explore_view_map.get(vname, "")
-                all_terms.extend(extract_terms_from_view(
-                    view, model_name, exp, dashboard_map, explore_desc_map.get(exp, ""),
-                ))
-        except Exception:
-            pass
+    # Extract terms from pre-parsed included view files
+    for inc_parsed in parsed_views.values():
+        for view in inc_parsed.get("views", []):
+            vname = view.get("name", "")
+            exp = explore_view_map.get(vname, "")
+            all_terms.extend(extract_terms_from_view(
+                view, model_name, exp, dashboard_map, explore_desc_map.get(exp, ""),
+            ))
 
     # Enrich terms with synonyms, related terms, and related entries
     from .enrichment import enrich_terms

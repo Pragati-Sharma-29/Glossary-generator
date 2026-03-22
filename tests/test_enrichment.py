@@ -9,6 +9,7 @@ from lookml_glossary.parser import GlossaryTerm
 from lookml_glossary.enrichment import (
     find_synonyms,
     find_related_terms,
+    _find_related_for_explore,
     _extract_sql_tables,
     _FileIndex,
 )
@@ -165,3 +166,68 @@ class TestIncludeMatching:
 
     def test_no_match(self):
         assert not _matches_include("/proj/orders.view.lkml", "users.view.lkml", "/proj")
+
+
+# ---------------------------------------------------------------------------
+# Related terms — bounded heap
+# ---------------------------------------------------------------------------
+
+class TestRelatedTermsHeap:
+    def _term(self, name, field_id, view="v", explore="exp"):
+        return GlossaryTerm(
+            name=name, description="", term_type="dimension",
+            field_id=field_id, view_name=view, explore_name=explore,
+        )
+
+    def test_same_view_ranked_higher(self):
+        a = self._term("Revenue", "v.revenue", view="orders")
+        b = self._term("Cost", "v.cost", view="orders")       # same view
+        c = self._term("Revenue Tax", "v2.tax", view="other")  # different view
+        _find_related_for_explore([a, b, c])
+        # b shares the view, so it should rank above c
+        assert len(a.related_terms) >= 1
+        assert a.related_terms[0]["field_id"] == "v.cost"
+
+    def test_max_related_respected(self):
+        terms = [self._term(f"Field {i}", f"v.f{i}", view="v") for i in range(20)]
+        _find_related_for_explore(terms)
+        for t in terms:
+            assert len(t.related_terms) <= 5
+
+    def test_cross_view_skipped_when_heap_full(self):
+        """When 5 same-view terms score > 0.5, cross-view terms (max 0.5) can't enter."""
+        # Create 6 same-view terms with similar names → all score > 0.5
+        same_view = [self._term(f"Order {i}", f"v.order_{i}", view="v") for i in range(6)]
+        # One cross-view term
+        other = self._term("Unrelated Xyz", "other.xyz", view="other")
+        _find_related_for_explore(same_view + [other])
+        # The first term's related should all be from view "v"
+        for entry in same_view[0].related_terms:
+            assert entry["view_name"] == "v"
+
+    def test_parallel_explores(self):
+        """find_related_terms with multiple explores runs without error."""
+        terms = []
+        for exp in ("exp1", "exp2", "exp3"):
+            terms.extend([self._term(f"F{i}", f"{exp}.f{i}", explore=exp) for i in range(10)])
+        find_related_terms(terms)
+        # Each term should have related terms from its own explore only
+        for t in terms:
+            for rel in t.related_terms:
+                # Related terms come from the same explore
+                matching = [x for x in terms if x.field_id == rel["field_id"]]
+                assert len(matching) == 1
+                assert matching[0].explore_name == t.explore_name
+
+
+# ---------------------------------------------------------------------------
+# Parallel file parsing (integration test)
+# ---------------------------------------------------------------------------
+
+class TestParallelParsing:
+    def test_parallel_produces_same_results(self):
+        """Verify parallel parsing gives the same term count as sequential."""
+        from lookml_glossary.parser import parse_lookml_model
+        model_path = os.path.join(os.path.dirname(__file__), "..", "examples", "ecommerce.model.lkml")
+        terms = parse_lookml_model(model_path)
+        assert len(terms) == 27  # known count from example model
