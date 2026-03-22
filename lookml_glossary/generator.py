@@ -114,7 +114,7 @@ def generate_markdown(terms: list[GlossaryTerm], output: TextIO) -> None:
     """Write glossary terms as Markdown."""
     env = Environment(
         loader=FileSystemLoader(TEMPLATE_DIR),
-        autoescape=select_autoescape([]),
+        autoescape=select_autoescape(["j2"]),
         trim_blocks=True,
         lstrip_blocks=True,
     )

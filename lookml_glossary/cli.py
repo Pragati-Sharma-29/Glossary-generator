@@ -52,10 +52,15 @@ def main() -> None:
     gen_fn = generators[args.format]
 
     if args.output:
-        output_dir = os.path.dirname(args.output)
+        resolved_output = os.path.realpath(args.output)
+        cwd = os.path.realpath(os.getcwd())
+        if not (resolved_output.startswith(cwd + os.sep) or resolved_output == cwd):
+            print("Error: output path must be within the current working directory.", file=sys.stderr)
+            sys.exit(1)
+        output_dir = os.path.dirname(resolved_output)
         if output_dir:
             os.makedirs(output_dir, exist_ok=True)
-        with open(args.output, "w") as f:
+        with open(resolved_output, "w") as f:
             gen_fn(terms, f)
         print(f"Glossary written to {args.output} ({len(terms)} terms)", file=sys.stderr)
     else:
