@@ -24,18 +24,23 @@ class TestParseModel:
         terms = parse_lookml_model(MODEL_PATH)
         assert len(terms) > 0
 
-    def test_contains_explores(self):
+    def test_no_explore_or_view_terms(self):
         terms = parse_lookml_model(MODEL_PATH)
         explores = [t for t in terms if t.term_type == "explore"]
-        assert len(explores) >= 2
-        names = {t.name for t in explores}
-        assert "Orders" in names
-        assert "Products" in names
-
-    def test_contains_views(self):
-        terms = parse_lookml_model(MODEL_PATH)
         views = [t for t in terms if t.term_type == "view"]
-        assert len(views) >= 3
+        assert len(explores) == 0
+        assert len(views) == 0
+
+    def test_terms_contain_view_and_explore_context(self):
+        terms = parse_lookml_model(MODEL_PATH)
+        # Every term should have view context in description
+        for t in terms:
+            assert "View:" in t.description
+        # Terms linked to an explore should have explore context
+        explore_terms = [t for t in terms if t.explore_name]
+        assert len(explore_terms) > 0
+        for t in explore_terms:
+            assert "Explore:" in t.description
 
     def test_contains_metrics(self):
         terms = parse_lookml_model(MODEL_PATH)
@@ -55,9 +60,9 @@ class TestParseModel:
 
     def test_table_names_populated(self):
         terms = parse_lookml_model(MODEL_PATH)
-        views = [t for t in terms if t.term_type == "view"]
-        for v in views:
-            assert v.table_name is not None
+        # Check that terms with a table_name have it populated
+        terms_with_table = [t for t in terms if t.table_name is not None]
+        assert len(terms_with_table) > 0
 
     def test_dimensions_extracted(self):
         terms = parse_lookml_model(MODEL_PATH)
@@ -161,4 +166,4 @@ class TestSingleView:
         terms = extract_terms_from_view(view, model_name="test")
         assert any(t.name == "Total Revenue" for t in terms)
         assert any(t.is_kpi for t in terms)
-        assert any(t.term_type == "view" for t in terms)
+        assert not any(t.term_type == "view" for t in terms)
