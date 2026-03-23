@@ -1,6 +1,22 @@
 {
   "drift": [
     {
+      "category": "removed_field",
+      "severity": "error",
+      "field_id": "users.email",
+      "message": "Field 'users.email' was removed from LookML.",
+      "old_value": null,
+      "new_value": null
+    },
+    {
+      "category": "type_changed",
+      "severity": "error",
+      "field_id": "orders.average_order_value",
+      "message": "Type changed for 'orders.average_order_value': measure/number -> measure/average.",
+      "old_value": "measure/number",
+      "new_value": "measure/average"
+    },
+    {
       "category": "new_field",
       "severity": "warning",
       "field_id": "dynamic_fields.case_example",
@@ -31,12 +47,156 @@
       "message": "Field 'dynamic_fields.region_column' is new and not in the glossary snapshot.",
       "old_value": null,
       "new_value": null
+    },
+    {
+      "category": "new_field",
+      "severity": "warning",
+      "field_id": "orders.cancelled_order_count",
+      "message": "Field 'orders.cancelled_order_count' is new and not in the glossary snapshot.",
+      "old_value": null,
+      "new_value": null
+    },
+    {
+      "category": "new_field",
+      "severity": "warning",
+      "field_id": "orders.return_rate",
+      "message": "Field 'orders.return_rate' is new and not in the glossary snapshot.",
+      "old_value": null,
+      "new_value": null
+    },
+    {
+      "category": "new_field",
+      "severity": "warning",
+      "field_id": "users.email_domain",
+      "message": "Field 'users.email_domain' is new and not in the glossary snapshot.",
+      "old_value": null,
+      "new_value": null
+    },
+    {
+      "category": "sql_changed",
+      "severity": "warning",
+      "field_id": "orders.average_order_value",
+      "message": "SQL expression changed for 'orders.average_order_value'.",
+      "old_value": "1.0 * ${total_revenue} / NULLIF(${order_count}, 0)",
+      "new_value": "${sale_price}"
+    },
+    {
+      "category": "sql_changed",
+      "severity": "warning",
+      "field_id": "orders.total_revenue",
+      "message": "SQL expression changed for 'orders.total_revenue'.",
+      "old_value": "${sale_price} - ${TABLE}.discount_amount",
+      "new_value": "${sale_price} - COALESCE(${TABLE}.discount_amount, 0)"
+    },
+    {
+      "category": "sql_changed",
+      "severity": "warning",
+      "field_id": "products.is_active",
+      "message": "SQL expression changed for 'products.is_active'.",
+      "old_value": "${TABLE}.discontinued_at IS NULL",
+      "new_value": "CASE WHEN ${TABLE}.discontinued_at IS NULL THEN 'Active' ELSE 'Discontinued' END"
+    },
+    {
+      "category": "table_renamed",
+      "severity": "warning",
+      "field_id": "users.age",
+      "message": "Table changed for 'users.age': 'analytics.dim_users' -> 'analytics_v2.dim_users'.",
+      "old_value": "analytics.dim_users",
+      "new_value": "analytics_v2.dim_users"
+    },
+    {
+      "category": "table_renamed",
+      "severity": "warning",
+      "field_id": "users.country",
+      "message": "Table changed for 'users.country': 'analytics.dim_users' -> 'analytics_v2.dim_users'.",
+      "old_value": "analytics.dim_users",
+      "new_value": "analytics_v2.dim_users"
+    },
+    {
+      "category": "table_renamed",
+      "severity": "warning",
+      "field_id": "users.created",
+      "message": "Table changed for 'users.created': 'analytics.dim_users' -> 'analytics_v2.dim_users'.",
+      "old_value": "analytics.dim_users",
+      "new_value": "analytics_v2.dim_users"
+    },
+    {
+      "category": "table_renamed",
+      "severity": "warning",
+      "field_id": "users.id",
+      "message": "Table changed for 'users.id': 'analytics.dim_users' -> 'analytics_v2.dim_users'.",
+      "old_value": "analytics.dim_users",
+      "new_value": "analytics_v2.dim_users"
+    },
+    {
+      "category": "table_renamed",
+      "severity": "warning",
+      "field_id": "users.lifetime_value_tier",
+      "message": "Table changed for 'users.lifetime_value_tier': 'analytics.dim_users' -> 'analytics_v2.dim_users'.",
+      "old_value": "analytics.dim_users",
+      "new_value": "analytics_v2.dim_users"
+    },
+    {
+      "category": "table_renamed",
+      "severity": "warning",
+      "field_id": "users.name",
+      "message": "Table changed for 'users.name': 'analytics.dim_users' -> 'analytics_v2.dim_users'.",
+      "old_value": "analytics.dim_users",
+      "new_value": "analytics_v2.dim_users"
+    },
+    {
+      "category": "table_renamed",
+      "severity": "warning",
+      "field_id": "users.user_count",
+      "message": "Table changed for 'users.user_count': 'analytics.dim_users' -> 'analytics_v2.dim_users'.",
+      "old_value": "analytics.dim_users",
+      "new_value": "analytics_v2.dim_users"
+    },
+    {
+      "category": "description_changed",
+      "severity": "info",
+      "field_id": "orders.average_order_value",
+      "message": "Description changed for 'orders.average_order_value'.",
+      "old_value": "Average revenue per order (computed from total_revenue / order_count)",
+      "new_value": "Average revenue per order"
+    },
+    {
+      "category": "description_changed",
+      "severity": "info",
+      "field_id": "orders.total_revenue",
+      "message": "Description changed for 'orders.total_revenue'.",
+      "old_value": "Sum of all order sale prices after discounts",
+      "new_value": "Net revenue after all discounts and adjustments"
+    },
+    {
+      "category": "description_changed",
+      "severity": "info",
+      "field_id": "products.is_active",
+      "message": "Description changed for 'products.is_active'.",
+      "old_value": "Whether the product is currently active and available for sale",
+      "new_value": "Product availability status label"
+    },
+    {
+      "category": "tags_changed",
+      "severity": "info",
+      "field_id": "orders.average_order_value",
+      "message": "Tags changed for 'orders.average_order_value'.",
+      "old_value": "key_metric, kpi",
+      "new_value": "kpi"
+    },
+    {
+      "category": "tags_changed",
+      "severity": "info",
+      "field_id": "orders.total_revenue",
+      "message": "Tags changed for 'orders.total_revenue'.",
+      "old_value": "finance, kpi, revenue",
+      "new_value": "executive, finance, kpi, revenue"
     }
   ],
   "summary": {
-    "total": 4,
-    "errors": 0,
-    "warnings": 4,
-    "info": 0
+    "total": 24,
+    "errors": 2,
+    "warnings": 17,
+    "info": 5
   }
 }
