@@ -4,56 +4,9 @@ A Python agent that parses LookML model files and generates a structured, enrich
 
 ## How It Works
 
-```
-                         LookML Glossary Generator — Flow Diagram
-
- INPUTS                          AGENT PIPELINE                              OUTPUTS
- ──────                          ──────────────                              ───────
-
- ┌──────────────────┐
- │  .model.lkml     │
- │  (entry point)   │──┐
- └──────────────────┘  │
-                       │     ┌─────────────────────────────────────┐
- ┌──────────────────┐  │     │  1. PARSE                           │
- │  .view.lkml      │──┼────▶│     • Read model + resolve includes │
- │  (included)      │  │     │     • Parallel file I/O (threads)   │
- └──────────────────┘  │     │     • Extract dimensions, measures, │
-                       │     │       dimension groups, explores     │
- ┌──────────────────┐  │     │     • Resolve glob includes (**/*)  │
- │  .dashboard.lkml │──┤     │     • Cross-project imports         │
- │  (included)      │  │     └──────────────┬──────────────────────┘
- └──────────────────┘  │                    │
-                       │                    ▼
- ┌──────────────────┐  │     ┌─────────────────────────────────────┐
- │  manifest.lkml   │──┘     │  2. ENRICH                          │
- │  (constants,     │        │     • Synonym detection (hash        │
- │   imports)       │        │       buckets, O(n) avg)             │
- └──────────────────┘        │     • Related terms (bounded heap,   │
-                             │       per-explore, parallel)         │
-                             │     • Source table resolution        │
-                             │       (file index, O(1) lookup)      │
-                             │     • Liquid template branch         │
-                             │       extraction (all SQL variants)  │
-                             └──────────────┬──────────────────────┘
-                                            │
-                                            ▼
-                             ┌─────────────────────────────────────┐
-                             │  3. GENERATE                        │     ┌──────────────┐
-                             │     • Format glossary terms         │────▶│  glossary.json│
-                             │     • Build model diagrams          │     │  glossary.csv │
-                             │     • Render templates              │     │  glossary.md  │
-                             └──────────────┬──────────────────────┘     │  glossary.html│
-                                            │                           │  webapp.html  │
-                                            ▼                           └──────────────┘
-                             ┌─────────────────────────────────────┐
-                             │  4. VALIDATE (optional)             │     ┌──────────────┐
-                             │     • Compare against snapshot      │────▶│ drift_report  │
-                             │     • Detect removed/changed fields │     │  (text/json)  │
-                             │     • Report drift by severity      │     └──────────────┘
-                             │     • Auto-update snapshot          │
-                             └─────────────────────────────────────┘
-```
+<p align="center">
+  <img src="docs/architecture.svg" alt="LookML Glossary Generator — Architecture & Data Flow" width="100%"/>
+</p>
 
 ## Features
 

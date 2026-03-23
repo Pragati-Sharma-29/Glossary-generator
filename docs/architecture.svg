@@ -1,0 +1,339 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 920" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#1e293b"/>
+    </linearGradient>
+    <linearGradient id="parseGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#2563eb"/>
+    </linearGradient>
+    <linearGradient id="enrichGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6"/>
+      <stop offset="100%" style="stop-color:#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="liquidGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ec4899"/>
+      <stop offset="100%" style="stop-color:#db2777"/>
+    </linearGradient>
+    <linearGradient id="genGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981"/>
+      <stop offset="100%" style="stop-color:#059669"/>
+    </linearGradient>
+    <linearGradient id="driftGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b"/>
+      <stop offset="100%" style="stop-color:#d97706"/>
+    </linearGradient>
+    <linearGradient id="inputGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a5f"/>
+      <stop offset="100%" style="stop-color:#172554"/>
+    </linearGradient>
+    <linearGradient id="outputGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#14532d"/>
+      <stop offset="100%" style="stop-color:#052e16"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#60a5fa"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#a78bfa"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#34d399"/>
+    </marker>
+    <marker id="arrowAmber" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24"/>
+    </marker>
+    <marker id="arrowPink" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f472b6"/>
+    </marker>
+    <marker id="arrowWhite" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1100" height="920" rx="16" fill="url(#bgGrad)"/>
+
+  <!-- Title -->
+  <text x="550" y="42" text-anchor="middle" fill="#f8fafc" font-size="22" font-weight="700" letter-spacing="0.5">LookML Glossary Generator</text>
+  <text x="550" y="64" text-anchor="middle" fill="#94a3b8" font-size="13">Architecture &amp; Data Flow</text>
+
+  <!-- ==================== INPUTS (left column) ==================== -->
+  <text x="95" y="105" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="600" letter-spacing="1.5">INPUTS</text>
+
+  <!-- model.lkml -->
+  <rect x="20" y="120" width="150" height="52" rx="8" fill="url(#inputGrad)" stroke="#3b82f6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="95" y="143" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="600">.model.lkml</text>
+  <text x="95" y="160" text-anchor="middle" fill="#64748b" font-size="9">entry point</text>
+
+  <!-- view.lkml -->
+  <rect x="20" y="184" width="150" height="52" rx="8" fill="url(#inputGrad)" stroke="#3b82f6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="95" y="207" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="600">.view.lkml</text>
+  <text x="95" y="224" text-anchor="middle" fill="#64748b" font-size="9">dimensions, measures, SQL</text>
+
+  <!-- dashboard.lkml -->
+  <rect x="20" y="248" width="150" height="52" rx="8" fill="url(#inputGrad)" stroke="#3b82f6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="95" y="271" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="600">.dashboard.lkml</text>
+  <text x="95" y="288" text-anchor="middle" fill="#64748b" font-size="9">links, layouts</text>
+
+  <!-- manifest.lkml -->
+  <rect x="20" y="312" width="150" height="52" rx="8" fill="url(#inputGrad)" stroke="#3b82f6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="95" y="335" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="600">manifest.lkml</text>
+  <text x="95" y="352" text-anchor="middle" fill="#64748b" font-size="9">constants, imports</text>
+
+  <!-- snapshot -->
+  <rect x="20" y="376" width="150" height="52" rx="8" fill="url(#inputGrad)" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="6,3" filter="url(#shadow)"/>
+  <text x="95" y="399" text-anchor="middle" fill="#fde68a" font-size="11" font-weight="600">snapshot.json</text>
+  <text x="95" y="416" text-anchor="middle" fill="#64748b" font-size="9">baseline (for drift)</text>
+
+  <!-- ==================== STAGE 1: PARSE ==================== -->
+  <rect x="220" y="95" width="280" height="295" rx="12" fill="#0f172a" stroke="#3b82f6" stroke-width="1.2" opacity="0.9" filter="url(#shadow)"/>
+  <rect x="220" y="95" width="280" height="36" rx="12" fill="url(#parseGrad)"/>
+  <rect x="220" y="115" width="280" height="16" fill="url(#parseGrad)"/>
+  <text x="235" y="118" fill="#fff" font-size="13" font-weight="700">1</text>
+  <circle cx="235" cy="113" r="11" fill="none" stroke="#fff" stroke-width="1.5"/>
+  <text x="360" y="118" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">PARSE</text>
+
+  <text x="240" y="152" fill="#93c5fd" font-size="11" font-weight="600">Read model file</text>
+  <text x="240" y="168" fill="#94a3b8" font-size="10">Parse with lkml library</text>
+
+  <text x="240" y="192" fill="#93c5fd" font-size="11" font-weight="600">Resolve includes</text>
+  <text x="240" y="208" fill="#94a3b8" font-size="10">Glob patterns (**/*.view.lkml)</text>
+  <text x="240" y="222" fill="#94a3b8" font-size="10">Cross-project local_dependency</text>
+
+  <text x="240" y="246" fill="#93c5fd" font-size="11" font-weight="600">Parallel file I/O</text>
+  <text x="240" y="262" fill="#94a3b8" font-size="10">ThreadPoolExecutor for included files</text>
+
+  <text x="240" y="286" fill="#93c5fd" font-size="11" font-weight="600">Extract fields</text>
+  <text x="240" y="302" fill="#94a3b8" font-size="10">Dimensions, measures, dimension groups</text>
+  <text x="240" y="316" fill="#94a3b8" font-size="10">Explores, views, dashboard links</text>
+
+  <text x="240" y="340" fill="#93c5fd" font-size="11" font-weight="600">Build file index</text>
+  <text x="240" y="356" fill="#94a3b8" font-size="10">Map view names to file paths (O(1) lookup)</text>
+
+  <!-- Arrows: inputs → parse -->
+  <line x1="170" y1="146" x2="218" y2="146" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  <line x1="170" y1="210" x2="218" y2="210" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  <line x1="170" y1="274" x2="218" y2="274" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  <line x1="170" y1="338" x2="218" y2="338" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+  <!-- ==================== STAGE 2: LIQUID ANALYSIS ==================== -->
+  <rect x="220" y="408" width="280" height="180" rx="12" fill="#0f172a" stroke="#ec4899" stroke-width="1.2" opacity="0.9" filter="url(#shadow)"/>
+  <rect x="220" y="408" width="280" height="36" rx="12" fill="url(#liquidGrad)"/>
+  <rect x="220" y="428" width="280" height="16" fill="url(#liquidGrad)"/>
+  <text x="235" y="431" fill="#fff" font-size="13" font-weight="700">2</text>
+  <circle cx="235" cy="426" r="11" fill="none" stroke="#fff" stroke-width="1.5"/>
+  <text x="360" y="431" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">LIQUID ANALYSIS</text>
+
+  <text x="240" y="468" fill="#f9a8d4" font-size="11" font-weight="600">Parse Liquid AST</text>
+  <text x="240" y="484" fill="#94a3b8" font-size="10">python-liquid library (if/case/for)</text>
+
+  <text x="240" y="508" fill="#f9a8d4" font-size="11" font-weight="600">Walk all branches</text>
+  <text x="240" y="524" fill="#94a3b8" font-size="10">Cartesian product of nested conditionals</text>
+  <text x="240" y="538" fill="#94a3b8" font-size="10">Cap at 64 combinations</text>
+
+  <text x="240" y="562" fill="#f9a8d4" font-size="11" font-weight="600">Extract SQL variants</text>
+  <text x="240" y="578" fill="#94a3b8" font-size="10">All possible runtime SQL outputs</text>
+
+  <!-- Arrow: parse → liquid -->
+  <line x1="360" y1="390" x2="360" y2="406" stroke="#f472b6" stroke-width="1.5" marker-end="url(#arrowPink)"/>
+
+  <!-- ==================== STAGE 3: ENRICH ==================== -->
+  <rect x="560" y="95" width="280" height="330" rx="12" fill="#0f172a" stroke="#8b5cf6" stroke-width="1.2" opacity="0.9" filter="url(#shadow)"/>
+  <rect x="560" y="95" width="280" height="36" rx="12" fill="url(#enrichGrad)"/>
+  <rect x="560" y="115" width="280" height="16" fill="url(#enrichGrad)"/>
+  <text x="575" y="118" fill="#fff" font-size="13" font-weight="700">3</text>
+  <circle cx="575" cy="113" r="11" fill="none" stroke="#fff" stroke-width="1.5"/>
+  <text x="700" y="118" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">ENRICH</text>
+
+  <text x="580" y="152" fill="#c4b5fd" font-size="11" font-weight="600">Synonym detection</text>
+  <text x="580" y="168" fill="#94a3b8" font-size="10">Hash buckets on normalized labels</text>
+  <text x="580" y="182" fill="#94a3b8" font-size="10">View+SQL key matching</text>
+  <text x="580" y="196" fill="#94a3b8" font-size="10">Token overlap (Jaccard >= 0.7)</text>
+  <rect x="790" y="152" width="40" height="18" rx="4" fill="#7c3aed" opacity="0.3"/>
+  <text x="810" y="164" text-anchor="middle" fill="#c4b5fd" font-size="9" font-weight="600">O(n)</text>
+
+  <text x="580" y="222" fill="#c4b5fd" font-size="11" font-weight="600">Related terms</text>
+  <text x="580" y="238" fill="#94a3b8" font-size="10">Per-explore bounded min-heap (top 5)</text>
+  <text x="580" y="252" fill="#94a3b8" font-size="10">Same-view base score +0.5</text>
+  <text x="580" y="266" fill="#94a3b8" font-size="10">Cross-view early pruning</text>
+  <text x="580" y="280" fill="#94a3b8" font-size="10">Per-explore thread parallelism</text>
+
+  <text x="580" y="306" fill="#c4b5fd" font-size="11" font-weight="600">Source table resolution</text>
+  <text x="580" y="322" fill="#94a3b8" font-size="10">1. sql_table_name (${constant})</text>
+  <text x="580" y="336" fill="#94a3b8" font-size="10">2. derived_table SQL (sqlparse)</text>
+  <text x="580" y="350" fill="#94a3b8" font-size="10">3. explore_source (native PDT)</text>
+  <text x="580" y="364" fill="#94a3b8" font-size="10">4. Implicit view name fallback</text>
+  <rect x="790" y="306" width="40" height="18" rx="4" fill="#7c3aed" opacity="0.3"/>
+  <text x="810" y="318" text-anchor="middle" fill="#c4b5fd" font-size="9" font-weight="600">O(1)</text>
+
+  <text x="580" y="390" fill="#c4b5fd" font-size="11" font-weight="600">Liquid branch merging</text>
+  <text x="580" y="406" fill="#94a3b8" font-size="10">Attach sql_branches to terms</text>
+
+  <!-- Arrow: parse → enrich -->
+  <line x1="500" y1="240" x2="558" y2="240" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowPurple)"/>
+
+  <!-- Arrow: liquid → enrich -->
+  <path d="M 500 498 Q 530 498 530 410 Q 530 400 558 400" fill="none" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowPurple)"/>
+
+  <!-- ==================== STAGE 4: GENERATE ==================== -->
+  <rect x="560" y="445" width="280" height="155" rx="12" fill="#0f172a" stroke="#10b981" stroke-width="1.2" opacity="0.9" filter="url(#shadow)"/>
+  <rect x="560" y="445" width="280" height="36" rx="12" fill="url(#genGrad)"/>
+  <rect x="560" y="465" width="280" height="16" fill="url(#genGrad)"/>
+  <text x="575" y="468" fill="#fff" font-size="13" font-weight="700">4</text>
+  <circle cx="575" cy="463" r="11" fill="none" stroke="#fff" stroke-width="1.5"/>
+  <text x="700" y="468" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">GENERATE</text>
+
+  <text x="580" y="502" fill="#6ee7b7" font-size="11" font-weight="600">Format glossary terms</text>
+  <text x="580" y="518" fill="#94a3b8" font-size="10">Jinja2 templates for each output format</text>
+
+  <text x="580" y="542" fill="#6ee7b7" font-size="11" font-weight="600">Build model diagram</text>
+  <text x="580" y="558" fill="#94a3b8" font-size="10">Interactive SVG for webapp output</text>
+
+  <text x="580" y="580" fill="#6ee7b7" font-size="11" font-weight="600">Render output</text>
+  <text x="580" y="596" fill="#94a3b8" font-size="10">JSON / CSV / Markdown / HTML / Webapp</text>
+
+  <!-- Arrow: enrich → generate -->
+  <line x1="700" y1="425" x2="700" y2="443" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+
+  <!-- ==================== STAGE 5: VALIDATE ==================== -->
+  <rect x="560" y="620" width="280" height="155" rx="12" fill="#0f172a" stroke="#f59e0b" stroke-width="1.2" opacity="0.9" filter="url(#shadow)"/>
+  <rect x="560" y="620" width="280" height="36" rx="12" fill="url(#driftGrad)"/>
+  <rect x="560" y="640" width="280" height="16" fill="url(#driftGrad)"/>
+  <text x="575" y="643" fill="#fff" font-size="13" font-weight="700">5</text>
+  <circle cx="575" cy="638" r="11" fill="none" stroke="#fff" stroke-width="1.5"/>
+  <text x="700" y="643" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">VALIDATE DRIFT</text>
+
+  <text x="580" y="678" fill="#fde68a" font-size="11" font-weight="600">Compare against snapshot</text>
+  <text x="580" y="694" fill="#94a3b8" font-size="10">Field-by-field diffing</text>
+
+  <text x="580" y="718" fill="#fde68a" font-size="11" font-weight="600">Classify changes</text>
+  <text x="580" y="734" fill="#94a3b8" font-size="10">10 drift categories (error/warn/info)</text>
+
+  <text x="580" y="758" fill="#fde68a" font-size="11" font-weight="600">Report &amp; auto-update</text>
+  <text x="580" y="774" fill="#94a3b8" font-size="10">CI integration with GitHub Actions</text>
+
+  <!-- Arrow: generate → validate (optional path) -->
+  <line x1="700" y1="600" x2="700" y2="618" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowAmber)"/>
+  <text x="714" y="612" fill="#64748b" font-size="8" font-style="italic">optional</text>
+
+  <!-- Arrow: snapshot → validate -->
+  <path d="M 95 428 L 95 700 L 558 700" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowAmber)"/>
+
+  <!-- ==================== OUTPUTS (right column) ==================== -->
+  <text x="980" y="105" text-anchor="middle" fill="#34d399" font-size="12" font-weight="600" letter-spacing="1.5">OUTPUTS</text>
+
+  <!-- JSON -->
+  <rect x="895" y="120" width="170" height="40" rx="8" fill="url(#outputGrad)" stroke="#10b981" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="915" y="139" fill="#6ee7b7" font-size="18">{ }</text>
+  <text x="942" y="146" fill="#a7f3d0" font-size="11" font-weight="600">JSON</text>
+  <text x="1040" y="146" fill="#64748b" font-size="9">machine-readable</text>
+
+  <!-- CSV -->
+  <rect x="895" y="170" width="170" height="40" rx="8" fill="url(#outputGrad)" stroke="#10b981" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="918" y="196" fill="#6ee7b7" font-size="13" font-weight="700">csv</text>
+  <text x="942" y="196" fill="#a7f3d0" font-size="11" font-weight="600">CSV</text>
+  <text x="1040" y="196" fill="#64748b" font-size="9">spreadsheet</text>
+
+  <!-- Markdown -->
+  <rect x="895" y="220" width="170" height="40" rx="8" fill="url(#outputGrad)" stroke="#10b981" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="920" y="246" fill="#6ee7b7" font-size="13" font-weight="700">md</text>
+  <text x="942" y="246" fill="#a7f3d0" font-size="11" font-weight="600">Markdown</text>
+  <text x="1040" y="246" fill="#64748b" font-size="9">documentation</text>
+
+  <!-- HTML -->
+  <rect x="895" y="270" width="170" height="40" rx="8" fill="url(#outputGrad)" stroke="#10b981" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="917" y="296" fill="#6ee7b7" font-size="11" font-weight="700">&lt;/&gt;</text>
+  <text x="942" y="296" fill="#a7f3d0" font-size="11" font-weight="600">HTML</text>
+  <text x="1040" y="296" fill="#64748b" font-size="9">searchable</text>
+
+  <!-- Webapp -->
+  <rect x="895" y="320" width="170" height="40" rx="8" fill="url(#outputGrad)" stroke="#10b981" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="920" y="344" fill="#6ee7b7" font-size="12" font-weight="700">app</text>
+  <text x="942" y="346" fill="#a7f3d0" font-size="11" font-weight="600">Webapp</text>
+  <text x="1040" y="346" fill="#64748b" font-size="9">interactive</text>
+
+  <!-- Drift Report -->
+  <rect x="895" y="680" width="170" height="52" rx="8" fill="#1c1917" stroke="#f59e0b" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="980" y="703" text-anchor="middle" fill="#fde68a" font-size="11" font-weight="600">Drift Report</text>
+  <text x="980" y="720" text-anchor="middle" fill="#64748b" font-size="9">text / json</text>
+
+  <!-- Arrows: generate → outputs -->
+  <line x1="840" y1="490" x2="840" y2="140" stroke="#34d399" stroke-width="1" opacity="0.4"/>
+  <line x1="840" y1="140" x2="893" y2="140" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  <line x1="840" y1="190" x2="893" y2="190" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  <line x1="840" y1="240" x2="893" y2="240" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  <line x1="840" y1="290" x2="893" y2="290" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  <line x1="840" y1="340" x2="893" y2="340" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  <line x1="840" y1="490" x2="893" y2="490" stroke="#34d399" stroke-width="0" opacity="0"/>
+
+  <!-- Arrow: validate → drift report -->
+  <line x1="840" y1="706" x2="893" y2="706" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrowAmber)"/>
+
+  <!-- ==================== BOTTOM: KEY CAPABILITIES ==================== -->
+  <rect x="30" y="810" width="1040" height="90" rx="12" fill="#0f172a" stroke="#334155" stroke-width="1" filter="url(#shadow)"/>
+  <text x="550" y="835" text-anchor="middle" fill="#94a3b8" font-size="12" font-weight="600" letter-spacing="1.5">KEY CAPABILITIES</text>
+
+  <!-- Capability pills -->
+  <rect x="55" y="852" width="130" height="28" rx="14" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1"/>
+  <text x="120" y="870" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="600">Parallel I/O</text>
+
+  <rect x="200" y="852" width="130" height="28" rx="14" fill="#2e1065" stroke="#8b5cf6" stroke-width="1"/>
+  <text x="265" y="870" text-anchor="middle" fill="#c4b5fd" font-size="10" font-weight="600">O(n) Synonyms</text>
+
+  <rect x="345" y="852" width="130" height="28" rx="14" fill="#2e1065" stroke="#8b5cf6" stroke-width="1"/>
+  <text x="410" y="870" text-anchor="middle" fill="#c4b5fd" font-size="10" font-weight="600">Bounded Heap</text>
+
+  <rect x="490" y="852" width="130" height="28" rx="14" fill="#4a0d2e" stroke="#ec4899" stroke-width="1"/>
+  <text x="555" y="870" text-anchor="middle" fill="#f9a8d4" font-size="10" font-weight="600">Liquid AST</text>
+
+  <rect x="635" y="852" width="145" height="28" rx="14" fill="#052e16" stroke="#10b981" stroke-width="1"/>
+  <text x="707" y="870" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600">5 Output Formats</text>
+
+  <rect x="795" y="852" width="130" height="28" rx="14" fill="#451a03" stroke="#f59e0b" stroke-width="1"/>
+  <text x="860" y="870" text-anchor="middle" fill="#fde68a" font-size="10" font-weight="600">CI Drift Guard</text>
+
+  <rect x="940" y="852" width="115" height="28" rx="14" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1"/>
+  <text x="997" y="870" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="600">Cross-Project</text>
+
+  <!-- ==================== GLOSSARY TERM CARD ==================== -->
+  <rect x="220" y="620" width="280" height="170" rx="12" fill="#0f172a" stroke="#475569" stroke-width="1" filter="url(#shadow)"/>
+  <rect x="220" y="620" width="280" height="30" rx="12" fill="#1e293b"/>
+  <rect x="220" y="638" width="280" height="12" fill="#1e293b"/>
+  <text x="360" y="641" text-anchor="middle" fill="#cbd5e1" font-size="11" font-weight="600">Glossary Term Structure</text>
+
+  <text x="240" y="670" fill="#64748b" font-size="9">term_name</text>
+  <text x="360" y="670" fill="#94a3b8" font-size="9">"Total Revenue"</text>
+
+  <text x="240" y="686" fill="#64748b" font-size="9">type</text>
+  <text x="360" y="686" fill="#94a3b8" font-size="9">measure (sum)</text>
+
+  <text x="240" y="702" fill="#64748b" font-size="9">sql_expression</text>
+  <text x="360" y="702" fill="#94a3b8" font-size="9">${TABLE}.revenue</text>
+
+  <text x="240" y="718" fill="#64748b" font-size="9">synonyms</text>
+  <text x="360" y="718" fill="#a78bfa" font-size="9">["Revenue", "Sales Total"]</text>
+
+  <text x="240" y="734" fill="#64748b" font-size="9">related_terms</text>
+  <text x="360" y="734" fill="#a78bfa" font-size="9">[top 5 by similarity]</text>
+
+  <text x="240" y="750" fill="#64748b" font-size="9">source_table</text>
+  <text x="360" y="750" fill="#6ee7b7" font-size="9">schema.order_items</text>
+
+  <text x="240" y="766" fill="#64748b" font-size="9">sql_branches</text>
+  <text x="360" y="766" fill="#f9a8d4" font-size="9">[all Liquid variants]</text>
+
+  <text x="240" y="782" fill="#64748b" font-size="9">dashboard_links</text>
+  <text x="360" y="782" fill="#93c5fd" font-size="9">[linked dashboards]</text>
+
+  <!-- Arrow: enrich → term card -->
+  <path d="M 620 425 L 620 440 Q 620 445 500 445 Q 440 445 440 618" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrowWhite)"/>
+</svg>
