@@ -28,9 +28,9 @@ view: products {
   }
 
   dimension: is_active {
-    type: yesno
-    sql: ${TABLE}.discontinued_at IS NULL ;;
-    description: "Whether the product is currently active and available for sale"
+    type: string
+    sql: CASE WHEN ${TABLE}.discontinued_at IS NULL THEN 'Active' ELSE 'Discontinued' END ;;
+    description: "Product availability status label"
   }
 
   dimension: retail_price {

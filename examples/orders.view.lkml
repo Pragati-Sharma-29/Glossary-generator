@@ -36,10 +36,10 @@ view: orders {
 
   measure: total_revenue {
     type: sum
-    sql: ${sale_price} - ${TABLE}.discount_amount ;;
+    sql: ${sale_price} - COALESCE(${TABLE}.discount_amount, 0) ;;
     value_format_name: usd
-    description: "Sum of all order sale prices after discounts"
-    tags: ["kpi", "finance", "revenue"]
+    description: "Net revenue after all discounts and adjustments"
+    tags: ["kpi", "finance", "revenue", "executive"]
 
     link: {
       label: "Revenue Dashboard"
@@ -64,11 +64,11 @@ view: orders {
   }
 
   measure: average_order_value {
-    type: number
-    sql: 1.0 * ${total_revenue} / NULLIF(${order_count}, 0) ;;
+    type: average
+    sql: ${sale_price} ;;
     value_format_name: usd
-    description: "Average revenue per order (computed from total_revenue / order_count)"
-    tags: ["key_metric", "kpi"]
+    description: "Average revenue per order"
+    tags: ["kpi"]
   }
 
   measure: conversion_rate {
@@ -93,5 +93,20 @@ view: orders {
     value_format_name: percent_2
     description: "Percentage of customers who placed more than one order"
     tags: ["retention"]
+  }
+
+  measure: cancelled_order_count {
+    type: count
+    filters: [status: "cancelled"]
+    description: "Number of orders with cancelled status"
+    tags: ["operations"]
+  }
+
+  measure: return_rate {
+    type: number
+    sql: 1.0 * COUNT(CASE WHEN ${status} = 'returned' THEN 1 END) / NULLIF(${order_count}, 0) ;;
+    value_format_name: percent_2
+    description: "Percentage of orders that were returned"
+    tags: ["operations", "kpi"]
   }
 }
