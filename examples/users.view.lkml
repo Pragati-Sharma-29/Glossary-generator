@@ -1,5 +1,5 @@
 view: users {
-  sql_table_name: analytics.dim_users ;;
+  sql_table_name: analytics_v2.dim_users ;;
   description: "Registered customer profiles and demographics"
 
   dimension: id {
@@ -15,10 +15,10 @@ view: users {
     description: "Full name of the user"
   }
 
-  dimension: email {
+  dimension: email_domain {
     type: string
-    sql: ${TABLE}.email ;;
-    description: "User email address"
+    sql: SPLIT_PART(${TABLE}.email, '@', 2) ;;
+    description: "Domain portion of user email address"
   }
 
   dimension: age {
