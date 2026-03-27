@@ -46,7 +46,7 @@
     <p class="meta">Related: {% for r in term.related_terms %}<span class="pill">{{ r.term_name }}</span>{% endfor %}</p>
     {% endif %}
     {% if term.related_entries is defined and term.related_entries %}
-    <p class="meta">Source: {% for re in term.related_entries %}<code>{{ re.name }}</code> {% endfor %}</p>
+    <p class="meta">Related Entries: {% for re in term.related_entries %}<code>{{ re.name }}</code> {% endfor %}</p>
     {% endif %}
     {% endmacro %}
 
@@ -56,11 +56,11 @@
     <div class="term-card" data-searchable>
         <h3><span class="badge badge-measure">Measure</span>{{ term.term_name }}</h3>
         <p>{{ term.description }}</p>
-        {% if term.related_entries is defined and term.related_entries %}<p class="meta">Source Table: {% for re in term.related_entries %}<code>{{ re.name }}</code>{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
-        {% if term.view_name is defined %}<p class="meta">View: <code>{{ term.view_name }}</code></p>{% endif %}
+        {% if term.related_entries is defined and term.related_entries %}<p class="meta">Related Entries: {% for re in term.related_entries %}<code>{{ re.name }}</code>{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
         {% if term.measure_type is defined %}<p class="meta">Measure type: {{ term.measure_type }}</p>{% endif %}
         {% if term.sql_expression is defined %}<p class="meta">SQL: <code>{{ term.sql_expression }}</code></p>{% endif %}
         {% if term.value_format is defined and term.value_format %}<p class="meta">Format: {{ term.value_format }}</p>{% endif %}
+        {% if term.aspects is defined and term.aspects %}{% for a in term.aspects %}{% if a.key == 'joins' %}<p class="meta" style="background:#e3f2fd;display:inline-block;padding:2px 8px;border-radius:6px;color:#1565c0">Joins: {{ a.value }}</p>{% endif %}{% endfor %}{% endif %}
         {{ enrichment_fields(term) }}
         {% if term.dashboard_links is defined and term.dashboard_links %}
         <p class="links">Dashboards: {% for link in term.dashboard_links %}<a href="{{ link.url }}">{{ link.title }}</a>{% endfor %}</p>
@@ -78,9 +78,9 @@
     <div class="term-card" data-searchable>
         <h3><span class="badge badge-dimension">Dimension</span>{{ term.term_name }}</h3>
         <p>{{ term.description }}</p>
-        {% if term.related_entries is defined and term.related_entries %}<p class="meta">Source Table: {% for re in term.related_entries %}<code>{{ re.name }}</code>{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
-        {% if term.view_name is defined %}<p class="meta">View: <code>{{ term.view_name }}</code></p>{% endif %}
+        {% if term.related_entries is defined and term.related_entries %}<p class="meta">Related Entries: {% for re in term.related_entries %}<code>{{ re.name }}</code>{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
         {% if term.sql_expression is defined %}<p class="meta">SQL: <code>{{ term.sql_expression }}</code></p>{% endif %}
+        {% if term.aspects is defined and term.aspects %}{% for a in term.aspects %}{% if a.key == 'joins' %}<p class="meta" style="background:#e3f2fd;display:inline-block;padding:2px 8px;border-radius:6px;color:#1565c0">Joins: {{ a.value }}</p>{% endif %}{% endfor %}{% endif %}
         {{ enrichment_fields(term) }}
         {% if term.recommended_links is defined and term.recommended_links %}
         <p class="links">Links: {% for link in term.recommended_links %}<a href="{{ link.url }}">{{ link.title }}</a>{% endfor %}</p>
