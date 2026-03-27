@@ -33,14 +33,17 @@ class TestParseModel:
 
     def test_terms_contain_view_and_explore_context(self):
         terms = parse_lookml_model(MODEL_PATH)
-        # Every term should have view context in description
+        # Every term should have view_name and description populated
         for t in terms:
-            assert "View:" in t.description
-        # Terms linked to an explore should have explore context
+            assert t.view_name, f"Term {t.name} missing view_name"
+            assert t.description, f"Term {t.name} missing description"
+        # Terms linked to an explore should have explore_name set
         explore_terms = [t for t in terms if t.explore_name]
         assert len(explore_terms) > 0
-        for t in explore_terms:
-            assert "Explore:" in t.description
+        # Descriptions should not contain "View:" or "Explore:" prefixes
+        for t in terms:
+            assert "View:" not in t.description
+            assert "Explore:" not in t.description
 
     def test_contains_metrics(self):
         terms = parse_lookml_model(MODEL_PATH)
