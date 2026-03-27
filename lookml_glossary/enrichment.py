@@ -115,12 +115,9 @@ def _find_synonyms_for_term(
             score = max(score, 0.9)
 
         if score >= _SYNONYM_IDENTITY_THRESHOLD:
-            # Deduplicate by term_name — keep only the first occurrence per name
-            if not any(r["term_name"] == b.name for r in term.related_terms):
-                entry = {"term_name": b.name, "field_id": b.field_id,
-                         "type": b.term_type, "view_name": b.view_name or "",
-                         "relationship": "synonym"}
-                term.related_terms.append(entry)
+            # Identity-level matches are synonyms — skip them from related_terms
+            # to avoid polluting the list with near-duplicates.
+            pass
 
 
 def find_synonyms(terms: list[GlossaryTerm]) -> None:
@@ -266,16 +263,20 @@ def _find_related_for_explore(explore_terms: list[GlossaryTerm]) -> None:
                         min_score = heap[0][0]
                     tie += 1
 
-        # Extract top-K in descending order, deduplicating by term_name
-        # (synonyms are already in related_terms from the synonym pass)
+        # Extract top-K in descending order, skipping identity-level matches
+        # (synonyms) and deduplicating by term_name
         top_k = sorted(heap, key=lambda x: x[0], reverse=True)
         seen_names: set[str] = {r["term_name"] for r in a.related_terms}
+        seen_names.add(a.name)  # exclude self by name too
         for score, _, b in top_k:
+            # Skip identity-level matches — those are synonyms, not related
+            label_sim = _label_similarity(a.name, b.name)
+            if label_sim >= _SYNONYM_IDENTITY_THRESHOLD:
+                continue
             if b.name not in seen_names:
                 seen_names.add(b.name)
                 entry = {"term_name": b.name, "field_id": b.field_id,
-                         "type": b.term_type, "view_name": b.view_name or "",
-                         "relationship": "related"}
+                         "type": b.term_type, "view_name": b.view_name or ""}
                 a.related_terms.append(entry)
 
 
