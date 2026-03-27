@@ -9,6 +9,8 @@ from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 from typing import Optional
 
+import yaml
+
 import lkml
 
 logger = logging.getLogger(__name__)
@@ -390,6 +392,60 @@ def extract_terms_from_view(
     return terms
 
 
+def _parse_yaml_dashboard(fpath: str) -> dict:
+    """Parse a YAML-format .dashboard.lookml file into the same structure
+    that ``extract_dashboard_links`` expects.
+
+    YAML dashboards (used by many Looker projects) look like::
+
+        - dashboard: my_dashboard
+          title: My Dashboard
+          elements:
+          - title: Element Title
+            model: my_model
+            explore: my_explore
+            fields: [view.dim1, view.measure1]
+
+    Returns a dict with a ``dashboards`` key containing normalised dashboard
+    dicts compatible with the LookML-parsed format.
+    """
+    try:
+        with open(fpath, "r") as f:
+            data = yaml.safe_load(f)
+    except Exception as exc:
+        logger.warning("Failed to parse YAML dashboard %s: %s", fpath, exc)
+        return {"dashboards": []}
+
+    if data is None:
+        return {"dashboards": []}
+
+    # YAML dashboards are a list of mappings, each with a 'dashboard' key
+    items = data if isinstance(data, list) else [data]
+    dashboards: list[dict] = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        dash_name = item.get("dashboard", "")
+        if not dash_name:
+            continue
+        dash_title = item.get("title", str(dash_name))
+        elements: list[dict] = []
+        for elem in item.get("elements", []):
+            if not isinstance(elem, dict):
+                continue
+            # YAML dashboards put all field refs under 'fields'
+            fields = elem.get("fields", []) or []
+            if isinstance(fields, str):
+                fields = [fields]
+            elements.append({"fields": fields})
+        dashboards.append({
+            "name": str(dash_name),
+            "title": dash_title,
+            "elements": elements,
+        })
+    return {"dashboards": dashboards}
+
+
 def extract_dashboard_links(parsed: dict) -> dict[str, list[DashboardLink]]:
     """Build a map of field_ref -> dashboard links from dashboard files."""
     dashboard_map: dict[str, list[DashboardLink]] = {}
@@ -501,6 +557,9 @@ def parse_lookml_model(
 
     def _safe_parse(fpath: str) -> tuple[str, dict | None]:
         try:
+            # .dashboard.lookml files use YAML format, not LookML syntax
+            if fpath.endswith(".dashboard.lookml"):
+                return fpath, _parse_yaml_dashboard(fpath)
             return fpath, parse_lookml_file(fpath)
         except Exception:
             return fpath, None
