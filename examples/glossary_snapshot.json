@@ -1,6 +1,198 @@
 {
   "glossary": [
     {
+      "term_name": "Region Column",
+      "field_id": "dynamic_fields.region_column",
+      "description": "Region column that changes based on user attributes | View: Dynamic Fields (table: analytics.events)",
+      "type": "dimension",
+      "table_name": "analytics.events",
+      "view_name": "dynamic_fields",
+      "model_name": "ecommerce",
+      "sql_expression": "{% if _user_attributes['region'] == 'EU' %}\n        ${TABLE}.region_eu\n      {% elsif _user_attributes['region'] == 'APAC' %}\n        ${TABLE}.region_apac\n      {% else %}\n        ${TABLE}.region_global\n      {% endif %}",
+      "related_terms": [
+        {
+          "term_name": "Date Format",
+          "field_id": "dynamic_fields.date_format",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Case Example",
+          "field_id": "dynamic_fields.case_example",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Dynamic Sum",
+          "field_id": "dynamic_fields.dynamic_sum",
+          "type": "measure",
+          "view_name": "dynamic_fields"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics.events",
+          "id": "analytics.events",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics.events"
+        }
+      ],
+      "is_dynamic_sql": true,
+      "sql_branches": [
+        "${TABLE}.region_eu",
+        "${TABLE}.region_apac",
+        "${TABLE}.region_global"
+      ]
+    },
+    {
+      "term_name": "Date Format",
+      "field_id": "dynamic_fields.date_format",
+      "description": "Date formatted based on locale | View: Dynamic Fields (table: analytics.events)",
+      "type": "dimension",
+      "table_name": "analytics.events",
+      "view_name": "dynamic_fields",
+      "model_name": "ecommerce",
+      "sql_expression": "{% if _user_attributes['locale'] == 'US' %}\n        DATE_FORMAT(${TABLE}.created_at, '%m/%d/%Y')\n      {% else %}\n        DATE_FORMAT(${TABLE}.created_at, '%d/%m/%Y')\n      {% endif %}",
+      "related_terms": [
+        {
+          "term_name": "Region Column",
+          "field_id": "dynamic_fields.region_column",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Case Example",
+          "field_id": "dynamic_fields.case_example",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Dynamic Sum",
+          "field_id": "dynamic_fields.dynamic_sum",
+          "type": "measure",
+          "view_name": "dynamic_fields"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics.events",
+          "id": "analytics.events",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics.events"
+        }
+      ],
+      "is_dynamic_sql": true,
+      "sql_branches": [
+        "DATE_FORMAT(${TABLE}.created_at, '%m/%d/%Y')",
+        "DATE_FORMAT(${TABLE}.created_at, '%d/%m/%Y')"
+      ]
+    },
+    {
+      "term_name": "Case Example",
+      "field_id": "dynamic_fields.case_example",
+      "description": "Uses case/when for tier assignment | View: Dynamic Fields (table: analytics.events)",
+      "type": "dimension",
+      "table_name": "analytics.events",
+      "view_name": "dynamic_fields",
+      "model_name": "ecommerce",
+      "sql_expression": "{% case _user_attributes['tier'] %}\n        {% when 'gold' %}\n          ${TABLE}.gold_price\n        {% when 'silver' %}\n          ${TABLE}.silver_price\n        {% else %}\n          ${TABLE}.standard_price\n      {% endcase %}",
+      "related_terms": [
+        {
+          "term_name": "Region Column",
+          "field_id": "dynamic_fields.region_column",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Date Format",
+          "field_id": "dynamic_fields.date_format",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Dynamic Sum",
+          "field_id": "dynamic_fields.dynamic_sum",
+          "type": "measure",
+          "view_name": "dynamic_fields"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics.events",
+          "id": "analytics.events",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics.events"
+        }
+      ],
+      "is_dynamic_sql": true,
+      "sql_branches": [
+        "${TABLE}.gold_price",
+        "${TABLE}.silver_price",
+        "${TABLE}.standard_price"
+      ]
+    },
+    {
+      "term_name": "Dynamic Sum",
+      "field_id": "dynamic_fields.dynamic_sum",
+      "description": "Sum that varies by database dialect | View: Dynamic Fields (table: analytics.events)",
+      "type": "measure",
+      "table_name": "analytics.events",
+      "view_name": "dynamic_fields",
+      "model_name": "ecommerce",
+      "sql_expression": "{% if _dialect._name == 'bigquery' %}\n        ${TABLE}.amount_bq\n      {% elsif _dialect._name == 'snowflake' %}\n        ${TABLE}.amount_sf\n      {% else %}\n        ${TABLE}.amount\n      {% endif %}",
+      "measure_type": "sum",
+      "tags": [
+        "metric"
+      ],
+      "is_metric": true,
+      "related_terms": [
+        {
+          "term_name": "Region Column",
+          "field_id": "dynamic_fields.region_column",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Date Format",
+          "field_id": "dynamic_fields.date_format",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Case Example",
+          "field_id": "dynamic_fields.case_example",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics.events",
+          "id": "analytics.events",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics.events"
+        }
+      ],
+      "is_dynamic_sql": true,
+      "sql_branches": [
+        "${TABLE}.amount_bq",
+        "${TABLE}.amount_sf",
+        "${TABLE}.amount"
+      ]
+    },
+    {
       "term_name": "Id",
       "field_id": "orders.id",
       "description": "Unique order identifier | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
@@ -13,15 +205,15 @@
       "synonyms": [
         {
           "term_name": "Id",
-          "field_id": "users.id",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Id",
           "field_id": "products.id",
           "view_name": "products",
           "explore_name": "products"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "users.id",
+          "view_name": "users",
+          "explore_name": "orders"
         },
         {
           "term_name": "User Id",
@@ -99,15 +291,15 @@
         },
         {
           "term_name": "Id",
-          "field_id": "users.id",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Id",
           "field_id": "products.id",
           "view_name": "products",
           "explore_name": "products"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "users.id",
+          "view_name": "users",
+          "explore_name": "orders"
         }
       ],
       "related_terms": [
@@ -289,32 +481,26 @@
         },
         {
           "term_name": "Created Date",
-          "field_id": "orders.created_date",
-          "view_name": "orders",
+          "field_id": "users.created_date",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Week",
-          "field_id": "orders.created_week",
-          "view_name": "orders",
+          "field_id": "users.created_week",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Month",
-          "field_id": "orders.created_month",
-          "view_name": "orders",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Quarter",
-          "field_id": "orders.created_quarter",
-          "view_name": "orders",
+          "field_id": "users.created_month",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Year",
-          "field_id": "orders.created_year",
-          "view_name": "orders",
+          "field_id": "users.created_year",
+          "view_name": "users",
           "explore_name": "orders"
         }
       ],
@@ -395,32 +581,26 @@
         },
         {
           "term_name": "Created Raw",
-          "field_id": "orders.created_raw",
-          "view_name": "orders",
+          "field_id": "users.created_raw",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Week",
-          "field_id": "orders.created_week",
-          "view_name": "orders",
+          "field_id": "users.created_week",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Month",
-          "field_id": "orders.created_month",
-          "view_name": "orders",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Quarter",
-          "field_id": "orders.created_quarter",
-          "view_name": "orders",
+          "field_id": "users.created_month",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Year",
-          "field_id": "orders.created_year",
-          "view_name": "orders",
+          "field_id": "users.created_year",
+          "view_name": "users",
           "explore_name": "orders"
         }
       ],
@@ -501,32 +681,26 @@
         },
         {
           "term_name": "Created Raw",
-          "field_id": "orders.created_raw",
-          "view_name": "orders",
+          "field_id": "users.created_raw",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Date",
-          "field_id": "orders.created_date",
-          "view_name": "orders",
+          "field_id": "users.created_date",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Month",
-          "field_id": "orders.created_month",
-          "view_name": "orders",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Quarter",
-          "field_id": "orders.created_quarter",
-          "view_name": "orders",
+          "field_id": "users.created_month",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Year",
-          "field_id": "orders.created_year",
-          "view_name": "orders",
+          "field_id": "users.created_year",
+          "view_name": "users",
           "explore_name": "orders"
         }
       ],
@@ -607,32 +781,26 @@
         },
         {
           "term_name": "Created Raw",
-          "field_id": "orders.created_raw",
-          "view_name": "orders",
+          "field_id": "users.created_raw",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Date",
-          "field_id": "orders.created_date",
-          "view_name": "orders",
+          "field_id": "users.created_date",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Week",
-          "field_id": "orders.created_week",
-          "view_name": "orders",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Quarter",
-          "field_id": "orders.created_quarter",
-          "view_name": "orders",
+          "field_id": "users.created_week",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Year",
-          "field_id": "orders.created_year",
-          "view_name": "orders",
+          "field_id": "users.created_year",
+          "view_name": "users",
           "explore_name": "orders"
         }
       ],
@@ -707,32 +875,32 @@
       "synonyms": [
         {
           "term_name": "Created Raw",
-          "field_id": "orders.created_raw",
-          "view_name": "orders",
+          "field_id": "users.created_raw",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Date",
-          "field_id": "orders.created_date",
-          "view_name": "orders",
+          "field_id": "users.created_date",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Week",
-          "field_id": "orders.created_week",
-          "view_name": "orders",
+          "field_id": "users.created_week",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Month",
-          "field_id": "orders.created_month",
-          "view_name": "orders",
+          "field_id": "users.created_month",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Year",
-          "field_id": "orders.created_year",
-          "view_name": "orders",
+          "field_id": "users.created_year",
+          "view_name": "users",
           "explore_name": "orders"
         }
       ],
@@ -813,32 +981,26 @@
         },
         {
           "term_name": "Created Raw",
-          "field_id": "orders.created_raw",
-          "view_name": "orders",
+          "field_id": "users.created_raw",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Date",
-          "field_id": "orders.created_date",
-          "view_name": "orders",
+          "field_id": "users.created_date",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Week",
-          "field_id": "orders.created_week",
-          "view_name": "orders",
+          "field_id": "users.created_week",
+          "view_name": "users",
           "explore_name": "orders"
         },
         {
           "term_name": "Created Month",
-          "field_id": "orders.created_month",
-          "view_name": "orders",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Quarter",
-          "field_id": "orders.created_quarter",
-          "view_name": "orders",
+          "field_id": "users.created_month",
+          "view_name": "users",
           "explore_name": "orders"
         }
       ],
@@ -1437,927 +1599,6 @@
     },
     {
       "term_name": "Id",
-      "field_id": "users.id",
-      "description": "Unique user identifier | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
-      "type": "dimension",
-      "table_name": "analytics_v2.dim_users",
-      "view_name": "users",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.id",
-      "synonyms": [
-        {
-          "term_name": "Id",
-          "field_id": "orders.id",
-          "view_name": "orders",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Id",
-          "field_id": "products.id",
-          "view_name": "products",
-          "explore_name": "products"
-        },
-        {
-          "term_name": "User Id",
-          "field_id": "orders.user_id",
-          "view_name": "orders",
-          "explore_name": "orders"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "Email Domain",
-          "field_id": "users.email_domain",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Country",
-          "field_id": "users.country",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Age",
-          "field_id": "users.age",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Raw",
-          "field_id": "users.created_raw",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Lifetime Value Tier",
-          "field_id": "users.lifetime_value_tier",
-          "type": "dimension",
-          "view_name": "users"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics_v2.dim_users",
-          "id": "analytics_v2.dim_users",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics_v2.dim_users"
-        }
-      ],
-      "aspects": [
-        {
-          "key": "primary_key",
-          "value": true
-        }
-      ]
-    },
-    {
-      "term_name": "Name",
-      "field_id": "users.name",
-      "description": "Full name of the user | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
-      "type": "dimension",
-      "table_name": "analytics_v2.dim_users",
-      "view_name": "users",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.name",
-      "synonyms": [
-        {
-          "term_name": "Name",
-          "field_id": "products.name",
-          "view_name": "products",
-          "explore_name": "products"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "Email Domain",
-          "field_id": "users.email_domain",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Country",
-          "field_id": "users.country",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Age",
-          "field_id": "users.age",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Raw",
-          "field_id": "users.created_raw",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Lifetime Value Tier",
-          "field_id": "users.lifetime_value_tier",
-          "type": "dimension",
-          "view_name": "users"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics_v2.dim_users",
-          "id": "analytics_v2.dim_users",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics_v2.dim_users"
-        }
-      ]
-    },
-    {
-      "term_name": "Email Domain",
-      "field_id": "users.email_domain",
-      "description": "Domain portion of user email address | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
-      "type": "dimension",
-      "table_name": "analytics_v2.dim_users",
-      "view_name": "users",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "SPLIT_PART(${TABLE}.email, '@', 2)",
-      "related_terms": [
-        {
-          "term_name": "Name",
-          "field_id": "users.name",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Country",
-          "field_id": "users.country",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Age",
-          "field_id": "users.age",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Raw",
-          "field_id": "users.created_raw",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Lifetime Value Tier",
-          "field_id": "users.lifetime_value_tier",
-          "type": "dimension",
-          "view_name": "users"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics_v2.dim_users",
-          "id": "analytics_v2.dim_users",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics_v2.dim_users"
-        }
-      ]
-    },
-    {
-      "term_name": "Age",
-      "field_id": "users.age",
-      "description": "Customer age bracket | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
-      "type": "dimension",
-      "table_name": "analytics_v2.dim_users",
-      "view_name": "users",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.age",
-      "related_terms": [
-        {
-          "term_name": "Name",
-          "field_id": "users.name",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Country",
-          "field_id": "users.country",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Email Domain",
-          "field_id": "users.email_domain",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Raw",
-          "field_id": "users.created_raw",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Lifetime Value Tier",
-          "field_id": "users.lifetime_value_tier",
-          "type": "dimension",
-          "view_name": "users"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics_v2.dim_users",
-          "id": "analytics_v2.dim_users",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics_v2.dim_users"
-        }
-      ]
-    },
-    {
-      "term_name": "Country",
-      "field_id": "users.country",
-      "description": "ISO country code of residence | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
-      "type": "dimension",
-      "table_name": "analytics_v2.dim_users",
-      "view_name": "users",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.country_code",
-      "related_terms": [
-        {
-          "term_name": "Name",
-          "field_id": "users.name",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Age",
-          "field_id": "users.age",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Email Domain",
-          "field_id": "users.email_domain",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Raw",
-          "field_id": "users.created_raw",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Lifetime Value Tier",
-          "field_id": "users.lifetime_value_tier",
-          "type": "dimension",
-          "view_name": "users"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics_v2.dim_users",
-          "id": "analytics_v2.dim_users",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics_v2.dim_users"
-        }
-      ]
-    },
-    {
-      "term_name": "Lifetime Value Tier",
-      "field_id": "users.lifetime_value_tier",
-      "description": "Customer segmentation by total historical spend | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
-      "type": "dimension",
-      "table_name": "analytics_v2.dim_users",
-      "view_name": "users",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.lifetime_spend",
-      "tags": [
-        "segmentation"
-      ],
-      "related_terms": [
-        {
-          "term_name": "Name",
-          "field_id": "users.name",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Age",
-          "field_id": "users.age",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Email Domain",
-          "field_id": "users.email_domain",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Raw",
-          "field_id": "users.created_raw",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Country",
-          "field_id": "users.country",
-          "type": "dimension",
-          "view_name": "users"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics_v2.dim_users",
-          "id": "analytics_v2.dim_users",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics_v2.dim_users"
-        }
-      ]
-    },
-    {
-      "term_name": "Created Raw",
-      "field_id": "users.created_raw",
-      "description": "When the user account was created | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
-      "type": "dimension",
-      "table_name": "analytics_v2.dim_users",
-      "view_name": "users",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.created_at",
-      "synonyms": [
-        {
-          "term_name": "Created Raw",
-          "field_id": "orders.created_raw",
-          "view_name": "orders",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Date",
-          "field_id": "users.created_date",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Week",
-          "field_id": "users.created_week",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Month",
-          "field_id": "users.created_month",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Year",
-          "field_id": "users.created_year",
-          "view_name": "users",
-          "explore_name": "orders"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "Created Week",
-          "field_id": "users.created_week",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Date",
-          "field_id": "users.created_date",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Month",
-          "field_id": "users.created_month",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Year",
-          "field_id": "users.created_year",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Lifetime Value Tier",
-          "field_id": "users.lifetime_value_tier",
-          "type": "dimension",
-          "view_name": "users"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics_v2.dim_users",
-          "id": "analytics_v2.dim_users",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics_v2.dim_users"
-        }
-      ],
-      "aspects": [
-        {
-          "key": "dimension_group",
-          "value": "created"
-        },
-        {
-          "key": "timeframe",
-          "value": "raw"
-        },
-        {
-          "key": "dimension_group_type",
-          "value": "time"
-        }
-      ]
-    },
-    {
-      "term_name": "Created Date",
-      "field_id": "users.created_date",
-      "description": "When the user account was created | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
-      "type": "dimension",
-      "table_name": "analytics_v2.dim_users",
-      "view_name": "users",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.created_at",
-      "synonyms": [
-        {
-          "term_name": "Created Date",
-          "field_id": "orders.created_date",
-          "view_name": "orders",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Raw",
-          "field_id": "users.created_raw",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Week",
-          "field_id": "users.created_week",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Month",
-          "field_id": "users.created_month",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Year",
-          "field_id": "users.created_year",
-          "view_name": "users",
-          "explore_name": "orders"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "Created Week",
-          "field_id": "users.created_week",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Raw",
-          "field_id": "users.created_raw",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Month",
-          "field_id": "users.created_month",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Year",
-          "field_id": "users.created_year",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Lifetime Value Tier",
-          "field_id": "users.lifetime_value_tier",
-          "type": "dimension",
-          "view_name": "users"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics_v2.dim_users",
-          "id": "analytics_v2.dim_users",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics_v2.dim_users"
-        }
-      ],
-      "aspects": [
-        {
-          "key": "dimension_group",
-          "value": "created"
-        },
-        {
-          "key": "timeframe",
-          "value": "date"
-        },
-        {
-          "key": "dimension_group_type",
-          "value": "time"
-        }
-      ]
-    },
-    {
-      "term_name": "Created Week",
-      "field_id": "users.created_week",
-      "description": "When the user account was created | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
-      "type": "dimension",
-      "table_name": "analytics_v2.dim_users",
-      "view_name": "users",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.created_at",
-      "synonyms": [
-        {
-          "term_name": "Created Week",
-          "field_id": "orders.created_week",
-          "view_name": "orders",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Raw",
-          "field_id": "users.created_raw",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Date",
-          "field_id": "users.created_date",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Month",
-          "field_id": "users.created_month",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Year",
-          "field_id": "users.created_year",
-          "view_name": "users",
-          "explore_name": "orders"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "Created Date",
-          "field_id": "users.created_date",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Raw",
-          "field_id": "users.created_raw",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Month",
-          "field_id": "users.created_month",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Year",
-          "field_id": "users.created_year",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Lifetime Value Tier",
-          "field_id": "users.lifetime_value_tier",
-          "type": "dimension",
-          "view_name": "users"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics_v2.dim_users",
-          "id": "analytics_v2.dim_users",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics_v2.dim_users"
-        }
-      ],
-      "aspects": [
-        {
-          "key": "dimension_group",
-          "value": "created"
-        },
-        {
-          "key": "timeframe",
-          "value": "week"
-        },
-        {
-          "key": "dimension_group_type",
-          "value": "time"
-        }
-      ]
-    },
-    {
-      "term_name": "Created Month",
-      "field_id": "users.created_month",
-      "description": "When the user account was created | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
-      "type": "dimension",
-      "table_name": "analytics_v2.dim_users",
-      "view_name": "users",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.created_at",
-      "synonyms": [
-        {
-          "term_name": "Created Month",
-          "field_id": "orders.created_month",
-          "view_name": "orders",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Raw",
-          "field_id": "users.created_raw",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Date",
-          "field_id": "users.created_date",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Week",
-          "field_id": "users.created_week",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Year",
-          "field_id": "users.created_year",
-          "view_name": "users",
-          "explore_name": "orders"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "Created Date",
-          "field_id": "users.created_date",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Raw",
-          "field_id": "users.created_raw",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Week",
-          "field_id": "users.created_week",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Year",
-          "field_id": "users.created_year",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Lifetime Value Tier",
-          "field_id": "users.lifetime_value_tier",
-          "type": "dimension",
-          "view_name": "users"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics_v2.dim_users",
-          "id": "analytics_v2.dim_users",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics_v2.dim_users"
-        }
-      ],
-      "aspects": [
-        {
-          "key": "dimension_group",
-          "value": "created"
-        },
-        {
-          "key": "timeframe",
-          "value": "month"
-        },
-        {
-          "key": "dimension_group_type",
-          "value": "time"
-        }
-      ]
-    },
-    {
-      "term_name": "Created Year",
-      "field_id": "users.created_year",
-      "description": "When the user account was created | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
-      "type": "dimension",
-      "table_name": "analytics_v2.dim_users",
-      "view_name": "users",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.created_at",
-      "synonyms": [
-        {
-          "term_name": "Created Year",
-          "field_id": "orders.created_year",
-          "view_name": "orders",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Raw",
-          "field_id": "users.created_raw",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Date",
-          "field_id": "users.created_date",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Week",
-          "field_id": "users.created_week",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Created Month",
-          "field_id": "users.created_month",
-          "view_name": "users",
-          "explore_name": "orders"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "Created Date",
-          "field_id": "users.created_date",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Raw",
-          "field_id": "users.created_raw",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Week",
-          "field_id": "users.created_week",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Created Month",
-          "field_id": "users.created_month",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Lifetime Value Tier",
-          "field_id": "users.lifetime_value_tier",
-          "type": "dimension",
-          "view_name": "users"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics_v2.dim_users",
-          "id": "analytics_v2.dim_users",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics_v2.dim_users"
-        }
-      ],
-      "aspects": [
-        {
-          "key": "dimension_group",
-          "value": "created"
-        },
-        {
-          "key": "timeframe",
-          "value": "year"
-        },
-        {
-          "key": "dimension_group_type",
-          "value": "time"
-        }
-      ]
-    },
-    {
-      "term_name": "User Count",
-      "field_id": "users.user_count",
-      "description": "Total number of unique registered users | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
-      "type": "measure",
-      "table_name": "analytics_v2.dim_users",
-      "view_name": "users",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${id}",
-      "measure_type": "count_distinct",
-      "tags": [
-        "key_metric"
-      ],
-      "is_metric": true,
-      "is_kpi": true,
-      "related_terms": [
-        {
-          "term_name": "Name",
-          "field_id": "users.name",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Age",
-          "field_id": "users.age",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Email Domain",
-          "field_id": "users.email_domain",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Lifetime Value Tier",
-          "field_id": "users.lifetime_value_tier",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Country",
-          "field_id": "users.country",
-          "type": "dimension",
-          "view_name": "users"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics_v2.dim_users",
-          "id": "analytics_v2.dim_users",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics_v2.dim_users"
-        }
-      ]
-    },
-    {
-      "term_name": "Id",
       "field_id": "products.id",
       "description": "Unique product identifier | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
       "type": "dimension",
@@ -2849,195 +2090,954 @@
       ]
     },
     {
-      "term_name": "Region Column",
-      "field_id": "dynamic_fields.region_column",
-      "description": "Region column that changes based on user attributes | View: Dynamic Fields (table: analytics.events)",
+      "term_name": "Id",
+      "field_id": "users.id",
+      "description": "Unique user identifier | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
       "type": "dimension",
-      "table_name": "analytics.events",
-      "view_name": "dynamic_fields",
+      "table_name": "analytics_v2.dim_users",
+      "view_name": "users",
+      "explore_name": "orders",
       "model_name": "ecommerce",
-      "sql_expression": "{% if _user_attributes['region'] == 'EU' %}\n        ${TABLE}.region_eu\n      {% elsif _user_attributes['region'] == 'APAC' %}\n        ${TABLE}.region_apac\n      {% else %}\n        ${TABLE}.region_global\n      {% endif %}",
+      "sql_expression": "${TABLE}.id",
+      "synonyms": [
+        {
+          "term_name": "Id",
+          "field_id": "orders.id",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "products.id",
+          "view_name": "products",
+          "explore_name": "products"
+        },
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
       "related_terms": [
         {
-          "term_name": "Date Format",
-          "field_id": "dynamic_fields.date_format",
+          "term_name": "Email Domain",
+          "field_id": "users.email_domain",
           "type": "dimension",
-          "view_name": "dynamic_fields"
+          "view_name": "users"
         },
         {
-          "term_name": "Case Example",
-          "field_id": "dynamic_fields.case_example",
+          "term_name": "Country",
+          "field_id": "users.country",
           "type": "dimension",
-          "view_name": "dynamic_fields"
+          "view_name": "users"
         },
         {
-          "term_name": "Dynamic Sum",
-          "field_id": "dynamic_fields.dynamic_sum",
-          "type": "measure",
-          "view_name": "dynamic_fields"
+          "term_name": "Age",
+          "field_id": "users.age",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Lifetime Value Tier",
+          "field_id": "users.lifetime_value_tier",
+          "type": "dimension",
+          "view_name": "users"
         }
       ],
       "related_entries": [
         {
           "type": "table",
-          "name": "analytics.events",
-          "id": "analytics.events",
+          "name": "analytics_v2.dim_users",
+          "id": "analytics_v2.dim_users",
           "url": null,
           "source_type": "physical_table",
           "verified": false,
-          "raw_sql_table_name": "analytics.events"
+          "raw_sql_table_name": "analytics_v2.dim_users"
         }
       ],
-      "is_dynamic_sql": true,
-      "sql_branches": [
-        "${TABLE}.region_eu",
-        "${TABLE}.region_apac",
-        "${TABLE}.region_global"
+      "aspects": [
+        {
+          "key": "primary_key",
+          "value": true
+        }
       ]
     },
     {
-      "term_name": "Date Format",
-      "field_id": "dynamic_fields.date_format",
-      "description": "Date formatted based on locale | View: Dynamic Fields (table: analytics.events)",
+      "term_name": "Name",
+      "field_id": "users.name",
+      "description": "Full name of the user | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
       "type": "dimension",
-      "table_name": "analytics.events",
-      "view_name": "dynamic_fields",
+      "table_name": "analytics_v2.dim_users",
+      "view_name": "users",
+      "explore_name": "orders",
       "model_name": "ecommerce",
-      "sql_expression": "{% if _user_attributes['locale'] == 'US' %}\n        DATE_FORMAT(${TABLE}.created_at, '%m/%d/%Y')\n      {% else %}\n        DATE_FORMAT(${TABLE}.created_at, '%d/%m/%Y')\n      {% endif %}",
+      "sql_expression": "${TABLE}.name",
+      "synonyms": [
+        {
+          "term_name": "Name",
+          "field_id": "products.name",
+          "view_name": "products",
+          "explore_name": "products"
+        }
+      ],
       "related_terms": [
         {
-          "term_name": "Region Column",
-          "field_id": "dynamic_fields.region_column",
+          "term_name": "Email Domain",
+          "field_id": "users.email_domain",
           "type": "dimension",
-          "view_name": "dynamic_fields"
+          "view_name": "users"
         },
         {
-          "term_name": "Case Example",
-          "field_id": "dynamic_fields.case_example",
+          "term_name": "Country",
+          "field_id": "users.country",
           "type": "dimension",
-          "view_name": "dynamic_fields"
+          "view_name": "users"
         },
         {
-          "term_name": "Dynamic Sum",
-          "field_id": "dynamic_fields.dynamic_sum",
-          "type": "measure",
-          "view_name": "dynamic_fields"
+          "term_name": "Age",
+          "field_id": "users.age",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Lifetime Value Tier",
+          "field_id": "users.lifetime_value_tier",
+          "type": "dimension",
+          "view_name": "users"
         }
       ],
       "related_entries": [
         {
           "type": "table",
-          "name": "analytics.events",
-          "id": "analytics.events",
+          "name": "analytics_v2.dim_users",
+          "id": "analytics_v2.dim_users",
           "url": null,
           "source_type": "physical_table",
           "verified": false,
-          "raw_sql_table_name": "analytics.events"
+          "raw_sql_table_name": "analytics_v2.dim_users"
         }
-      ],
-      "is_dynamic_sql": true,
-      "sql_branches": [
-        "DATE_FORMAT(${TABLE}.created_at, '%m/%d/%Y')",
-        "DATE_FORMAT(${TABLE}.created_at, '%d/%m/%Y')"
       ]
     },
     {
-      "term_name": "Case Example",
-      "field_id": "dynamic_fields.case_example",
-      "description": "Uses case/when for tier assignment | View: Dynamic Fields (table: analytics.events)",
+      "term_name": "Email Domain",
+      "field_id": "users.email_domain",
+      "description": "Domain portion of user email address | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
       "type": "dimension",
-      "table_name": "analytics.events",
-      "view_name": "dynamic_fields",
+      "table_name": "analytics_v2.dim_users",
+      "view_name": "users",
+      "explore_name": "orders",
       "model_name": "ecommerce",
-      "sql_expression": "{% case _user_attributes['tier'] %}\n        {% when 'gold' %}\n          ${TABLE}.gold_price\n        {% when 'silver' %}\n          ${TABLE}.silver_price\n        {% else %}\n          ${TABLE}.standard_price\n      {% endcase %}",
+      "sql_expression": "SPLIT_PART(${TABLE}.email, '@', 2)",
       "related_terms": [
         {
-          "term_name": "Region Column",
-          "field_id": "dynamic_fields.region_column",
+          "term_name": "Name",
+          "field_id": "users.name",
           "type": "dimension",
-          "view_name": "dynamic_fields"
+          "view_name": "users"
         },
         {
-          "term_name": "Date Format",
-          "field_id": "dynamic_fields.date_format",
+          "term_name": "Country",
+          "field_id": "users.country",
           "type": "dimension",
-          "view_name": "dynamic_fields"
+          "view_name": "users"
         },
         {
-          "term_name": "Dynamic Sum",
-          "field_id": "dynamic_fields.dynamic_sum",
-          "type": "measure",
-          "view_name": "dynamic_fields"
+          "term_name": "Age",
+          "field_id": "users.age",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Lifetime Value Tier",
+          "field_id": "users.lifetime_value_tier",
+          "type": "dimension",
+          "view_name": "users"
         }
       ],
       "related_entries": [
         {
           "type": "table",
-          "name": "analytics.events",
-          "id": "analytics.events",
+          "name": "analytics_v2.dim_users",
+          "id": "analytics_v2.dim_users",
           "url": null,
           "source_type": "physical_table",
           "verified": false,
-          "raw_sql_table_name": "analytics.events"
+          "raw_sql_table_name": "analytics_v2.dim_users"
         }
-      ],
-      "is_dynamic_sql": true,
-      "sql_branches": [
-        "${TABLE}.gold_price",
-        "${TABLE}.silver_price",
-        "${TABLE}.standard_price"
       ]
     },
     {
-      "term_name": "Dynamic Sum",
-      "field_id": "dynamic_fields.dynamic_sum",
-      "description": "Sum that varies by database dialect | View: Dynamic Fields (table: analytics.events)",
-      "type": "measure",
-      "table_name": "analytics.events",
-      "view_name": "dynamic_fields",
+      "term_name": "Age",
+      "field_id": "users.age",
+      "description": "Customer age bracket | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
+      "type": "dimension",
+      "table_name": "analytics_v2.dim_users",
+      "view_name": "users",
+      "explore_name": "orders",
       "model_name": "ecommerce",
-      "sql_expression": "{% if _dialect._name == 'bigquery' %}\n        ${TABLE}.amount_bq\n      {% elsif _dialect._name == 'snowflake' %}\n        ${TABLE}.amount_sf\n      {% else %}\n        ${TABLE}.amount\n      {% endif %}",
-      "measure_type": "sum",
+      "sql_expression": "${TABLE}.age",
+      "related_terms": [
+        {
+          "term_name": "Name",
+          "field_id": "users.name",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Country",
+          "field_id": "users.country",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Email Domain",
+          "field_id": "users.email_domain",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Lifetime Value Tier",
+          "field_id": "users.lifetime_value_tier",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics_v2.dim_users",
+          "id": "analytics_v2.dim_users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics_v2.dim_users"
+        }
+      ]
+    },
+    {
+      "term_name": "Country",
+      "field_id": "users.country",
+      "description": "ISO country code of residence | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
+      "type": "dimension",
+      "table_name": "analytics_v2.dim_users",
+      "view_name": "users",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.country_code",
+      "related_terms": [
+        {
+          "term_name": "Name",
+          "field_id": "users.name",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Age",
+          "field_id": "users.age",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Email Domain",
+          "field_id": "users.email_domain",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Lifetime Value Tier",
+          "field_id": "users.lifetime_value_tier",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics_v2.dim_users",
+          "id": "analytics_v2.dim_users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics_v2.dim_users"
+        }
+      ]
+    },
+    {
+      "term_name": "Lifetime Value Tier",
+      "field_id": "users.lifetime_value_tier",
+      "description": "Customer segmentation by total historical spend | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
+      "type": "dimension",
+      "table_name": "analytics_v2.dim_users",
+      "view_name": "users",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.lifetime_spend",
       "tags": [
-        "metric"
+        "segmentation"
+      ],
+      "related_terms": [
+        {
+          "term_name": "Name",
+          "field_id": "users.name",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Age",
+          "field_id": "users.age",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Email Domain",
+          "field_id": "users.email_domain",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Country",
+          "field_id": "users.country",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics_v2.dim_users",
+          "id": "analytics_v2.dim_users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics_v2.dim_users"
+        }
+      ]
+    },
+    {
+      "term_name": "Created Raw",
+      "field_id": "users.created_raw",
+      "description": "When the user account was created | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
+      "type": "dimension",
+      "table_name": "analytics_v2.dim_users",
+      "view_name": "users",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.created_at",
+      "synonyms": [
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "orders.created_month",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Quarter",
+          "field_id": "orders.created_quarter",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "orders.created_year",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Created Week",
+          "field_id": "users.created_week",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "users.created_date",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "users.created_month",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "users.created_year",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Lifetime Value Tier",
+          "field_id": "users.lifetime_value_tier",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics_v2.dim_users",
+          "id": "analytics_v2.dim_users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics_v2.dim_users"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "dimension_group",
+          "value": "created"
+        },
+        {
+          "key": "timeframe",
+          "value": "raw"
+        },
+        {
+          "key": "dimension_group_type",
+          "value": "time"
+        }
+      ]
+    },
+    {
+      "term_name": "Created Date",
+      "field_id": "users.created_date",
+      "description": "When the user account was created | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
+      "type": "dimension",
+      "table_name": "analytics_v2.dim_users",
+      "view_name": "users",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.created_at",
+      "synonyms": [
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "orders.created_month",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Quarter",
+          "field_id": "orders.created_quarter",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "orders.created_year",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Created Week",
+          "field_id": "users.created_week",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "users.created_month",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "users.created_year",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Lifetime Value Tier",
+          "field_id": "users.lifetime_value_tier",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics_v2.dim_users",
+          "id": "analytics_v2.dim_users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics_v2.dim_users"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "dimension_group",
+          "value": "created"
+        },
+        {
+          "key": "timeframe",
+          "value": "date"
+        },
+        {
+          "key": "dimension_group_type",
+          "value": "time"
+        }
+      ]
+    },
+    {
+      "term_name": "Created Week",
+      "field_id": "users.created_week",
+      "description": "When the user account was created | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
+      "type": "dimension",
+      "table_name": "analytics_v2.dim_users",
+      "view_name": "users",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.created_at",
+      "synonyms": [
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "orders.created_month",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Quarter",
+          "field_id": "orders.created_quarter",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "orders.created_year",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Created Date",
+          "field_id": "users.created_date",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "users.created_month",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "users.created_year",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Lifetime Value Tier",
+          "field_id": "users.lifetime_value_tier",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics_v2.dim_users",
+          "id": "analytics_v2.dim_users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics_v2.dim_users"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "dimension_group",
+          "value": "created"
+        },
+        {
+          "key": "timeframe",
+          "value": "week"
+        },
+        {
+          "key": "dimension_group_type",
+          "value": "time"
+        }
+      ]
+    },
+    {
+      "term_name": "Created Month",
+      "field_id": "users.created_month",
+      "description": "When the user account was created | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
+      "type": "dimension",
+      "table_name": "analytics_v2.dim_users",
+      "view_name": "users",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.created_at",
+      "synonyms": [
+        {
+          "term_name": "Created Month",
+          "field_id": "orders.created_month",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Quarter",
+          "field_id": "orders.created_quarter",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "orders.created_year",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Created Date",
+          "field_id": "users.created_date",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "users.created_week",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "users.created_year",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Lifetime Value Tier",
+          "field_id": "users.lifetime_value_tier",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics_v2.dim_users",
+          "id": "analytics_v2.dim_users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics_v2.dim_users"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "dimension_group",
+          "value": "created"
+        },
+        {
+          "key": "timeframe",
+          "value": "month"
+        },
+        {
+          "key": "dimension_group_type",
+          "value": "time"
+        }
+      ]
+    },
+    {
+      "term_name": "Created Year",
+      "field_id": "users.created_year",
+      "description": "When the user account was created | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
+      "type": "dimension",
+      "table_name": "analytics_v2.dim_users",
+      "view_name": "users",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.created_at",
+      "synonyms": [
+        {
+          "term_name": "Created Year",
+          "field_id": "orders.created_year",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "orders.created_month",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Quarter",
+          "field_id": "orders.created_quarter",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Created Date",
+          "field_id": "users.created_date",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "users.created_week",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "users.created_month",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Lifetime Value Tier",
+          "field_id": "users.lifetime_value_tier",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics_v2.dim_users",
+          "id": "analytics_v2.dim_users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics_v2.dim_users"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "dimension_group",
+          "value": "created"
+        },
+        {
+          "key": "timeframe",
+          "value": "year"
+        },
+        {
+          "key": "dimension_group_type",
+          "value": "time"
+        }
+      ]
+    },
+    {
+      "term_name": "User Count",
+      "field_id": "users.user_count",
+      "description": "Total number of unique registered users | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics | Joins: Users (many_to_one)",
+      "type": "measure",
+      "table_name": "analytics_v2.dim_users",
+      "view_name": "users",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${id}",
+      "measure_type": "count_distinct",
+      "tags": [
+        "key_metric"
       ],
       "is_metric": true,
+      "is_kpi": true,
       "related_terms": [
         {
-          "term_name": "Region Column",
-          "field_id": "dynamic_fields.region_column",
+          "term_name": "Name",
+          "field_id": "users.name",
           "type": "dimension",
-          "view_name": "dynamic_fields"
+          "view_name": "users"
         },
         {
-          "term_name": "Date Format",
-          "field_id": "dynamic_fields.date_format",
+          "term_name": "Age",
+          "field_id": "users.age",
           "type": "dimension",
-          "view_name": "dynamic_fields"
+          "view_name": "users"
         },
         {
-          "term_name": "Case Example",
-          "field_id": "dynamic_fields.case_example",
+          "term_name": "Email Domain",
+          "field_id": "users.email_domain",
           "type": "dimension",
-          "view_name": "dynamic_fields"
+          "view_name": "users"
+        },
+        {
+          "term_name": "Lifetime Value Tier",
+          "field_id": "users.lifetime_value_tier",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Country",
+          "field_id": "users.country",
+          "type": "dimension",
+          "view_name": "users"
         }
       ],
       "related_entries": [
         {
           "type": "table",
-          "name": "analytics.events",
-          "id": "analytics.events",
+          "name": "analytics_v2.dim_users",
+          "id": "analytics_v2.dim_users",
           "url": null,
           "source_type": "physical_table",
           "verified": false,
-          "raw_sql_table_name": "analytics.events"
+          "raw_sql_table_name": "analytics_v2.dim_users"
         }
-      ],
-      "is_dynamic_sql": true,
-      "sql_branches": [
-        "${TABLE}.amount_bq",
-        "${TABLE}.amount_sf",
-        "${TABLE}.amount"
       ]
     }
   ],
