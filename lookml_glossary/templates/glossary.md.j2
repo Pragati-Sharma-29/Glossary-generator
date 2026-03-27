@@ -18,7 +18,7 @@
 - **Related Terms:** {{ term.related_terms | map(attribute='term_name') | join(', ') }}
 {% endif %}
 {% if term.related_entries is defined and term.related_entries %}
-- **Source Table:** {% for re in term.related_entries %}`{{ re.name }}`{% if not loop.last %}, {% endif %}{% endfor %}
+- **Related Entries:** {% for re in term.related_entries %}`{{ re.name }}`{% if not loop.last %}, {% endif %}{% endfor %}
 
 {% endif %}
 {% endmacro %}
@@ -32,10 +32,7 @@
 - **Description:** {{ term.description }}
 - **Type:** Measure ({{ term.measure_type | default("N/A") }})
 {% if term.related_entries is defined and term.related_entries %}
-- **Source Table:** {% for re in term.related_entries %}`{{ re.name }}`{% if not loop.last %}, {% endif %}{% endfor %}
-{% endif %}
-{% if term.view_name is defined %}
-- **View:** `{{ term.view_name }}`
+- **Related Entries:** {% for re in term.related_entries %}`{{ re.name }}`{% if not loop.last %}, {% endif %}{% endfor %}
 {% endif %}
 {% if term.sql_expression is defined %}
 - **SQL:** `{{ term.sql_expression }}`
@@ -46,6 +43,9 @@
 {% if term.tags is defined and term.tags %}
 - **Tags:** {{ term.tags | join(", ") }}
 {% endif %}
+{% if term.aspects is defined and term.aspects %}{% for a in term.aspects %}{% if a.key == 'joins' %}
+- **Joins:** {{ a.value }}
+{% endif %}{% endfor %}{% endif %}
 {{ enrichment_section(term) }}
 {% if term.dashboard_links is defined and term.dashboard_links %}
 - **Dashboard Links:**
@@ -71,14 +71,14 @@
 
 - **Description:** {{ term.description }}
 {% if term.related_entries is defined and term.related_entries %}
-- **Source Table:** {% for re in term.related_entries %}`{{ re.name }}`{% if not loop.last %}, {% endif %}{% endfor %}
-{% endif %}
-{% if term.view_name is defined %}
-- **View:** `{{ term.view_name }}`
+- **Related Entries:** {% for re in term.related_entries %}`{{ re.name }}`{% if not loop.last %}, {% endif %}{% endfor %}
 {% endif %}
 {% if term.sql_expression is defined %}
 - **SQL:** `{{ term.sql_expression }}`
 {% endif %}
+{% if term.aspects is defined and term.aspects %}{% for a in term.aspects %}{% if a.key == 'joins' %}
+- **Joins:** {{ a.value }}
+{% endif %}{% endfor %}{% endif %}
 {{ enrichment_section(term) }}
 {% if term.recommended_links is defined and term.recommended_links %}
 - **Recommended Links:**

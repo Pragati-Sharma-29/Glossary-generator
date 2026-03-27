@@ -195,20 +195,20 @@ def _generate_nl_description(
                     subject = trimmed
                     subject_lower = subject.lower()
                     # Don't break — continue stripping ("count distinct" fields)
-        nl = f"{prefix} {subject.lower()} in {view_label}"
+        nl = f"{prefix} {subject.lower()} in view {view_label}"
     elif term_type == "parameter":
-        nl = f"User-selectable parameter {label.lower()} for {view_label}"
+        nl = f"User-selectable parameter {label.lower()} for view {view_label}"
     else:
         # dimension
         if col_hint:
-            nl = f"{col_hint} attribute of {view_label}"
+            nl = f"{col_hint} attribute of view {view_label}"
         else:
-            nl = f"{label} attribute of {view_label}"
+            nl = f"{label} attribute of view {view_label}"
 
     if explore_desc:
         nl += f". {explore_desc.rstrip('.')}"
     elif explore_name:
-        nl += f", used in the {_clean_label(explore_name)} explore"
+        nl += f", used in explore {_clean_label(explore_name)}"
 
     return nl
 
@@ -222,40 +222,15 @@ def _enrich_description(
     *,
     nl_desc: str = "",
 ) -> str:
-    """Enrich a term description with view/explore context and joins.
+    """Enrich a term description.
 
-    Structure:  ``<base_or_nl> | View: … | Explore: … | Joins: …``
-
-    *base_desc* is the explicit LookML description (may be empty).
-    *nl_desc* is a generated natural-language fallback used when *base_desc*
-    is empty.
+    Returns the explicit LookML description if available, otherwise the
+    NL-generated fallback.  View/explore names are intentionally excluded
+    (they live in dedicated columns).  Joins are not inlined here — they
+    are surfaced as a separate aspect by the caller.
     """
-    # Use the explicit description when available, otherwise NL fallback
     primary = base_desc if base_desc else nl_desc
-    parts = [primary] if primary else []
-
-    parts.append(f"View: {_clean_label(view_name)}")
-
-    if explore_name:
-        explore_info = f"Explore: {_clean_label(explore_name)}"
-        if explore_desc:
-            explore_info += f" — {explore_desc}"
-        parts.append(explore_info)
-
-    if joins:
-        join_parts: list[str] = []
-        for j in joins:
-            j_name = j.get("from", j.get("name", ""))
-            j_rel = j.get("relationship", "")
-            if j_name:
-                entry = _clean_label(j_name)
-                if j_rel:
-                    entry += f" ({j_rel})"
-                join_parts.append(entry)
-        if join_parts:
-            parts.append(f"Joins: {', '.join(join_parts)}")
-
-    return " | ".join(parts)
+    return primary
 
 
 def _build_aspects(item: dict, extra: dict | None = None) -> list[dict]:
@@ -308,6 +283,21 @@ def extract_terms_from_view(
     dashboard_map = dashboard_map or {}
     joins = explore_joins or []
 
+    # Build joins aspect once for all terms in this view
+    joins_aspect: list[dict] | None = None
+    if joins:
+        join_entries: list[str] = []
+        for j in joins:
+            j_name = j.get("from", j.get("name", ""))
+            j_rel = j.get("relationship", "")
+            if j_name:
+                entry = _clean_label(j_name)
+                if j_rel:
+                    entry += f" ({j_rel})"
+                join_entries.append(entry)
+        if join_entries:
+            joins_aspect = [{"key": "joins", "value": ", ".join(join_entries)}]
+
     def _desc(item: dict, name: str, term_type: str = "dimension",
               measure_type: str = "", sql_expr: str = "") -> str:
         base = _build_description(item, name)
@@ -319,6 +309,11 @@ def extract_terms_from_view(
             base, view_name, explore_name, explore_desc,
             joins, nl_desc=nl,
         )
+
+    def _aspects_with_joins(base_aspects: list[dict]) -> list[dict]:
+        if joins_aspect:
+            return base_aspects + joins_aspect
+        return base_aspects
 
     # Dimensions
     for dim in view.get("dimensions", []):
@@ -337,7 +332,7 @@ def extract_terms_from_view(
             tags=dim.get("tags", []),
             recommended_links=_extract_links(dim),
             is_hidden=hidden,
-            aspects=_build_aspects(dim),
+            aspects=_aspects_with_joins(_build_aspects(dim)),
             field_id=f"{view_name}.{name}",
             is_dynamic_sql=is_dynamic,
             sql_branches=branches,
@@ -367,7 +362,7 @@ def extract_terms_from_view(
                     model_name=model_name,
                     tags=dg.get("tags", []),
                     is_hidden=hidden,
-                    aspects=_build_aspects(dg, extra_aspects),
+                    aspects=_aspects_with_joins(_build_aspects(dg, extra_aspects)),
                     field_id=f"{view_name}.{tf_name}",
                     is_dynamic_sql=is_dynamic,
                     sql_branches=branches,
@@ -385,7 +380,7 @@ def extract_terms_from_view(
                 model_name=model_name,
                 tags=dg.get("tags", []),
                 is_hidden=hidden,
-                aspects=_build_aspects(dg, {"dimension_group_type": dg_type}),
+                aspects=_aspects_with_joins(_build_aspects(dg, {"dimension_group_type": dg_type})),
                 field_id=f"{view_name}.{base_name}",
                 is_dynamic_sql=is_dynamic,
                 sql_branches=branches,
@@ -423,7 +418,7 @@ def extract_terms_from_view(
             is_hidden=hidden,
             dashboard_links=dash_links,
             recommended_links=_extract_links(measure),
-            aspects=_build_aspects(measure),
+            aspects=_aspects_with_joins(_build_aspects(measure)),
             field_id=f"{view_name}.{name}",
             is_dynamic_sql=is_dynamic,
             sql_branches=branches,
@@ -455,7 +450,7 @@ def extract_terms_from_view(
             explore_name=explore_name,
             model_name=model_name,
             is_hidden=hidden,
-            aspects=param_aspects,
+            aspects=_aspects_with_joins(param_aspects),
             field_id=f"{view_name}.{name}",
         ))
 
@@ -481,7 +476,7 @@ def extract_terms_from_view(
             explore_name=explore_name,
             model_name=model_name,
             is_hidden=hidden,
-            aspects=filt_aspects,
+            aspects=_aspects_with_joins(filt_aspects),
             field_id=f"{view_name}.{name}",
             is_dynamic_sql=is_dynamic,
             sql_branches=branches,

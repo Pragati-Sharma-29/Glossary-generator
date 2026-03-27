@@ -186,8 +186,7 @@
                     <th>Term Name</th>
                     <th>Type</th>
                     <th>Description</th>
-                    <th>Source Table</th>
-                    <th>View</th>
+                    <th>Related Entries</th>
                     <th>Synonyms</th>
                     <th>Related Terms</th>
                     <th>Links</th>
@@ -211,9 +210,13 @@
                         {% if t.get('sql_expression') %}
                         <br><code>{{ t.sql_expression }}</code>
                         {% endif %}
+                        {% if t.get('aspects') %}
+                        {% for a in t.aspects %}{% if a.key == 'joins' %}
+                        <br><span style="display:inline-block;margin-top:4px;padding:2px 8px;background:#e3f2fd;border-radius:6px;font-size:.8rem;color:#1565c0">Joins: {{ a.value }}</span>
+                        {% endif %}{% endfor %}
+                        {% endif %}
                     </td>
                     <td>{% if t.get('related_entries') %}{% for re in t.related_entries %}<code>{{ re.name }}</code>{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</td>
-                    <td>{% if t.get('view_name') %}{{ t.view_name }}{% endif %}</td>
                     <td>
                         {% if t.get('synonyms') %}
                         {% for s in t.synonyms %}

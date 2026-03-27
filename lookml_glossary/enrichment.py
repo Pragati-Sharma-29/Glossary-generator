@@ -115,9 +115,10 @@ def _find_synonyms_for_term(
             score = max(score, 0.9)
 
         if score >= _SYNONYM_IDENTITY_THRESHOLD:
-            syn = {"term_name": b.name, "field_id": b.field_id,
-                   "view_name": b.view_name or "", "explore_name": b.explore_name or ""}
-            if syn not in term.synonyms:
+            # Deduplicate by term_name — keep only the first occurrence per name
+            if not any(s["term_name"] == b.name for s in term.synonyms):
+                syn = {"term_name": b.name, "field_id": b.field_id,
+                       "view_name": b.view_name or "", "explore_name": b.explore_name or ""}
                 term.synonyms.append(syn)
 
 
@@ -264,12 +265,14 @@ def _find_related_for_explore(explore_terms: list[GlossaryTerm]) -> None:
                         min_score = heap[0][0]
                     tie += 1
 
-        # Extract top-K in descending order
+        # Extract top-K in descending order, deduplicating by term_name
         top_k = sorted(heap, key=lambda x: x[0], reverse=True)
+        seen_names: set[str] = {r["term_name"] for r in a.related_terms}
         for score, _, b in top_k:
-            entry = {"term_name": b.name, "field_id": b.field_id,
-                     "type": b.term_type, "view_name": b.view_name or ""}
-            if entry not in a.related_terms:
+            if b.name not in seen_names:
+                seen_names.add(b.name)
+                entry = {"term_name": b.name, "field_id": b.field_id,
+                         "type": b.term_type, "view_name": b.view_name or ""}
                 a.related_terms.append(entry)
 
 
