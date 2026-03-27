@@ -124,14 +124,18 @@ def _extract_links(dimension_or_measure: dict) -> list[DashboardLink]:
 
 
 def _build_description(item: dict, fallback_name: str) -> str:
-    """Build a description string from a LookML element."""
+    """Build a description string from a LookML element.
+
+    Returns the explicit description or label if present, empty string otherwise.
+    The caller is responsible for enriching with context via _enrich_description.
+    """
     desc = item.get("description", "")
     if desc:
         return desc.strip()
     label = item.get("label", "")
     if label:
         return label.strip()
-    return f"Auto-generated from LookML field: {_clean_label(fallback_name)}"
+    return ""
 
 
 def parse_lookml_file(filepath: str) -> dict:
@@ -140,24 +144,133 @@ def parse_lookml_file(filepath: str) -> dict:
         return lkml.load(f.read())
 
 
+def _generate_nl_description(
+    name: str,
+    term_type: str,
+    measure_type: str,
+    sql_expr: str,
+    view_name: str,
+    explore_name: str,
+    explore_desc: str,
+) -> str:
+    """Generate a natural-language description from LookML context.
+
+    Synthesises a readable sentence from the field name, type, SQL expression,
+    and explore context when no explicit ``description`` is provided.
+    """
+    label = _clean_label(name)
+    view_label = _clean_label(view_name)
+
+    # Derive the column being referenced from the SQL expression
+    col_hint = ""
+    if sql_expr:
+        # ${TABLE}.column_name → "column_name"
+        m = re.search(r'\$\{TABLE\}\.(\w+)', sql_expr)
+        if m:
+            col_hint = _clean_label(m.group(1))
+        else:
+            # ${view_name.field} → "field from view"
+            m = re.search(r'\$\{(\w+)\.(\w+)\}', sql_expr)
+            if m:
+                col_hint = f"{_clean_label(m.group(2))} from {_clean_label(m.group(1))}"
+
+    if term_type == "measure":
+        agg = measure_type or "aggregate"
+        agg_labels = {
+            "sum": "Total", "count": "Count of", "count_distinct": "Distinct count of",
+            "average": "Average", "median": "Median", "min": "Minimum",
+            "max": "Maximum", "sum_distinct": "Distinct sum of",
+            "percent_of_total": "Percentage of total",
+            "running_total": "Running total of",
+            "number": "Calculated",
+        }
+        prefix = agg_labels.get(agg, agg.replace("_", " ").title() + " of")
+        subject = col_hint or label
+        # Avoid redundancy: "Average average quantity" → "Average quantity"
+        # Also handles "Distinct count of count devices" → "Distinct count of devices"
+        subject_lower = subject.lower()
+        # Build list of words to strip from the start of the subject
+        agg_synonyms = {
+            "minimum": ["min", "minimum"], "maximum": ["max", "maximum"],
+            "average": ["avg", "average"], "total": ["total", "sum"],
+            "count": ["count", "cnt"], "median": ["median"],
+            "calculated": ["calc", "calculated"],
+            "distinct": ["distinct"],
+        }
+        check_words: list[str] = []
+        for pword in prefix.lower().split():
+            check_words.extend(agg_synonyms.get(pword, [pword]))
+        for w in check_words:
+            if subject_lower.startswith(w):
+                trimmed = subject[len(w):].lstrip(" _")
+                if trimmed:
+                    subject = trimmed
+                    subject_lower = subject.lower()
+                    # Don't break — continue stripping ("count distinct" fields)
+        nl = f"{prefix} {subject.lower()} in {view_label}"
+    elif term_type == "parameter":
+        nl = f"User-selectable parameter {label.lower()} for {view_label}"
+    else:
+        # dimension
+        if col_hint:
+            nl = f"{col_hint} attribute of {view_label}"
+        else:
+            nl = f"{label} attribute of {view_label}"
+
+    if explore_desc:
+        nl += f". {explore_desc.rstrip('.')}"
+    elif explore_name:
+        nl += f", used in the {_clean_label(explore_name)} explore"
+
+    return nl
+
+
 def _enrich_description(
     base_desc: str,
     view_name: str,
     explore_name: str,
     explore_desc: str,
     table_name: Optional[str],
+    joins: list[dict] | None = None,
+    *,
+    nl_desc: str = "",
 ) -> str:
-    """Enrich a term description with view and explore context."""
-    parts = [base_desc]
+    """Enrich a term description with view/explore context and joins.
+
+    Structure:  ``<base_or_nl> | View: … | Explore: … | Joins: …``
+
+    *base_desc* is the explicit LookML description (may be empty).
+    *nl_desc* is a generated natural-language fallback used when *base_desc*
+    is empty.
+    """
+    # Use the explicit description when available, otherwise NL fallback
+    primary = base_desc if base_desc else nl_desc
+    parts = [primary] if primary else []
+
     view_info = f"View: {_clean_label(view_name)}"
     if table_name:
         view_info += f" (table: {table_name})"
     parts.append(view_info)
+
     if explore_name:
         explore_info = f"Explore: {_clean_label(explore_name)}"
         if explore_desc:
             explore_info += f" — {explore_desc}"
         parts.append(explore_info)
+
+    if joins:
+        join_parts: list[str] = []
+        for j in joins:
+            j_name = j.get("from", j.get("name", ""))
+            j_rel = j.get("relationship", "")
+            if j_name:
+                entry = _clean_label(j_name)
+                if j_rel:
+                    entry += f" ({j_rel})"
+                join_parts.append(entry)
+        if join_parts:
+            parts.append(f"Joins: {', '.join(join_parts)}")
+
     return " | ".join(parts)
 
 
@@ -198,6 +311,7 @@ def extract_terms_from_view(
     explore_name: str = "",
     dashboard_map: dict[str, list[DashboardLink]] | None = None,
     explore_desc: str = "",
+    explore_joins: list[dict] | None = None,
 ) -> list[GlossaryTerm]:
     """Extract glossary terms from a single LookML view.
 
@@ -209,6 +323,19 @@ def extract_terms_from_view(
     view_name = view.get("name", "unknown")
     table_name = _extract_table_name(view)
     dashboard_map = dashboard_map or {}
+    joins = explore_joins or []
+
+    def _desc(item: dict, name: str, term_type: str = "dimension",
+              measure_type: str = "", sql_expr: str = "") -> str:
+        base = _build_description(item, name)
+        nl = _generate_nl_description(
+            name, term_type, measure_type, sql_expr,
+            view_name, explore_name, explore_desc,
+        )
+        return _enrich_description(
+            base, view_name, explore_name, explore_desc, table_name,
+            joins, nl_desc=nl,
+        )
 
     # Dimensions
     for dim in view.get("dimensions", []):
@@ -217,9 +344,7 @@ def extract_terms_from_view(
         hidden = dim.get("hidden") in ("yes", True)
         terms.append(GlossaryTerm(
             name=_clean_label(name),
-            description=_enrich_description(
-                _build_description(dim, name), view_name, explore_name, explore_desc, table_name,
-            ),
+            description=_desc(dim, name, "dimension", sql_expr=sql_expr),
             term_type="dimension",
             sql_expression=sql_expr,
             table_name=table_name,
@@ -250,9 +375,7 @@ def extract_terms_from_view(
                 extra_aspects = {"dimension_group": base_name, "timeframe": tf, "dimension_group_type": dg_type}
                 terms.append(GlossaryTerm(
                     name=tf_label,
-                    description=_enrich_description(
-                        _build_description(dg, base_name), view_name, explore_name, explore_desc, table_name,
-                    ),
+                    description=_desc(dg, tf_name, "dimension", sql_expr=sql_expr),
                     term_type="dimension",
                     sql_expression=sql_expr,
                     table_name=table_name,
@@ -270,9 +393,7 @@ def extract_terms_from_view(
             # No timeframes listed — emit the base group name
             terms.append(GlossaryTerm(
                 name=_clean_label(base_name),
-                description=_enrich_description(
-                    _build_description(dg, base_name), view_name, explore_name, explore_desc, table_name,
-                ),
+                description=_desc(dg, base_name, "dimension", sql_expr=sql_expr),
                 term_type="dimension",
                 sql_expression=sql_expr,
                 table_name=table_name,
@@ -304,9 +425,7 @@ def extract_terms_from_view(
         sql_expr, is_dynamic, branches = _extract_sql_and_branches(measure.get("sql", ""))
         terms.append(GlossaryTerm(
             name=_clean_label(name),
-            description=_enrich_description(
-                _build_description(measure, name), view_name, explore_name, explore_desc, table_name,
-            ),
+            description=_desc(measure, name, "measure", mtype, sql_expr),
             term_type="measure",
             sql_expression=sql_expr,
             table_name=table_name,
@@ -346,9 +465,7 @@ def extract_terms_from_view(
 
         terms.append(GlossaryTerm(
             name=_clean_label(name),
-            description=_enrich_description(
-                _build_description(param, name), view_name, explore_name, explore_desc, table_name,
-            ),
+            description=_desc(param, name, "parameter"),
             term_type="parameter",
             table_name=table_name,
             view_name=view_name,
@@ -373,9 +490,7 @@ def extract_terms_from_view(
         sql_expr, is_dynamic, branches = _extract_sql_and_branches(filt.get("sql", ""))
         terms.append(GlossaryTerm(
             name=_clean_label(name),
-            description=_enrich_description(
-                _build_description(filt, name), view_name, explore_name, explore_desc, table_name,
-            ),
+            description=_desc(filt, name, "parameter", sql_expr=sql_expr),
             term_type="parameter",
             sql_expression=sql_expr,
             table_name=table_name,
@@ -622,6 +737,8 @@ def parse_lookml_model(
                 joins.extend(_resolve_explore_joins(parent_name, seen))
         return joins
 
+    explore_joins_map: dict[str, list[dict]] = {}
+
     for explore in all_explores_by_name.values():
         exp_name = explore.get("name", "")
         from_view = explore.get("from", exp_name)
@@ -629,12 +746,16 @@ def parse_lookml_model(
         explore_desc_map[exp_name] = explore.get("description", "")
         # Resolve all joins including from extends chains
         all_joins = _resolve_explore_joins(exp_name)
+        # De-duplicate joins by view name
         seen_join_names: set[str] = set()
+        unique_joins: list[dict] = []
         for join in all_joins:
             join_view = join.get("from", join.get("name", ""))
             if join_view and join_view not in seen_join_names:
                 explore_view_map[join_view] = exp_name
                 seen_join_names.add(join_view)
+                unique_joins.append(join)
+        explore_joins_map[exp_name] = unique_joins
 
     # Extract terms from views in the model file itself
     all_terms: list[GlossaryTerm] = []
@@ -643,6 +764,7 @@ def parse_lookml_model(
         exp = explore_view_map.get(vname, "")
         all_terms.extend(extract_terms_from_view(
             view, model_name, exp, dashboard_map, explore_desc_map.get(exp, ""),
+            explore_joins_map.get(exp, []),
         ))
 
     # Extract terms from pre-parsed included view files
@@ -652,6 +774,7 @@ def parse_lookml_model(
             exp = explore_view_map.get(vname, "")
             all_terms.extend(extract_terms_from_view(
                 view, model_name, exp, dashboard_map, explore_desc_map.get(exp, ""),
+                explore_joins_map.get(exp, []),
             ))
 
     # Enrich terms with synonyms, related terms, and related entries
