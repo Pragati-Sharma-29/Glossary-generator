@@ -1,6 +1,6 @@
 # LookML Glossary Generator
 
-A Python agent that parses LookML model files and generates a structured, enriched glossary of business terms. It extracts measures, dimensions, dimension groups, parameters, and dashboard links — then enriches them with synonym detection, related terms, source table resolution, and Liquid template branch analysis. Includes a **drift validator** that detects when LookML changes make glossary terms obsolete, with CI integration for automated monitoring.
+A Python agent that parses LookML model files and generates a structured, enriched glossary of business terms. It extracts measures, dimensions, dimension groups, parameters, and dashboard links — then enriches them with related terms, source table and joined table resolution, natural-language join descriptions, and Liquid template branch analysis. Term names are automatically disambiguated to be unique. Includes a **drift validator** that detects when LookML changes make glossary terms obsolete, with CI integration for automated monitoring.
 
 **[Live Demo: Healthcare Glossary](https://pragati-sharma-29.github.io/Glossary-generator/healthcare_demo/)** | **[E-Commerce Glossary](https://pragati-sharma-29.github.io/Glossary-generator/ecommerce.html)**
 
@@ -21,16 +21,19 @@ A Python agent that parses LookML model files and generates a structured, enrich
 - Extracts **measures** (sum, count, average, etc.), **dimensions**, **dimension groups**, **parameters**, and **filters**
 - **Dimension group timeframe expansion** — a `dimension_group` with `timeframes: [date, week, month]` produces 3 individual glossary terms (e.g., `created_date`, `created_week`, `created_month`)
 - **Explore `extends` resolution** — recursively follows explore inheritance chains to collect all joins (handles both `extends` and `extends__all` formats)
-- Captures **table names**, **view names**, and **explore context** in each term's description
+- Captures **table names**, **view names**, and **explore context** in each term
 - Captures **dashboard links** from both LookML syntax (`.dashboard.lkml`) and **YAML format** (`.dashboard.lookml`) dashboards
 - Captures **recommended links** from LookML `link` blocks
-- **Structured aspects** — extracts `group_label`, `label`, `primary_key`, `drill_fields`, `filters`, `actions`, and other metadata as key-value aspects (separate from plain-text descriptions)
+- **Structured aspects** — extracts `group_label`, `label`, `primary_key`, `drill_fields`, `filters`, `actions`, joins, and other metadata as key-value aspects (separate from plain-text descriptions)
 - **Hidden field detection** — tracks `hidden: yes` fields with `--exclude-hidden` CLI option to filter them from output
 
 ### Enrichment
-- **Synonym detection** — O(n) average via hash-bucket indexing on normalized labels, view+SQL keys, and token overlap
-- **Related terms** — top-5 per field using a bounded min-heap with view pre-bucketing and per-explore parallelism
-- **Source table resolution** — one-time file index with O(1) view lookups, resolving `sql_table_name`, `derived_table`, `explore_source`, and implicit naming
+- **Related terms** — top-5 per field using a bounded min-heap with view pre-bucketing and per-explore parallelism; identity-level matches (synonyms) are excluded to avoid redundancy
+- **Related term hyperlinks** — related terms are rendered as navigable anchor links in HTML/webapp output
+- **Related entries resolution** — resolves source tables for each field via `sql_table_name`, `derived_table`, `explore_source`, or implicit naming; also includes tables from joined views
+- **Join table resolution** — tables referenced by joined views are automatically added to `related_entries` with `source_type: "joined_table"`
+- **Natural-language join descriptions** — join relationships (type and linked fields) are described in plain English within term descriptions
+- **Unique term names** — two-pass disambiguation ensures every term has a unique name: measures get aggregation prefixes (e.g., "Total Orders Revenue"), remaining duplicates get view name suffixes
 - **Liquid template branch extraction** — parses `{% if %}`, `{% case %}`, `{% for %}` via AST to enumerate all possible SQL outputs without evaluating runtime expressions
 
 ### Drift Validation
@@ -181,8 +184,6 @@ for term in terms:
             print(f"    - {branch}")
     if term.dashboard_links:
         print(f"  Dashboards: {[dl.title for dl in term.dashboard_links]}")
-    if term.synonyms:
-        print(f"  Synonyms: {[s['term_name'] for s in term.synonyms]}")
     if term.related_terms:
         print(f"  Related: {[r['term_name'] for r in term.related_terms]}")
     if term.related_entries:
@@ -195,8 +196,8 @@ Each glossary entry contains:
 
 | Field | Description |
 |-------|-------------|
-| `term_name` | Human-readable name of the term |
-| `description` | Plain-text business description (view/explore context appended) |
+| `term_name` | Human-readable name (unique — disambiguated with aggregation prefix or view suffix) |
+| `description` | Plain-text business description with natural-language join context |
 | `type` | `dimension`, `measure`, or `parameter` |
 | `field_id` | Unique `view_name.field_name` identifier |
 | `view_name` | LookML view name |
@@ -207,34 +208,26 @@ Each glossary entry contains:
 | `value_format` | Display format |
 | `tags` | LookML tags |
 | `is_hidden` | `true` if the field has `hidden: yes` |
-| `aspects` | Structured key-value metadata (group_label, label, primary_key, drill_fields, filters, actions, timeframe, parameter_type, etc.) |
+| `aspects` | Structured key-value metadata (group_label, label, primary_key, drill_fields, filters, actions, joins, timeframe, parameter_type, etc.) |
 | `dashboard_links` | Links to dashboards using this field |
 | `recommended_links` | Links defined in the LookML `link` block |
-| `synonyms` | Fields with identical/near-identical names across explores |
-| `related_terms` | Complementary fields in the same explore (max 5) |
-| `related_entries` | Resolved source table(s) for the field (replaces standalone `table_name`) |
+| `related_terms` | Complementary fields in the same explore (max 5, hyperlinked in output) |
+| `related_entries` | Resolved source table(s) including joined view tables (`source_type: "joined_table"`) |
 | `is_dynamic_sql` | `true` if the SQL contains Liquid template tags |
 | `sql_branches` | All possible SQL outputs from Liquid branch analysis |
 
 ## Enrichment Details
 
-### Synonym Detection
-
-Fields across all explores are matched via three hash-bucket strategies (O(n) average):
-
-1. **Exact normalized label** — "Total Revenue" and "Revenue" normalize to the same key
-2. **Same view + SQL expression** — fields backed by the same underlying column
-3. **Token overlap** — words in common scored by Jaccard similarity (threshold 0.7)
-
 ### Related Terms
 
-For each field, up to 5 related terms are selected from the same explore using a bounded min-heap:
+For each field, up to 5 related terms are selected from the same explore using a bounded min-heap. Identity-level matches (synonyms with similarity >= 0.9) are excluded to avoid redundancy.
 
 1. **Same-view terms scored first** — guaranteed +0.5 base score fills the heap quickly
 2. **Cross-view pruning** — when the heap minimum reaches 0.5, cross-view terms (max possible 0.5) are skipped entirely
 3. **Per-explore parallelism** — each explore runs in its own thread
+4. **Hyperlinked output** — related terms render as navigable anchor links in HTML/webapp formats
 
-### Source Table Resolution
+### Related Entries Resolution
 
 Each field's source table is resolved by parsing LookML view files. A one-time file index maps every `view: name {` definition to its file path for O(1) lookups.
 
@@ -245,7 +238,22 @@ Four resolution patterns in priority order:
 3. **`derived_table` with `explore_source`** — native derived tables
 4. **Implicit** — view name used as table name when no explicit source is defined
 
+Additionally, tables from **joined views** are resolved and added with `source_type: "joined_table"`, giving a complete picture of all data sources accessible through a field's explore.
+
 Supports recursive view reference resolution (depth limit 10) and cross-project file discovery.
+
+### Term Name Disambiguation
+
+Term names are made unique via a two-pass process:
+
+1. **Aggregation prefix** — duplicate measure names get a descriptive prefix based on their measure type (e.g., "Total Orders Revenue", "Count Of Users Id", "Average Orders Amount")
+2. **View name suffix** — any remaining duplicates get their view name appended in parentheses (e.g., "Created Date (Orders)")
+
+### Natural-Language Join Descriptions
+
+Join relationships are described in plain English within term descriptions. For each join, the generator extracts the relationship type and `sql_on` field references:
+
+> "This field can be analyzed joined to Users (many-to-one) on User Id = Id."
 
 ### Liquid Template Branch Extraction
 
@@ -384,7 +392,7 @@ jobs:
 ```
 lookml_glossary/
 ├── parser.py        # LookML + YAML parsing, include resolution, explore extends, cross-project imports
-├── enrichment.py    # Synonym detection, related terms, source table resolution
+├── enrichment.py    # Related terms, related entries resolution, join table resolution
 ├── liquid.py        # Liquid template AST parsing and branch extraction
 ├── generator.py     # JSON, CSV, Markdown, HTML, Webapp output
 ├── validator.py     # Drift detection against glossary snapshots
@@ -410,12 +418,12 @@ pip install pytest
 pytest tests/
 ```
 
-90 tests across 4 test files:
+88 tests across 4 test files:
 
 | Test file | Tests | Covers |
 |-----------|-------|--------|
 | `test_parser.py` | 32 | Parsing, output formats, dimension group expansion, aspects, hidden fields, parameters, YAML dashboards |
-| `test_enrichment.py` | 25 | Synonyms, SQL extraction, file index, globs, heap, parallelism |
+| `test_enrichment.py` | 23 | Related terms, synonym exclusion, SQL extraction, file index, globs, heap, parallelism |
 | `test_liquid.py` | 19 | Liquid branch extraction, if/case/nested, integration |
 | `test_validator.py` | 14 | Drift detection, severity levels, snapshot format |
 

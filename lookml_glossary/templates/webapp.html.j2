@@ -120,10 +120,6 @@
                 {% for model in hierarchy %}
                 <div class="model-box">
                     <div class="model-label">Model: {{ model.name }}</div>
-                    {% if model.summary %}
-                    <div style="font-size:.9rem;color:var(--muted);margin-bottom:1rem;line-height:1.5;background:#f0f4ff;padding:.75rem 1rem;border-radius:8px">{{ model.summary }}</div>
-                    {% endif %}
-
                     {% if model.explores %}
                     <div class="explore-row">
                         {% for exp in model.explores %}
