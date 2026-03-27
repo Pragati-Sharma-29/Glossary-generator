@@ -34,9 +34,9 @@
         .explore-label{font-weight:600;color:var(--exp);margin-bottom:.5rem;font-size:.95rem}
         .arrow-down{text-align:center;color:var(--muted);font-size:1.2rem;margin:.5rem 0}
         .views-row{display:flex;gap:1.5rem;flex-wrap:wrap}
-        .view-box{border:2px solid var(--view);border-radius:10px;padding:1rem;min-width:220px;flex:1;max-width:350px}
-        .view-label{font-weight:600;color:var(--view);margin-bottom:.25rem;font-size:.95rem}
-        .view-table{font-size:.8rem;color:var(--muted);margin-bottom:.75rem;font-family:monospace}
+        .view-box{border:2px solid var(--view);border-radius:10px;padding:1rem;min-width:220px;flex:1;max-width:400px;overflow:hidden;word-break:break-word}
+        .view-label{font-weight:600;color:var(--view);margin-bottom:.25rem;font-size:.95rem;overflow:hidden;text-overflow:ellipsis}
+        .view-table{font-size:.8rem;color:var(--muted);margin-bottom:.75rem;font-family:monospace;overflow:hidden;text-overflow:ellipsis}
         .field-section{margin-bottom:.5rem}
         .field-section-title{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.25rem;display:flex;align-items:center;gap:.4rem}
         .field-section-title.metric{color:var(--met)}
@@ -120,6 +120,9 @@
                 {% for model in hierarchy %}
                 <div class="model-box">
                     <div class="model-label">Model: {{ model.name }}</div>
+                    {% if model.summary %}
+                    <div style="font-size:.9rem;color:var(--muted);margin-bottom:1rem;line-height:1.5;background:#f0f4ff;padding:.75rem 1rem;border-radius:8px">{{ model.summary }}</div>
+                    {% endif %}
 
                     {% if model.explores %}
                     <div class="explore-row">
