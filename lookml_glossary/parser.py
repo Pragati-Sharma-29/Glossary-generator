@@ -785,11 +785,55 @@ def parse_lookml_model(
                 explore_joins_map.get(exp, []),
             ))
 
+    # --- Disambiguate duplicate term names ---
+    _disambiguate_term_names(all_terms)
+
     # Enrich terms with synonyms, related terms, and related entries
     from .enrichment import enrich_terms
     enrich_terms(all_terms, model_dir, imported_roots)
 
     return all_terms
+
+
+def _disambiguate_term_names(terms: list[GlossaryTerm]) -> None:
+    """Ensure every term has a unique name by qualifying duplicates with context.
+
+    For measures, prepends the measure type (e.g. "Id" → "Count Of User Ids").
+    For remaining duplicates, appends the view name (e.g. "Id" → "Id (Orders)").
+    Mutates terms in-place.
+    """
+    from collections import Counter
+
+    name_counts = Counter(t.name for t in terms)
+    dupes = {n for n, c in name_counts.items() if c > 1}
+    if not dupes:
+        return
+
+    # Pass 1: qualify measures with their aggregation type and SQL subject
+    agg_labels = {
+        "sum": "Total", "count": "Count Of", "count_distinct": "Distinct Count Of",
+        "average": "Average", "median": "Median", "min": "Minimum",
+        "max": "Maximum", "sum_distinct": "Distinct Sum Of",
+        "percent_of_total": "Percent Of Total",
+        "running_total": "Running Total Of",
+        "number": "Calculated",
+    }
+    for t in terms:
+        if t.name not in dupes:
+            continue
+        if t.term_type == "measure" and t.measure_type:
+            prefix = agg_labels.get(t.measure_type, "")
+            if prefix:
+                # Use view-qualified subject for clarity
+                subject = f"{_clean_label(t.view_name)} {t.name}" if t.view_name else t.name
+                t.name = f"{prefix} {subject}"
+
+    # Pass 2: for remaining duplicates, append view name
+    name_counts2 = Counter(t.name for t in terms)
+    dupes2 = {n for n, c in name_counts2.items() if c > 1}
+    for t in terms:
+        if t.name in dupes2 and t.view_name:
+            t.name = f"{t.name} ({_clean_label(t.view_name)})"
 
 
 def _matches_include(filepath: str, pattern: str, search_dir: str) -> bool:

@@ -218,10 +218,36 @@ def _build_hierarchy(terms: list[GlossaryTerm]) -> list:
     # Convert inner dicts to lists for the template
     result = []
     for m in models.values():
+        explores = list(m["explores"].values())
+        views = list(m["views"].values())
+        total_dims = sum(len(v["dimensions"]) for v in views)
+        total_measures = sum(len(v["measures"]) for v in views)
+
+        # Build NL model summary
+        view_names = [v["label"] for v in views]
+        explore_names = [e["label"] for e in explores]
+        summary_parts = []
+        summary_parts.append(
+            f"This model contains {len(views)} view{'s' if len(views) != 1 else ''} "
+            f"with {total_dims} dimension{'s' if total_dims != 1 else ''} "
+            f"and {total_measures} measure{'s' if total_measures != 1 else ''}."
+        )
+        if explores:
+            summary_parts.append(
+                f"It exposes {len(explores)} explore{'s' if len(explores) != 1 else ''}: "
+                f"{', '.join(explore_names)}."
+            )
+        if view_names:
+            summary_parts.append(
+                f"Data is sourced from: {', '.join(view_names)}."
+            )
+        model_summary = " ".join(summary_parts)
+
         result.append({
             "name": m["name"],
-            "explores": list(m["explores"].values()),
-            "views": list(m["views"].values()),
+            "explores": explores,
+            "views": views,
+            "summary": model_summary,
         })
     return result
 
