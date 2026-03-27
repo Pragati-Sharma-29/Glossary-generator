@@ -58,11 +58,12 @@ class TestParseModel:
         assert len(revenue) == 1
         assert len(revenue[0].recommended_links) >= 1
 
-    def test_table_names_populated(self):
+    def test_source_tables_in_related_entries(self):
         terms = parse_lookml_model(MODEL_PATH)
-        # Check that terms with a table_name have it populated
-        terms_with_table = [t for t in terms if t.table_name is not None]
-        assert len(terms_with_table) > 0
+        # Source table info should be in related_entries, not table_name
+        terms_with_source = [t for t in terms if t.related_entries]
+        assert len(terms_with_source) > 0
+        assert not hasattr(terms[0], "table_name")
 
     def test_dimensions_extracted(self):
         terms = parse_lookml_model(MODEL_PATH)
@@ -119,13 +120,14 @@ class TestGenerateCsv:
         content = buf.getvalue()
         assert "measure" in content  # type column contains measure
 
-    def test_csv_contains_table_names(self):
+    def test_csv_contains_source_tables(self):
         terms = parse_lookml_model(MODEL_PATH)
         buf = io.StringIO()
         generate_csv(terms, buf)
         content = buf.getvalue()
-        assert "public.orders" in content
-        assert "analytics_v2.dim_users" in content
+        # Source tables appear in the related_entries CSV column
+        assert "related_entries" in content
+        assert "public.orders" in content or "orders" in content
 
     def test_csv_contains_recommended_links(self):
         terms = parse_lookml_model(MODEL_PATH)

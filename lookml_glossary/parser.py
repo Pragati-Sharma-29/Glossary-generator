@@ -32,7 +32,6 @@ class GlossaryTerm:
     description: str
     term_type: str  # "dimension", "measure", "parameter"
     sql_expression: Optional[str] = None
-    table_name: Optional[str] = None
     view_name: Optional[str] = None
     explore_name: Optional[str] = None
     model_name: Optional[str] = None
@@ -67,17 +66,6 @@ KPI_TAGS = {"kpi", "key_metric", "key-metric", "key_performance_indicator"}
 def _clean_label(name: str) -> str:
     """Convert a LookML identifier to a human-readable label."""
     return name.replace("_", " ").strip().title()
-
-
-def _extract_table_name(view: dict) -> Optional[str]:
-    """Extract the underlying table name from a view definition."""
-    sql_table = view.get("sql_table_name")
-    if sql_table:
-        return sql_table.strip().rstrip(";").strip()
-    derived = view.get("derived_table")
-    if derived and "sql" in derived:
-        return f"(derived table from {view['name']})"
-    return None
 
 
 def _strip_sql_comments(sql: str) -> str:
@@ -230,7 +218,6 @@ def _enrich_description(
     view_name: str,
     explore_name: str,
     explore_desc: str,
-    table_name: Optional[str],
     joins: list[dict] | None = None,
     *,
     nl_desc: str = "",
@@ -247,10 +234,7 @@ def _enrich_description(
     primary = base_desc if base_desc else nl_desc
     parts = [primary] if primary else []
 
-    view_info = f"View: {_clean_label(view_name)}"
-    if table_name:
-        view_info += f" (table: {table_name})"
-    parts.append(view_info)
+    parts.append(f"View: {_clean_label(view_name)}")
 
     if explore_name:
         explore_info = f"Explore: {_clean_label(explore_name)}"
@@ -321,7 +305,6 @@ def extract_terms_from_view(
     """
     terms = []
     view_name = view.get("name", "unknown")
-    table_name = _extract_table_name(view)
     dashboard_map = dashboard_map or {}
     joins = explore_joins or []
 
@@ -333,7 +316,7 @@ def extract_terms_from_view(
             view_name, explore_name, explore_desc,
         )
         return _enrich_description(
-            base, view_name, explore_name, explore_desc, table_name,
+            base, view_name, explore_name, explore_desc,
             joins, nl_desc=nl,
         )
 
@@ -347,7 +330,7 @@ def extract_terms_from_view(
             description=_desc(dim, name, "dimension", sql_expr=sql_expr),
             term_type="dimension",
             sql_expression=sql_expr,
-            table_name=table_name,
+
             view_name=view_name,
             explore_name=explore_name,
             model_name=model_name,
@@ -378,7 +361,7 @@ def extract_terms_from_view(
                     description=_desc(dg, tf_name, "dimension", sql_expr=sql_expr),
                     term_type="dimension",
                     sql_expression=sql_expr,
-                    table_name=table_name,
+        
                     view_name=view_name,
                     explore_name=explore_name,
                     model_name=model_name,
@@ -396,7 +379,7 @@ def extract_terms_from_view(
                 description=_desc(dg, base_name, "dimension", sql_expr=sql_expr),
                 term_type="dimension",
                 sql_expression=sql_expr,
-                table_name=table_name,
+    
                 view_name=view_name,
                 explore_name=explore_name,
                 model_name=model_name,
@@ -428,7 +411,7 @@ def extract_terms_from_view(
             description=_desc(measure, name, "measure", mtype, sql_expr),
             term_type="measure",
             sql_expression=sql_expr,
-            table_name=table_name,
+
             view_name=view_name,
             explore_name=explore_name,
             model_name=model_name,
@@ -467,7 +450,7 @@ def extract_terms_from_view(
             name=_clean_label(name),
             description=_desc(param, name, "parameter"),
             term_type="parameter",
-            table_name=table_name,
+
             view_name=view_name,
             explore_name=explore_name,
             model_name=model_name,
@@ -493,7 +476,7 @@ def extract_terms_from_view(
             description=_desc(filt, name, "parameter", sql_expr=sql_expr),
             term_type="parameter",
             sql_expression=sql_expr,
-            table_name=table_name,
+
             view_name=view_name,
             explore_name=explore_name,
             model_name=model_name,

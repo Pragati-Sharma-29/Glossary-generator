@@ -132,9 +132,11 @@ def validate(
                 new_value=f"{new_type}/{new_mtype}",
             ))
 
-        # Table renamed
-        old_table = snap.get("table_name", "")
-        new_table = cur.table_name or ""
+        # Table renamed — compare source tables from related_entries
+        old_entries = snap.get("related_entries", [])
+        old_table = old_entries[0].get("name", "") if old_entries else ""
+        new_entries = cur.related_entries or []
+        new_table = new_entries[0].get("name", "") if new_entries else ""
         if old_table != new_table:
             items.append(DriftItem(
                 category="table_renamed",

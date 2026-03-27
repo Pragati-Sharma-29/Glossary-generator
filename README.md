@@ -199,7 +199,6 @@ Each glossary entry contains:
 | `description` | Plain-text business description (view/explore context appended) |
 | `type` | `dimension`, `measure`, or `parameter` |
 | `field_id` | Unique `view_name.field_name` identifier |
-| `table_name` | Underlying database table from the view |
 | `view_name` | LookML view name |
 | `explore_name` | LookML explore name |
 | `model_name` | LookML model name |
@@ -213,7 +212,7 @@ Each glossary entry contains:
 | `recommended_links` | Links defined in the LookML `link` block |
 | `synonyms` | Fields with identical/near-identical names across explores |
 | `related_terms` | Complementary fields in the same explore (max 5) |
-| `related_entries` | Resolved source table(s) for the field |
+| `related_entries` | Resolved source table(s) for the field (replaces standalone `table_name`) |
 | `is_dynamic_sql` | `true` if the SQL contains Liquid template tags |
 | `sql_branches` | All possible SQL outputs from Liquid branch analysis |
 

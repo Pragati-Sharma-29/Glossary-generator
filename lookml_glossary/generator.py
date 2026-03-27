@@ -14,7 +14,7 @@ TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "templates")
 
 CSV_COLUMNS = [
     "term_name", "description", "type",
-    "table_name", "view_name", "explore_name", "model_name",
+    "view_name", "explore_name", "model_name",
     "measure_type", "sql_expression", "value_format", "tags",
     "is_hidden", "aspects",
     "dashboard_links", "recommended_links",
@@ -30,8 +30,6 @@ def _term_to_dict(term: GlossaryTerm) -> dict:
         "description": term.description,
         "type": term.term_type,
     }
-    if term.table_name:
-        entry["table_name"] = term.table_name
     if term.view_name:
         entry["view_name"] = term.view_name
     if term.explore_name:
@@ -86,7 +84,6 @@ def _term_to_csv_row(term: GlossaryTerm) -> dict:
         "term_name": d.get("term_name", ""),
         "description": d.get("description", ""),
         "type": d.get("type", ""),
-        "table_name": d.get("table_name", ""),
         "view_name": d.get("view_name", ""),
         "explore_name": d.get("explore_name", ""),
         "model_name": d.get("model_name", ""),
@@ -198,10 +195,16 @@ def _build_hierarchy(terms: list[GlossaryTerm]) -> list:
         # Auto-create view entries from field metadata
         vname = t.view_name or ""
         if vname and vname not in models[model]["views"]:
+            # Derive table name from related_entries if available
+            source_table = ""
+            for re_entry in t.related_entries:
+                if re_entry.get("source_type") in ("physical_table", "implicit"):
+                    source_table = re_entry.get("name", "")
+                    break
             models[model]["views"][vname] = {
                 "name": vname,
                 "label": _clean_label(vname),
-                "table_name": t.table_name or "",
+                "table_name": source_table,
                 "explore": t.explore_name or "",
                 "dimensions": [],
                 "measures": [],
