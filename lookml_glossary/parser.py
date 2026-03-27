@@ -43,7 +43,6 @@ class GlossaryTerm:
     is_metric: bool = False
     is_kpi: bool = False
     is_hidden: bool = False
-    synonyms: list[dict] = field(default_factory=list)
     related_terms: list[dict] = field(default_factory=list)
     related_entries: list[dict] = field(default_factory=list)
     aspects: list[dict] = field(default_factory=list)  # structured key-value metadata
@@ -224,12 +223,43 @@ def _enrich_description(
 ) -> str:
     """Enrich a term description.
 
-    Returns the explicit LookML description if available, otherwise the
-    NL-generated fallback.  View/explore names are intentionally excluded
-    (they live in dedicated columns).  Joins are not inlined here — they
-    are surfaced as a separate aspect by the caller.
+    Returns the explicit LookML description (or NL fallback) followed by
+    a natural-language summary of the join relationships when present.
     """
     primary = base_desc if base_desc else nl_desc
+    if not joins:
+        return primary
+
+    # Build NL join description
+    join_sentences: list[str] = []
+    for j in joins:
+        j_name = j.get("from", j.get("name", ""))
+        j_rel = j.get("relationship", "")
+        j_type = j.get("type", "")
+        j_sql = j.get("sql_on", "")
+        if not j_name:
+            continue
+        j_label = _clean_label(j_name)
+        if j_rel:
+            rel_nl = j_rel.replace("_", "-")
+            sentence = f"joined to {j_label} ({rel_nl})"
+        else:
+            sentence = f"joined to {j_label}"
+        # Add join condition hint from sql_on
+        if j_sql:
+            # Extract field references like ${view.field}
+            refs = re.findall(r'\$\{(\w+)\.(\w+)\}', j_sql)
+            if len(refs) == 2:
+                left = f"{_clean_label(refs[0][1])}"
+                right = f"{_clean_label(refs[1][1])}"
+                sentence += f" on {left} = {right}"
+        join_sentences.append(sentence)
+
+    if join_sentences:
+        join_nl = "This field can be analyzed " + ", and ".join(join_sentences) + "."
+        if primary:
+            return f"{primary}. {join_nl}"
+        return join_nl
     return primary
 
 
