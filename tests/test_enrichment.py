@@ -230,4 +230,4 @@ class TestParallelParsing:
         from lookml_glossary.parser import parse_lookml_model
         model_path = os.path.join(os.path.dirname(__file__), "..", "examples", "ecommerce.model.lkml")
         terms = parse_lookml_model(model_path)
-        assert len(terms) == 31  # 27 original + 4 dynamic_fields
+        assert len(terms) == 42  # fields + expanded dimension_group timeframes + dynamic_fields

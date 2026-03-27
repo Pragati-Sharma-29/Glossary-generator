@@ -125,7 +125,7 @@ class TestGenerateCsv:
         generate_csv(terms, buf)
         content = buf.getvalue()
         assert "public.orders" in content
-        assert "analytics.dim_users" in content
+        assert "analytics_v2.dim_users" in content
 
     def test_csv_contains_recommended_links(self):
         terms = parse_lookml_model(MODEL_PATH)
@@ -160,6 +160,124 @@ class TestGenerateWebapp:
         generate_webapp(terms, buf)
         html = buf.getvalue()
         assert "lookml_glossary.csv" in html
+
+
+class TestDimensionGroupExpansion:
+    def test_timeframes_expanded(self):
+        terms = parse_lookml_model(MODEL_PATH)
+        # orders.created has timeframes: [raw, date, week, month, quarter, year]
+        tf_ids = {t.field_id for t in terms if t.field_id.startswith("orders.created_")}
+        assert "orders.created_date" in tf_ids
+        assert "orders.created_week" in tf_ids
+        assert "orders.created_month" in tf_ids
+        assert "orders.created_year" in tf_ids
+
+    def test_expanded_terms_have_timeframe_aspect(self):
+        terms = parse_lookml_model(MODEL_PATH)
+        created_date = next(t for t in terms if t.field_id == "orders.created_date")
+        aspect_keys = {a["key"] for a in created_date.aspects}
+        assert "timeframe" in aspect_keys
+        assert "dimension_group" in aspect_keys
+        tf_aspect = next(a for a in created_date.aspects if a["key"] == "timeframe")
+        assert tf_aspect["value"] == "date"
+
+    def test_base_group_name_not_emitted(self):
+        terms = parse_lookml_model(MODEL_PATH)
+        # The base name "created" should not appear when timeframes are specified
+        assert not any(t.field_id == "orders.created" for t in terms)
+
+
+class TestAspects:
+    def test_aspects_in_json_output(self):
+        terms = parse_lookml_model(MODEL_PATH)
+        buf = io.StringIO()
+        generate_json(terms, buf)
+        data = json.loads(buf.getvalue())
+        entries_with_aspects = [e for e in data["glossary"] if e.get("aspects")]
+        assert len(entries_with_aspects) > 0
+
+    def test_group_label_captured(self):
+        """group_label should appear as an aspect on fields that have it."""
+        # Use a synthetic view with group_label
+        view = {
+            "name": "test_view",
+            "dimensions": [{
+                "name": "city",
+                "sql": "${TABLE}.city",
+                "group_label": "Address",
+            }],
+        }
+        terms = extract_terms_from_view(view)
+        assert len(terms) == 1
+        gl = [a for a in terms[0].aspects if a["key"] == "group_label"]
+        assert len(gl) == 1
+        assert gl[0]["value"] == "Address"
+
+
+class TestHiddenFields:
+    def test_hidden_flag_set(self):
+        view = {
+            "name": "v",
+            "dimensions": [
+                {"name": "visible_field", "sql": "${TABLE}.a"},
+                {"name": "hidden_field", "sql": "${TABLE}.b", "hidden": "yes"},
+            ],
+        }
+        terms = extract_terms_from_view(view)
+        visible = next(t for t in terms if t.field_id == "v.visible_field")
+        hidden = next(t for t in terms if t.field_id == "v.hidden_field")
+        assert not visible.is_hidden
+        assert hidden.is_hidden
+
+    def test_exclude_hidden_filters(self):
+        from lookml_glossary.cli import _filter_hidden
+        t1 = GlossaryTerm(name="A", description="", term_type="dimension", field_id="v.a")
+        t2 = GlossaryTerm(name="B", description="", term_type="dimension", field_id="v.b", is_hidden=True)
+        result = _filter_hidden([t1, t2])
+        assert len(result) == 1
+        assert result[0].field_id == "v.a"
+
+
+class TestParameters:
+    def test_parameter_parsed(self):
+        view = {
+            "name": "v",
+            "dimensions": [],
+            "parameters": [{
+                "name": "date_granularity",
+                "type": "unquoted",
+                "default_value": "day",
+                "allowed_values": [
+                    {"label": "Day", "value": "day"},
+                    {"label": "Week", "value": "week"},
+                ],
+            }],
+        }
+        terms = extract_terms_from_view(view)
+        params = [t for t in terms if t.term_type == "parameter"]
+        assert len(params) == 1
+        assert params[0].field_id == "v.date_granularity"
+        aspect_keys = {a["key"] for a in params[0].aspects}
+        assert "parameter_type" in aspect_keys
+        assert "default_value" in aspect_keys
+        assert "allowed_values" in aspect_keys
+
+
+class TestDashboardLookmlExtension:
+    def test_lookml_extension_matches(self):
+        from lookml_glossary.parser import _matches_include
+        # A .dashboard.lookml file should match a *.dashboard.lkml pattern
+        assert _matches_include(
+            "/proj/dashboards/my.dashboard.lookml",
+            "dashboards/*.dashboard.lookml",
+            "/proj",
+        )
+        # Cross-extension: .lkml pattern should also match .lookml files
+        assert _matches_include(
+            "/proj/dashboards/my.dashboard.lookml",
+            "dashboards/*.dashboard.lkml",
+            "/proj",
+        )
 
 
 class TestSingleView:

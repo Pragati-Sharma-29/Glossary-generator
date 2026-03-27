@@ -13,15 +13,15 @@
       "synonyms": [
         {
           "term_name": "Id",
-          "field_id": "orders.id",
-          "view_name": "orders",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Id",
           "field_id": "products.id",
           "view_name": "products",
           "explore_name": "products"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "orders.id",
+          "view_name": "orders",
+          "explore_name": "orders"
         },
         {
           "term_name": "User Id",
@@ -50,8 +50,8 @@
           "view_name": "users"
         },
         {
-          "term_name": "Created",
-          "field_id": "users.created",
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
           "type": "dimension",
           "view_name": "users"
         },
@@ -71,6 +71,12 @@
           "source_type": "physical_table",
           "verified": false,
           "raw_sql_table_name": "analytics_v2.dim_users"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "primary_key",
+          "value": true
         }
       ]
     },
@@ -112,8 +118,8 @@
           "view_name": "users"
         },
         {
-          "term_name": "Created",
-          "field_id": "users.created",
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
           "type": "dimension",
           "view_name": "users"
         },
@@ -166,8 +172,8 @@
           "view_name": "users"
         },
         {
-          "term_name": "Created",
-          "field_id": "users.created",
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
           "type": "dimension",
           "view_name": "users"
         },
@@ -220,8 +226,8 @@
           "view_name": "users"
         },
         {
-          "term_name": "Created",
-          "field_id": "users.created",
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
           "type": "dimension",
           "view_name": "users"
         },
@@ -274,8 +280,8 @@
           "view_name": "users"
         },
         {
-          "term_name": "Created",
-          "field_id": "users.created",
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
           "type": "dimension",
           "view_name": "users"
         },
@@ -331,8 +337,8 @@
           "view_name": "users"
         },
         {
-          "term_name": "Created",
-          "field_id": "users.created",
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
           "type": "dimension",
           "view_name": "users"
         },
@@ -356,8 +362,8 @@
       ]
     },
     {
-      "term_name": "Created",
-      "field_id": "users.created",
+      "term_name": "Created Raw",
+      "field_id": "users.created_raw",
       "description": "When the user account was created | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
       "type": "dimension",
       "table_name": "analytics_v2.dim_users",
@@ -367,40 +373,64 @@
       "sql_expression": "${TABLE}.created_at",
       "synonyms": [
         {
-          "term_name": "Created",
-          "field_id": "orders.created",
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
           "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "users.created_date",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "users.created_week",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "users.created_month",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "users.created_year",
+          "view_name": "users",
           "explore_name": "orders"
         }
       ],
       "related_terms": [
         {
-          "term_name": "Name",
-          "field_id": "users.name",
+          "term_name": "Created Week",
+          "field_id": "users.created_week",
           "type": "dimension",
           "view_name": "users"
         },
         {
-          "term_name": "Age",
-          "field_id": "users.age",
+          "term_name": "Created Date",
+          "field_id": "users.created_date",
           "type": "dimension",
           "view_name": "users"
         },
         {
-          "term_name": "Email Domain",
-          "field_id": "users.email_domain",
+          "term_name": "Created Month",
+          "field_id": "users.created_month",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "users.created_year",
           "type": "dimension",
           "view_name": "users"
         },
         {
           "term_name": "Lifetime Value Tier",
           "field_id": "users.lifetime_value_tier",
-          "type": "dimension",
-          "view_name": "users"
-        },
-        {
-          "term_name": "Country",
-          "field_id": "users.country",
           "type": "dimension",
           "view_name": "users"
         }
@@ -414,6 +444,420 @@
           "source_type": "physical_table",
           "verified": false,
           "raw_sql_table_name": "analytics_v2.dim_users"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "dimension_group",
+          "value": "created"
+        },
+        {
+          "key": "timeframe",
+          "value": "raw"
+        },
+        {
+          "key": "dimension_group_type",
+          "value": "time"
+        }
+      ]
+    },
+    {
+      "term_name": "Created Date",
+      "field_id": "users.created_date",
+      "description": "When the user account was created | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "analytics_v2.dim_users",
+      "view_name": "users",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.created_at",
+      "synonyms": [
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "users.created_week",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "users.created_month",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "users.created_year",
+          "view_name": "users",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Created Week",
+          "field_id": "users.created_week",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "users.created_month",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "users.created_year",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Lifetime Value Tier",
+          "field_id": "users.lifetime_value_tier",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics_v2.dim_users",
+          "id": "analytics_v2.dim_users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics_v2.dim_users"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "dimension_group",
+          "value": "created"
+        },
+        {
+          "key": "timeframe",
+          "value": "date"
+        },
+        {
+          "key": "dimension_group_type",
+          "value": "time"
+        }
+      ]
+    },
+    {
+      "term_name": "Created Week",
+      "field_id": "users.created_week",
+      "description": "When the user account was created | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "analytics_v2.dim_users",
+      "view_name": "users",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.created_at",
+      "synonyms": [
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "users.created_date",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "users.created_month",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "users.created_year",
+          "view_name": "users",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Created Date",
+          "field_id": "users.created_date",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "users.created_month",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "users.created_year",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Lifetime Value Tier",
+          "field_id": "users.lifetime_value_tier",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics_v2.dim_users",
+          "id": "analytics_v2.dim_users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics_v2.dim_users"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "dimension_group",
+          "value": "created"
+        },
+        {
+          "key": "timeframe",
+          "value": "week"
+        },
+        {
+          "key": "dimension_group_type",
+          "value": "time"
+        }
+      ]
+    },
+    {
+      "term_name": "Created Month",
+      "field_id": "users.created_month",
+      "description": "When the user account was created | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "analytics_v2.dim_users",
+      "view_name": "users",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.created_at",
+      "synonyms": [
+        {
+          "term_name": "Created Month",
+          "field_id": "orders.created_month",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "users.created_date",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "users.created_week",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "users.created_year",
+          "view_name": "users",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Created Date",
+          "field_id": "users.created_date",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "users.created_week",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "users.created_year",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Lifetime Value Tier",
+          "field_id": "users.lifetime_value_tier",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics_v2.dim_users",
+          "id": "analytics_v2.dim_users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics_v2.dim_users"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "dimension_group",
+          "value": "created"
+        },
+        {
+          "key": "timeframe",
+          "value": "month"
+        },
+        {
+          "key": "dimension_group_type",
+          "value": "time"
+        }
+      ]
+    },
+    {
+      "term_name": "Created Year",
+      "field_id": "users.created_year",
+      "description": "When the user account was created | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "analytics_v2.dim_users",
+      "view_name": "users",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.created_at",
+      "synonyms": [
+        {
+          "term_name": "Created Year",
+          "field_id": "orders.created_year",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "users.created_date",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "users.created_week",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "users.created_month",
+          "view_name": "users",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Created Date",
+          "field_id": "users.created_date",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "users.created_week",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "users.created_month",
+          "type": "dimension",
+          "view_name": "users"
+        },
+        {
+          "term_name": "Lifetime Value Tier",
+          "field_id": "users.lifetime_value_tier",
+          "type": "dimension",
+          "view_name": "users"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics_v2.dim_users",
+          "id": "analytics_v2.dim_users",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics_v2.dim_users"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "dimension_group",
+          "value": "created"
+        },
+        {
+          "key": "timeframe",
+          "value": "year"
+        },
+        {
+          "key": "dimension_group_type",
+          "value": "time"
         }
       ]
     },
@@ -474,1043 +918,6 @@
           "source_type": "physical_table",
           "verified": false,
           "raw_sql_table_name": "analytics_v2.dim_users"
-        }
-      ]
-    },
-    {
-      "term_name": "Region Column",
-      "field_id": "dynamic_fields.region_column",
-      "description": "Region column that changes based on user attributes | View: Dynamic Fields (table: analytics.events)",
-      "type": "dimension",
-      "table_name": "analytics.events",
-      "view_name": "dynamic_fields",
-      "model_name": "ecommerce",
-      "sql_expression": "{% if _user_attributes['region'] == 'EU' %}\n        ${TABLE}.region_eu\n      {% elsif _user_attributes['region'] == 'APAC' %}\n        ${TABLE}.region_apac\n      {% else %}\n        ${TABLE}.region_global\n      {% endif %}",
-      "related_terms": [
-        {
-          "term_name": "Date Format",
-          "field_id": "dynamic_fields.date_format",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        },
-        {
-          "term_name": "Case Example",
-          "field_id": "dynamic_fields.case_example",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        },
-        {
-          "term_name": "Dynamic Sum",
-          "field_id": "dynamic_fields.dynamic_sum",
-          "type": "measure",
-          "view_name": "dynamic_fields"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics.events",
-          "id": "analytics.events",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics.events"
-        }
-      ],
-      "is_dynamic_sql": true,
-      "sql_branches": [
-        "${TABLE}.region_eu",
-        "${TABLE}.region_apac",
-        "${TABLE}.region_global"
-      ]
-    },
-    {
-      "term_name": "Date Format",
-      "field_id": "dynamic_fields.date_format",
-      "description": "Date formatted based on locale | View: Dynamic Fields (table: analytics.events)",
-      "type": "dimension",
-      "table_name": "analytics.events",
-      "view_name": "dynamic_fields",
-      "model_name": "ecommerce",
-      "sql_expression": "{% if _user_attributes['locale'] == 'US' %}\n        DATE_FORMAT(${TABLE}.created_at, '%m/%d/%Y')\n      {% else %}\n        DATE_FORMAT(${TABLE}.created_at, '%d/%m/%Y')\n      {% endif %}",
-      "related_terms": [
-        {
-          "term_name": "Region Column",
-          "field_id": "dynamic_fields.region_column",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        },
-        {
-          "term_name": "Case Example",
-          "field_id": "dynamic_fields.case_example",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        },
-        {
-          "term_name": "Dynamic Sum",
-          "field_id": "dynamic_fields.dynamic_sum",
-          "type": "measure",
-          "view_name": "dynamic_fields"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics.events",
-          "id": "analytics.events",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics.events"
-        }
-      ],
-      "is_dynamic_sql": true,
-      "sql_branches": [
-        "DATE_FORMAT(${TABLE}.created_at, '%m/%d/%Y')",
-        "DATE_FORMAT(${TABLE}.created_at, '%d/%m/%Y')"
-      ]
-    },
-    {
-      "term_name": "Case Example",
-      "field_id": "dynamic_fields.case_example",
-      "description": "Uses case/when for tier assignment | View: Dynamic Fields (table: analytics.events)",
-      "type": "dimension",
-      "table_name": "analytics.events",
-      "view_name": "dynamic_fields",
-      "model_name": "ecommerce",
-      "sql_expression": "{% case _user_attributes['tier'] %}\n        {% when 'gold' %}\n          ${TABLE}.gold_price\n        {% when 'silver' %}\n          ${TABLE}.silver_price\n        {% else %}\n          ${TABLE}.standard_price\n      {% endcase %}",
-      "related_terms": [
-        {
-          "term_name": "Region Column",
-          "field_id": "dynamic_fields.region_column",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        },
-        {
-          "term_name": "Date Format",
-          "field_id": "dynamic_fields.date_format",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        },
-        {
-          "term_name": "Dynamic Sum",
-          "field_id": "dynamic_fields.dynamic_sum",
-          "type": "measure",
-          "view_name": "dynamic_fields"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics.events",
-          "id": "analytics.events",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics.events"
-        }
-      ],
-      "is_dynamic_sql": true,
-      "sql_branches": [
-        "${TABLE}.gold_price",
-        "${TABLE}.silver_price",
-        "${TABLE}.standard_price"
-      ]
-    },
-    {
-      "term_name": "Dynamic Sum",
-      "field_id": "dynamic_fields.dynamic_sum",
-      "description": "Sum that varies by database dialect | View: Dynamic Fields (table: analytics.events)",
-      "type": "measure",
-      "table_name": "analytics.events",
-      "view_name": "dynamic_fields",
-      "model_name": "ecommerce",
-      "sql_expression": "{% if _dialect._name == 'bigquery' %}\n        ${TABLE}.amount_bq\n      {% elsif _dialect._name == 'snowflake' %}\n        ${TABLE}.amount_sf\n      {% else %}\n        ${TABLE}.amount\n      {% endif %}",
-      "measure_type": "sum",
-      "tags": [
-        "metric"
-      ],
-      "is_metric": true,
-      "related_terms": [
-        {
-          "term_name": "Region Column",
-          "field_id": "dynamic_fields.region_column",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        },
-        {
-          "term_name": "Date Format",
-          "field_id": "dynamic_fields.date_format",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        },
-        {
-          "term_name": "Case Example",
-          "field_id": "dynamic_fields.case_example",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics.events",
-          "id": "analytics.events",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics.events"
-        }
-      ],
-      "is_dynamic_sql": true,
-      "sql_branches": [
-        "${TABLE}.amount_bq",
-        "${TABLE}.amount_sf",
-        "${TABLE}.amount"
-      ]
-    },
-    {
-      "term_name": "Id",
-      "field_id": "orders.id",
-      "description": "Unique order identifier | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
-      "type": "dimension",
-      "table_name": "public.orders",
-      "view_name": "orders",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.id",
-      "synonyms": [
-        {
-          "term_name": "Id",
-          "field_id": "users.id",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Id",
-          "field_id": "products.id",
-          "view_name": "products",
-          "explore_name": "products"
-        },
-        {
-          "term_name": "User Id",
-          "field_id": "orders.user_id",
-          "view_name": "orders",
-          "explore_name": "orders"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "User Id",
-          "field_id": "orders.user_id",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Sale Price",
-          "field_id": "orders.sale_price",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Created",
-          "field_id": "orders.created",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Order Count",
-          "field_id": "orders.order_count",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Total Revenue",
-          "field_id": "orders.total_revenue",
-          "type": "measure",
-          "view_name": "orders"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.orders",
-          "id": "public.orders",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.orders"
-        }
-      ]
-    },
-    {
-      "term_name": "User Id",
-      "field_id": "orders.user_id",
-      "description": "Foreign key to the users table | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
-      "type": "dimension",
-      "table_name": "public.orders",
-      "view_name": "orders",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.user_id",
-      "synonyms": [
-        {
-          "term_name": "Id",
-          "field_id": "users.id",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Id",
-          "field_id": "orders.id",
-          "view_name": "orders",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Id",
-          "field_id": "products.id",
-          "view_name": "products",
-          "explore_name": "products"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "Id",
-          "field_id": "orders.id",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Sale Price",
-          "field_id": "orders.sale_price",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Created",
-          "field_id": "orders.created",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Order Count",
-          "field_id": "orders.order_count",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Total Revenue",
-          "field_id": "orders.total_revenue",
-          "type": "measure",
-          "view_name": "orders"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.orders",
-          "id": "public.orders",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.orders"
-        }
-      ]
-    },
-    {
-      "term_name": "Status",
-      "field_id": "orders.status",
-      "description": "Current order status (pending, complete, cancelled, returned) | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
-      "type": "dimension",
-      "table_name": "public.orders",
-      "view_name": "orders",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.status",
-      "related_terms": [
-        {
-          "term_name": "User Id",
-          "field_id": "orders.user_id",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Created",
-          "field_id": "orders.created",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Sale Price",
-          "field_id": "orders.sale_price",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Order Count",
-          "field_id": "orders.order_count",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Total Revenue",
-          "field_id": "orders.total_revenue",
-          "type": "measure",
-          "view_name": "orders"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.orders",
-          "id": "public.orders",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.orders"
-        }
-      ]
-    },
-    {
-      "term_name": "Sale Price",
-      "field_id": "orders.sale_price",
-      "description": "Final sale price of the order after discounts | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
-      "type": "dimension",
-      "table_name": "public.orders",
-      "view_name": "orders",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.sale_price",
-      "synonyms": [
-        {
-          "term_name": "Average Price",
-          "field_id": "products.average_price",
-          "view_name": "products",
-          "explore_name": "products"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "User Id",
-          "field_id": "orders.user_id",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Created",
-          "field_id": "orders.created",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Status",
-          "field_id": "orders.status",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Order Count",
-          "field_id": "orders.order_count",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Total Revenue",
-          "field_id": "orders.total_revenue",
-          "type": "measure",
-          "view_name": "orders"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.orders",
-          "id": "public.orders",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.orders"
-        }
-      ]
-    },
-    {
-      "term_name": "Created",
-      "field_id": "orders.created",
-      "description": "Timestamp when the order was placed | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
-      "type": "dimension",
-      "table_name": "public.orders",
-      "view_name": "orders",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.created_at",
-      "synonyms": [
-        {
-          "term_name": "Created",
-          "field_id": "users.created",
-          "view_name": "users",
-          "explore_name": "orders"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "User Id",
-          "field_id": "orders.user_id",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Sale Price",
-          "field_id": "orders.sale_price",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Status",
-          "field_id": "orders.status",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Order Count",
-          "field_id": "orders.order_count",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Total Revenue",
-          "field_id": "orders.total_revenue",
-          "type": "measure",
-          "view_name": "orders"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.orders",
-          "id": "public.orders",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.orders"
-        }
-      ]
-    },
-    {
-      "term_name": "Total Revenue",
-      "field_id": "orders.total_revenue",
-      "description": "Net revenue after all discounts and adjustments | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
-      "type": "measure",
-      "table_name": "public.orders",
-      "view_name": "orders",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${sale_price} - COALESCE(${TABLE}.discount_amount, 0)",
-      "measure_type": "sum",
-      "value_format": "usd",
-      "tags": [
-        "kpi",
-        "finance",
-        "revenue",
-        "executive"
-      ],
-      "is_metric": true,
-      "is_kpi": true,
-      "recommended_links": [
-        {
-          "title": "Revenue Dashboard",
-          "url": "/dashboards/revenue_overview"
-        },
-        {
-          "title": "Finance Deep Dive",
-          "url": "/dashboards/finance_detail"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "User Id",
-          "field_id": "orders.user_id",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Sale Price",
-          "field_id": "orders.sale_price",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Status",
-          "field_id": "orders.status",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Order Count",
-          "field_id": "orders.order_count",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Created",
-          "field_id": "orders.created",
-          "type": "dimension",
-          "view_name": "orders"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.orders",
-          "id": "public.orders",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.orders"
-        }
-      ]
-    },
-    {
-      "term_name": "Order Count",
-      "field_id": "orders.order_count",
-      "description": "Total number of orders | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
-      "type": "measure",
-      "table_name": "public.orders",
-      "view_name": "orders",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "measure_type": "count",
-      "tags": [
-        "kpi"
-      ],
-      "is_metric": true,
-      "is_kpi": true,
-      "recommended_links": [
-        {
-          "title": "Orders Dashboard",
-          "url": "/dashboards/orders_overview"
-        }
-      ],
-      "synonyms": [
-        {
-          "term_name": "Cancelled Order Count",
-          "field_id": "orders.cancelled_order_count",
-          "view_name": "orders",
-          "explore_name": "orders"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "Cancelled Order Count",
-          "field_id": "orders.cancelled_order_count",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Average Order Value",
-          "field_id": "orders.average_order_value",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Repeat Order Rate",
-          "field_id": "orders.repeat_order_rate",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Created",
-          "field_id": "orders.created",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Total Revenue",
-          "field_id": "orders.total_revenue",
-          "type": "measure",
-          "view_name": "orders"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.orders",
-          "id": "public.orders",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.orders"
-        }
-      ]
-    },
-    {
-      "term_name": "Average Order Value",
-      "field_id": "orders.average_order_value",
-      "description": "Average revenue per order | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
-      "type": "measure",
-      "table_name": "public.orders",
-      "view_name": "orders",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${sale_price}",
-      "measure_type": "average",
-      "value_format": "usd",
-      "tags": [
-        "kpi"
-      ],
-      "is_metric": true,
-      "is_kpi": true,
-      "related_terms": [
-        {
-          "term_name": "Order Count",
-          "field_id": "orders.order_count",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Cancelled Order Count",
-          "field_id": "orders.cancelled_order_count",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Repeat Order Rate",
-          "field_id": "orders.repeat_order_rate",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Created",
-          "field_id": "orders.created",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Total Revenue",
-          "field_id": "orders.total_revenue",
-          "type": "measure",
-          "view_name": "orders"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.orders",
-          "id": "public.orders",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.orders"
-        }
-      ]
-    },
-    {
-      "term_name": "Conversion Rate",
-      "field_id": "orders.conversion_rate",
-      "description": "Ratio of completed orders to total orders | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
-      "type": "measure",
-      "table_name": "public.orders",
-      "view_name": "orders",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "1.0 * ${total_orders_completed} / NULLIF(${order_count}, 0)",
-      "measure_type": "number",
-      "value_format": "percent_2",
-      "tags": [
-        "kpi"
-      ],
-      "is_metric": true,
-      "is_kpi": true,
-      "related_terms": [
-        {
-          "term_name": "Return Rate",
-          "field_id": "orders.return_rate",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Repeat Order Rate",
-          "field_id": "orders.repeat_order_rate",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Sale Price",
-          "field_id": "orders.sale_price",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Created",
-          "field_id": "orders.created",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Total Revenue",
-          "field_id": "orders.total_revenue",
-          "type": "measure",
-          "view_name": "orders"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.orders",
-          "id": "public.orders",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.orders"
-        }
-      ]
-    },
-    {
-      "term_name": "Gross Margin",
-      "field_id": "orders.gross_margin",
-      "description": "Total gross margin across all orders | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
-      "type": "measure",
-      "table_name": "public.orders",
-      "view_name": "orders",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "${sale_price} - ${TABLE}.cost",
-      "measure_type": "sum",
-      "value_format": "usd",
-      "tags": [
-        "kpi",
-        "finance"
-      ],
-      "is_metric": true,
-      "is_kpi": true,
-      "related_terms": [
-        {
-          "term_name": "User Id",
-          "field_id": "orders.user_id",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Sale Price",
-          "field_id": "orders.sale_price",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Status",
-          "field_id": "orders.status",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Total Revenue",
-          "field_id": "orders.total_revenue",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Created",
-          "field_id": "orders.created",
-          "type": "dimension",
-          "view_name": "orders"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.orders",
-          "id": "public.orders",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.orders"
-        }
-      ]
-    },
-    {
-      "term_name": "Repeat Order Rate",
-      "field_id": "orders.repeat_order_rate",
-      "description": "Percentage of customers who placed more than one order | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
-      "type": "measure",
-      "table_name": "public.orders",
-      "view_name": "orders",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "1.0 * COUNT(DISTINCT CASE WHEN ${TABLE}.order_sequence > 1 THEN ${user_id} END) / NULLIF(COUNT(DISTINCT ${user_id}), 0)",
-      "measure_type": "number",
-      "value_format": "percent_2",
-      "tags": [
-        "retention"
-      ],
-      "is_metric": true,
-      "related_terms": [
-        {
-          "term_name": "Order Count",
-          "field_id": "orders.order_count",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Conversion Rate",
-          "field_id": "orders.conversion_rate",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Return Rate",
-          "field_id": "orders.return_rate",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Average Order Value",
-          "field_id": "orders.average_order_value",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Cancelled Order Count",
-          "field_id": "orders.cancelled_order_count",
-          "type": "measure",
-          "view_name": "orders"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.orders",
-          "id": "public.orders",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.orders"
-        }
-      ]
-    },
-    {
-      "term_name": "Cancelled Order Count",
-      "field_id": "orders.cancelled_order_count",
-      "description": "Number of orders with cancelled status | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
-      "type": "measure",
-      "table_name": "public.orders",
-      "view_name": "orders",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "measure_type": "count",
-      "tags": [
-        "operations"
-      ],
-      "is_metric": true,
-      "synonyms": [
-        {
-          "term_name": "Order Count",
-          "field_id": "orders.order_count",
-          "view_name": "orders",
-          "explore_name": "orders"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "Order Count",
-          "field_id": "orders.order_count",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Repeat Order Rate",
-          "field_id": "orders.repeat_order_rate",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Average Order Value",
-          "field_id": "orders.average_order_value",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Created",
-          "field_id": "orders.created",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Total Revenue",
-          "field_id": "orders.total_revenue",
-          "type": "measure",
-          "view_name": "orders"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.orders",
-          "id": "public.orders",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.orders"
-        }
-      ]
-    },
-    {
-      "term_name": "Return Rate",
-      "field_id": "orders.return_rate",
-      "description": "Percentage of orders that were returned | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
-      "type": "measure",
-      "table_name": "public.orders",
-      "view_name": "orders",
-      "explore_name": "orders",
-      "model_name": "ecommerce",
-      "sql_expression": "1.0 * COUNT(CASE WHEN ${status} = 'returned' THEN 1 END) / NULLIF(${order_count}, 0)",
-      "measure_type": "number",
-      "value_format": "percent_2",
-      "tags": [
-        "operations",
-        "kpi"
-      ],
-      "is_metric": true,
-      "is_kpi": true,
-      "related_terms": [
-        {
-          "term_name": "Conversion Rate",
-          "field_id": "orders.conversion_rate",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Repeat Order Rate",
-          "field_id": "orders.repeat_order_rate",
-          "type": "measure",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Sale Price",
-          "field_id": "orders.sale_price",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Created",
-          "field_id": "orders.created",
-          "type": "dimension",
-          "view_name": "orders"
-        },
-        {
-          "term_name": "Total Revenue",
-          "field_id": "orders.total_revenue",
-          "type": "measure",
-          "view_name": "orders"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.orders",
-          "id": "public.orders",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.orders"
         }
       ]
     },
@@ -1585,6 +992,12 @@
           "source_type": "physical_table",
           "verified": false,
           "raw_sql_table_name": "public.products"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "primary_key",
+          "value": true
         }
       ]
     },
@@ -1944,16 +1357,16 @@
       "is_metric": true,
       "synonyms": [
         {
-          "term_name": "Sale Price",
-          "field_id": "orders.sale_price",
-          "view_name": "orders",
-          "explore_name": "orders"
-        },
-        {
           "term_name": "Retail Price",
           "field_id": "products.retail_price",
           "view_name": "products",
           "explore_name": "products"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "view_name": "orders",
+          "explore_name": "orders"
         }
       ],
       "related_terms": [
@@ -1999,11 +1412,1623 @@
           "raw_sql_table_name": "public.products"
         }
       ]
+    },
+    {
+      "term_name": "Id",
+      "field_id": "orders.id",
+      "description": "Unique order identifier | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.id",
+      "synonyms": [
+        {
+          "term_name": "Id",
+          "field_id": "users.id",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "products.id",
+          "view_name": "products",
+          "explore_name": "products"
+        },
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "primary_key",
+          "value": true
+        }
+      ]
+    },
+    {
+      "term_name": "User Id",
+      "field_id": "orders.user_id",
+      "description": "Foreign key to the users table | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.user_id",
+      "synonyms": [
+        {
+          "term_name": "Id",
+          "field_id": "users.id",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "products.id",
+          "view_name": "products",
+          "explore_name": "products"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "orders.id",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Id",
+          "field_id": "orders.id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Status",
+      "field_id": "orders.status",
+      "description": "Current order status (pending, complete, cancelled, returned) | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.status",
+      "related_terms": [
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Sale Price",
+      "field_id": "orders.sale_price",
+      "description": "Final sale price of the order after discounts | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.sale_price",
+      "synonyms": [
+        {
+          "term_name": "Average Price",
+          "field_id": "products.average_price",
+          "view_name": "products",
+          "explore_name": "products"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Status",
+          "field_id": "orders.status",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Created Raw",
+      "field_id": "orders.created_raw",
+      "description": "Timestamp when the order was placed | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.created_at",
+      "synonyms": [
+        {
+          "term_name": "Created Raw",
+          "field_id": "users.created_raw",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "orders.created_month",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Quarter",
+          "field_id": "orders.created_quarter",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "orders.created_year",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "orders.created_month",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "orders.created_year",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Quarter",
+          "field_id": "orders.created_quarter",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "dimension_group",
+          "value": "created"
+        },
+        {
+          "key": "timeframe",
+          "value": "raw"
+        },
+        {
+          "key": "dimension_group_type",
+          "value": "time"
+        }
+      ]
+    },
+    {
+      "term_name": "Created Date",
+      "field_id": "orders.created_date",
+      "description": "Timestamp when the order was placed | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.created_at",
+      "synonyms": [
+        {
+          "term_name": "Created Date",
+          "field_id": "users.created_date",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "orders.created_month",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Quarter",
+          "field_id": "orders.created_quarter",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "orders.created_year",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "orders.created_month",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "orders.created_year",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Quarter",
+          "field_id": "orders.created_quarter",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "dimension_group",
+          "value": "created"
+        },
+        {
+          "key": "timeframe",
+          "value": "date"
+        },
+        {
+          "key": "dimension_group_type",
+          "value": "time"
+        }
+      ]
+    },
+    {
+      "term_name": "Created Week",
+      "field_id": "orders.created_week",
+      "description": "Timestamp when the order was placed | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.created_at",
+      "synonyms": [
+        {
+          "term_name": "Created Week",
+          "field_id": "users.created_week",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "orders.created_month",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Quarter",
+          "field_id": "orders.created_quarter",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "orders.created_year",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "orders.created_month",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "orders.created_year",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Quarter",
+          "field_id": "orders.created_quarter",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "dimension_group",
+          "value": "created"
+        },
+        {
+          "key": "timeframe",
+          "value": "week"
+        },
+        {
+          "key": "dimension_group_type",
+          "value": "time"
+        }
+      ]
+    },
+    {
+      "term_name": "Created Month",
+      "field_id": "orders.created_month",
+      "description": "Timestamp when the order was placed | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.created_at",
+      "synonyms": [
+        {
+          "term_name": "Created Month",
+          "field_id": "users.created_month",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Quarter",
+          "field_id": "orders.created_quarter",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "orders.created_year",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "orders.created_year",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Quarter",
+          "field_id": "orders.created_quarter",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "dimension_group",
+          "value": "created"
+        },
+        {
+          "key": "timeframe",
+          "value": "month"
+        },
+        {
+          "key": "dimension_group_type",
+          "value": "time"
+        }
+      ]
+    },
+    {
+      "term_name": "Created Quarter",
+      "field_id": "orders.created_quarter",
+      "description": "Timestamp when the order was placed | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.created_at",
+      "synonyms": [
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "orders.created_month",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "orders.created_year",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Year",
+          "field_id": "orders.created_year",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "orders.created_month",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "dimension_group",
+          "value": "created"
+        },
+        {
+          "key": "timeframe",
+          "value": "quarter"
+        },
+        {
+          "key": "dimension_group_type",
+          "value": "time"
+        }
+      ]
+    },
+    {
+      "term_name": "Created Year",
+      "field_id": "orders.created_year",
+      "description": "Timestamp when the order was placed | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "dimension",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.created_at",
+      "synonyms": [
+        {
+          "term_name": "Created Year",
+          "field_id": "users.created_year",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "orders.created_month",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Created Quarter",
+          "field_id": "orders.created_quarter",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Week",
+          "field_id": "orders.created_week",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Quarter",
+          "field_id": "orders.created_quarter",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Month",
+          "field_id": "orders.created_month",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "dimension_group",
+          "value": "created"
+        },
+        {
+          "key": "timeframe",
+          "value": "year"
+        },
+        {
+          "key": "dimension_group_type",
+          "value": "time"
+        }
+      ]
+    },
+    {
+      "term_name": "Total Revenue",
+      "field_id": "orders.total_revenue",
+      "description": "Net revenue after all discounts and adjustments | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "measure",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${sale_price} - COALESCE(${TABLE}.discount_amount, 0)",
+      "measure_type": "sum",
+      "value_format": "usd",
+      "tags": [
+        "kpi",
+        "finance",
+        "revenue",
+        "executive"
+      ],
+      "is_metric": true,
+      "is_kpi": true,
+      "recommended_links": [
+        {
+          "title": "Revenue Dashboard",
+          "url": "/dashboards/revenue_overview"
+        },
+        {
+          "title": "Finance Deep Dive",
+          "url": "/dashboards/finance_detail"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Status",
+          "field_id": "orders.status",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Order Count",
+      "field_id": "orders.order_count",
+      "description": "Total number of orders | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "measure",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "measure_type": "count",
+      "tags": [
+        "kpi"
+      ],
+      "is_metric": true,
+      "is_kpi": true,
+      "recommended_links": [
+        {
+          "title": "Orders Dashboard",
+          "url": "/dashboards/orders_overview"
+        }
+      ],
+      "synonyms": [
+        {
+          "term_name": "Cancelled Order Count",
+          "field_id": "orders.cancelled_order_count",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Cancelled Order Count",
+          "field_id": "orders.cancelled_order_count",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Average Order Value",
+          "field_id": "orders.average_order_value",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Repeat Order Rate",
+          "field_id": "orders.repeat_order_rate",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Average Order Value",
+      "field_id": "orders.average_order_value",
+      "description": "Average revenue per order | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "measure",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${sale_price}",
+      "measure_type": "average",
+      "value_format": "usd",
+      "tags": [
+        "kpi"
+      ],
+      "is_metric": true,
+      "is_kpi": true,
+      "related_terms": [
+        {
+          "term_name": "Order Count",
+          "field_id": "orders.order_count",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Cancelled Order Count",
+          "field_id": "orders.cancelled_order_count",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Repeat Order Rate",
+          "field_id": "orders.repeat_order_rate",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Conversion Rate",
+      "field_id": "orders.conversion_rate",
+      "description": "Ratio of completed orders to total orders | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "measure",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "1.0 * ${total_orders_completed} / NULLIF(${order_count}, 0)",
+      "measure_type": "number",
+      "value_format": "percent_2",
+      "tags": [
+        "kpi"
+      ],
+      "is_metric": true,
+      "is_kpi": true,
+      "related_terms": [
+        {
+          "term_name": "Return Rate",
+          "field_id": "orders.return_rate",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Repeat Order Rate",
+          "field_id": "orders.repeat_order_rate",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Gross Margin",
+      "field_id": "orders.gross_margin",
+      "description": "Total gross margin across all orders | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "measure",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "${sale_price} - ${TABLE}.cost",
+      "measure_type": "sum",
+      "value_format": "usd",
+      "tags": [
+        "kpi",
+        "finance"
+      ],
+      "is_metric": true,
+      "is_kpi": true,
+      "related_terms": [
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Status",
+          "field_id": "orders.status",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Repeat Order Rate",
+      "field_id": "orders.repeat_order_rate",
+      "description": "Percentage of customers who placed more than one order | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "measure",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "1.0 * COUNT(DISTINCT CASE WHEN ${TABLE}.order_sequence > 1 THEN ${user_id} END) / NULLIF(COUNT(DISTINCT ${user_id}), 0)",
+      "measure_type": "number",
+      "value_format": "percent_2",
+      "tags": [
+        "retention"
+      ],
+      "is_metric": true,
+      "related_terms": [
+        {
+          "term_name": "Order Count",
+          "field_id": "orders.order_count",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Conversion Rate",
+          "field_id": "orders.conversion_rate",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Return Rate",
+          "field_id": "orders.return_rate",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Average Order Value",
+          "field_id": "orders.average_order_value",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Cancelled Order Count",
+          "field_id": "orders.cancelled_order_count",
+          "type": "measure",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Cancelled Order Count",
+      "field_id": "orders.cancelled_order_count",
+      "description": "Number of orders with cancelled status | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "measure",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "measure_type": "count",
+      "tags": [
+        "operations"
+      ],
+      "is_metric": true,
+      "synonyms": [
+        {
+          "term_name": "Order Count",
+          "field_id": "orders.order_count",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Order Count",
+          "field_id": "orders.order_count",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Repeat Order Rate",
+          "field_id": "orders.repeat_order_rate",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Average Order Value",
+          "field_id": "orders.average_order_value",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Return Rate",
+      "field_id": "orders.return_rate",
+      "description": "Percentage of orders that were returned | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
+      "type": "measure",
+      "table_name": "public.orders",
+      "view_name": "orders",
+      "explore_name": "orders",
+      "model_name": "ecommerce",
+      "sql_expression": "1.0 * COUNT(CASE WHEN ${status} = 'returned' THEN 1 END) / NULLIF(${order_count}, 0)",
+      "measure_type": "number",
+      "value_format": "percent_2",
+      "tags": [
+        "operations",
+        "kpi"
+      ],
+      "is_metric": true,
+      "is_kpi": true,
+      "related_terms": [
+        {
+          "term_name": "Conversion Rate",
+          "field_id": "orders.conversion_rate",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Repeat Order Rate",
+          "field_id": "orders.repeat_order_rate",
+          "type": "measure",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Raw",
+          "field_id": "orders.created_raw",
+          "type": "dimension",
+          "view_name": "orders"
+        },
+        {
+          "term_name": "Created Date",
+          "field_id": "orders.created_date",
+          "type": "dimension",
+          "view_name": "orders"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.orders",
+          "id": "public.orders",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.orders"
+        }
+      ]
+    },
+    {
+      "term_name": "Region Column",
+      "field_id": "dynamic_fields.region_column",
+      "description": "Region column that changes based on user attributes | View: Dynamic Fields (table: analytics.events)",
+      "type": "dimension",
+      "table_name": "analytics.events",
+      "view_name": "dynamic_fields",
+      "model_name": "ecommerce",
+      "sql_expression": "{% if _user_attributes['region'] == 'EU' %}\n        ${TABLE}.region_eu\n      {% elsif _user_attributes['region'] == 'APAC' %}\n        ${TABLE}.region_apac\n      {% else %}\n        ${TABLE}.region_global\n      {% endif %}",
+      "related_terms": [
+        {
+          "term_name": "Date Format",
+          "field_id": "dynamic_fields.date_format",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Case Example",
+          "field_id": "dynamic_fields.case_example",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Dynamic Sum",
+          "field_id": "dynamic_fields.dynamic_sum",
+          "type": "measure",
+          "view_name": "dynamic_fields"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics.events",
+          "id": "analytics.events",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics.events"
+        }
+      ],
+      "is_dynamic_sql": true,
+      "sql_branches": [
+        "${TABLE}.region_eu",
+        "${TABLE}.region_apac",
+        "${TABLE}.region_global"
+      ]
+    },
+    {
+      "term_name": "Date Format",
+      "field_id": "dynamic_fields.date_format",
+      "description": "Date formatted based on locale | View: Dynamic Fields (table: analytics.events)",
+      "type": "dimension",
+      "table_name": "analytics.events",
+      "view_name": "dynamic_fields",
+      "model_name": "ecommerce",
+      "sql_expression": "{% if _user_attributes['locale'] == 'US' %}\n        DATE_FORMAT(${TABLE}.created_at, '%m/%d/%Y')\n      {% else %}\n        DATE_FORMAT(${TABLE}.created_at, '%d/%m/%Y')\n      {% endif %}",
+      "related_terms": [
+        {
+          "term_name": "Region Column",
+          "field_id": "dynamic_fields.region_column",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Case Example",
+          "field_id": "dynamic_fields.case_example",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Dynamic Sum",
+          "field_id": "dynamic_fields.dynamic_sum",
+          "type": "measure",
+          "view_name": "dynamic_fields"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics.events",
+          "id": "analytics.events",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics.events"
+        }
+      ],
+      "is_dynamic_sql": true,
+      "sql_branches": [
+        "DATE_FORMAT(${TABLE}.created_at, '%m/%d/%Y')",
+        "DATE_FORMAT(${TABLE}.created_at, '%d/%m/%Y')"
+      ]
+    },
+    {
+      "term_name": "Case Example",
+      "field_id": "dynamic_fields.case_example",
+      "description": "Uses case/when for tier assignment | View: Dynamic Fields (table: analytics.events)",
+      "type": "dimension",
+      "table_name": "analytics.events",
+      "view_name": "dynamic_fields",
+      "model_name": "ecommerce",
+      "sql_expression": "{% case _user_attributes['tier'] %}\n        {% when 'gold' %}\n          ${TABLE}.gold_price\n        {% when 'silver' %}\n          ${TABLE}.silver_price\n        {% else %}\n          ${TABLE}.standard_price\n      {% endcase %}",
+      "related_terms": [
+        {
+          "term_name": "Region Column",
+          "field_id": "dynamic_fields.region_column",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Date Format",
+          "field_id": "dynamic_fields.date_format",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Dynamic Sum",
+          "field_id": "dynamic_fields.dynamic_sum",
+          "type": "measure",
+          "view_name": "dynamic_fields"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics.events",
+          "id": "analytics.events",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics.events"
+        }
+      ],
+      "is_dynamic_sql": true,
+      "sql_branches": [
+        "${TABLE}.gold_price",
+        "${TABLE}.silver_price",
+        "${TABLE}.standard_price"
+      ]
+    },
+    {
+      "term_name": "Dynamic Sum",
+      "field_id": "dynamic_fields.dynamic_sum",
+      "description": "Sum that varies by database dialect | View: Dynamic Fields (table: analytics.events)",
+      "type": "measure",
+      "table_name": "analytics.events",
+      "view_name": "dynamic_fields",
+      "model_name": "ecommerce",
+      "sql_expression": "{% if _dialect._name == 'bigquery' %}\n        ${TABLE}.amount_bq\n      {% elsif _dialect._name == 'snowflake' %}\n        ${TABLE}.amount_sf\n      {% else %}\n        ${TABLE}.amount\n      {% endif %}",
+      "measure_type": "sum",
+      "tags": [
+        "metric"
+      ],
+      "is_metric": true,
+      "related_terms": [
+        {
+          "term_name": "Region Column",
+          "field_id": "dynamic_fields.region_column",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Date Format",
+          "field_id": "dynamic_fields.date_format",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Case Example",
+          "field_id": "dynamic_fields.case_example",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics.events",
+          "id": "analytics.events",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics.events"
+        }
+      ],
+      "is_dynamic_sql": true,
+      "sql_branches": [
+        "${TABLE}.amount_bq",
+        "${TABLE}.amount_sf",
+        "${TABLE}.amount"
+      ]
     }
   ],
   "summary": {
-    "total_terms": 33,
-    "dimensions": 21,
-    "measures": 12
+    "total_terms": 42,
+    "dimensions": 30,
+    "measures": 12,
+    "parameters": 0
   }
 }
