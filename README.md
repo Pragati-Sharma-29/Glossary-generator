@@ -1,6 +1,8 @@
 # LookML Glossary Generator
 
-A Python agent that parses LookML model files and generates a structured, enriched glossary of business terms. It extracts measures, dimensions, table names, and dashboard links — then enriches them with synonym detection, related terms, source table resolution, and Liquid template branch analysis. Includes a **drift validator** that detects when LookML changes make glossary terms obsolete, with CI integration for automated monitoring.
+A Python agent that parses LookML model files and generates a structured, enriched glossary of business terms. It extracts measures, dimensions, dimension groups, parameters, and dashboard links — then enriches them with synonym detection, related terms, source table resolution, and Liquid template branch analysis. Includes a **drift validator** that detects when LookML changes make glossary terms obsolete, with CI integration for automated monitoring.
+
+**[Live Demo: Healthcare Glossary](https://pragati-sharma-29.github.io/Glossary-generator/healthcare_demo/)** | **[E-Commerce Glossary](https://pragati-sharma-29.github.io/Glossary-generator/ecommerce.html)**
 
 ## How It Works
 
@@ -14,10 +16,16 @@ A Python agent that parses LookML model files and generates a structured, enrich
 - Parses `.model.lkml` files and all included views/dashboards
 - **Parallel file I/O** — included files are parsed concurrently via `ThreadPoolExecutor`
 - **Full glob include resolution** — supports `**/*.view.lkml`, subdirectory patterns, and exact paths
+- **Cross-extension matching** — `.lkml` include patterns automatically match `.lookml` files and vice versa
 - **Cross-project imports** — resolves `local_dependency` from `manifest.lkml`; logs `remote_dependency` with instructions
-- Extracts **measures** (sum, count, average, etc.), **dimensions**, and **dimension groups**
+- Extracts **measures** (sum, count, average, etc.), **dimensions**, **dimension groups**, **parameters**, and **filters**
+- **Dimension group timeframe expansion** — a `dimension_group` with `timeframes: [date, week, month]` produces 3 individual glossary terms (e.g., `created_date`, `created_week`, `created_month`)
+- **Explore `extends` resolution** — recursively follows explore inheritance chains to collect all joins (handles both `extends` and `extends__all` formats)
 - Captures **table names**, **view names**, and **explore context** in each term's description
-- Captures **dashboard links** and **recommended links** from LookML `link` blocks
+- Captures **dashboard links** from both LookML syntax (`.dashboard.lkml`) and **YAML format** (`.dashboard.lookml`) dashboards
+- Captures **recommended links** from LookML `link` blocks
+- **Structured aspects** — extracts `group_label`, `label`, `primary_key`, `drill_fields`, `filters`, `actions`, and other metadata as key-value aspects (separate from plain-text descriptions)
+- **Hidden field detection** — tracks `hidden: yes` fields with `--exclude-hidden` CLI option to filter them from output
 
 ### Enrichment
 - **Synonym detection** — O(n) average via hash-bucket indexing on normalized labels, view+SQL keys, and token overlap
@@ -163,10 +171,16 @@ terms = parse_lookml_model("path/to/model.model.lkml")
 
 for term in terms:
     print(f"{term.term_type}: {term.name} - {term.description}")
+    if term.aspects:
+        print(f"  Aspects: {term.aspects}")
+    if term.is_hidden:
+        print("  [hidden]")
     if term.is_dynamic_sql:
         print(f"  Dynamic SQL with {len(term.sql_branches)} branches:")
         for branch in term.sql_branches:
             print(f"    - {branch}")
+    if term.dashboard_links:
+        print(f"  Dashboards: {[dl.title for dl in term.dashboard_links]}")
     if term.synonyms:
         print(f"  Synonyms: {[s['term_name'] for s in term.synonyms]}")
     if term.related_terms:
@@ -182,8 +196,9 @@ Each glossary entry contains:
 | Field | Description |
 |-------|-------------|
 | `term_name` | Human-readable name of the term |
-| `description` | Business description enriched with view and explore context |
-| `type` | `dimension` or `measure` |
+| `description` | Plain-text business description (view/explore context appended) |
+| `type` | `dimension`, `measure`, or `parameter` |
+| `field_id` | Unique `view_name.field_name` identifier |
 | `table_name` | Underlying database table from the view |
 | `view_name` | LookML view name |
 | `explore_name` | LookML explore name |
@@ -192,6 +207,8 @@ Each glossary entry contains:
 | `sql_expression` | The SQL definition (may contain Liquid tags for dynamic fields) |
 | `value_format` | Display format |
 | `tags` | LookML tags |
+| `is_hidden` | `true` if the field has `hidden: yes` |
+| `aspects` | Structured key-value metadata (group_label, label, primary_key, drill_fields, filters, actions, timeframe, parameter_type, etc.) |
 | `dashboard_links` | Links to dashboards using this field |
 | `recommended_links` | Links defined in the LookML `link` block |
 | `synonyms` | Fields with identical/near-identical names across explores |
@@ -367,12 +384,12 @@ jobs:
 
 ```
 lookml_glossary/
-├── parser.py        # LookML parsing, include resolution, cross-project imports
+├── parser.py        # LookML + YAML parsing, include resolution, explore extends, cross-project imports
 ├── enrichment.py    # Synonym detection, related terms, source table resolution
 ├── liquid.py        # Liquid template AST parsing and branch extraction
 ├── generator.py     # JSON, CSV, Markdown, HTML, Webapp output
 ├── validator.py     # Drift detection against glossary snapshots
-├── cli.py           # Command-line interface
+├── cli.py           # Command-line interface (--exclude-hidden, -I include paths)
 └── templates/       # Jinja2 templates for HTML/Markdown/Webapp output
 ```
 
@@ -394,14 +411,14 @@ pip install pytest
 pytest tests/
 ```
 
-77 tests across 4 test files:
+90 tests across 4 test files:
 
 | Test file | Tests | Covers |
 |-----------|-------|--------|
-| `test_parser.py` | 16 | Parsing, JSON/CSV/Markdown/HTML/Webapp generation |
-| `test_validator.py` | 17 | Drift detection, severity levels, snapshot format |
+| `test_parser.py` | 32 | Parsing, output formats, dimension group expansion, aspects, hidden fields, parameters, YAML dashboards |
 | `test_enrichment.py` | 25 | Synonyms, SQL extraction, file index, globs, heap, parallelism |
 | `test_liquid.py` | 19 | Liquid branch extraction, if/case/nested, integration |
+| `test_validator.py` | 14 | Drift detection, severity levels, snapshot format |
 
 ## Building from Source
 
@@ -417,16 +434,36 @@ python -m build
 |------------|---------|
 | No database verification | Resolved table names are not confirmed against a live warehouse |
 | No runtime Liquid evaluation | Branch extraction is static — `_user_attributes`, `_filters`, and `_in_query` values are not evaluated |
-| No `extends`/`refinements` | Views using `extends:` or LookML refinements are parsed independently, not merged |
+| No view `extends`/`refinements` | Views using `extends:` or LookML refinements are parsed independently, not merged (explore `extends` **are** resolved) |
 | Remote dependencies need manual clone | `remote_dependency` URLs cannot be fetched automatically; clone locally and pass via `-I` |
 | No usage/popularity data | Field query frequency requires Looker's System Activity, which needs a live Looker API connection |
 | No data governance metadata | Certifications, data quality labels, and field-level ownership live in Looker's content layer |
 | GIL limits CPU parallelism | Threads help I/O but Python's GIL constrains CPU-bound work; large projects may benefit from `multiprocessing` |
 
-## Example Output
+## Example Projects
+
+### E-Commerce Demo (bundled)
 
 ```bash
-lookml-glossary generate examples/ecommerce.model.lkml -f json | python -m json.tool
+lookml-glossary generate examples/ecommerce.model.lkml -f webapp -o glossary.html
 ```
 
-Produces a glossary with dimensions and measures — each annotated with table names, descriptions, dashboard links, synonyms, related terms, source tables, and Liquid branch analysis for dynamic fields.
+Produces a 42-term glossary from orders, users, and products views — including drift detection examples, dimension group timeframe expansion, and dynamic SQL fields.
+
+### Healthcare Demo (bundled)
+
+```bash
+lookml-glossary generate healthcare_demo/healthcare.model.lkml -f webapp -o healthcare_glossary.html
+```
+
+Produces a 516-term glossary from the [looker-open-source/healthcare_demo](https://github.com/looker-open-source/healthcare_demo) project — including encounters, patients, observations, conditions, vitals, and readmissions. Demonstrates YAML dashboard parsing (7 `.dashboard.lookml` files) with 14 dashboard-linked fields and explore `extends` chain resolution.
+
+### GitHub Pages
+
+Both example glossaries are deployed automatically to GitHub Pages on every push to `main`:
+
+- **Landing page** — links to both glossaries with badges and download links
+- **Healthcare Demo** — 516 terms with YAML dashboard links
+- **E-Commerce Demo** — 42 terms with drift report
+
+The deployment workflow generates glossaries from source at build time (no pre-built output committed).
