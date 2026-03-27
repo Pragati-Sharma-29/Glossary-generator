@@ -56,87 +56,153 @@ def _label_similarity(a: str, b: str) -> float:
 
 
 # ---------------------------------------------------------------------------
-# 1. Synonym detection — O(n) via hash-bucket indexing
+# 1. Synonym detection — identity-based scoring (mirrors related terms approach)
 # ---------------------------------------------------------------------------
 
-_SYNONYM_THRESHOLD = 0.7
+_SYNONYM_IDENTITY_THRESHOLD = 0.9  # only identity-level matches qualify
 
 
-def _add_synonym_pair(a: GlossaryTerm, b: GlossaryTerm) -> None:
-    """Link two terms as synonyms of each other (no duplicates)."""
-    syn_b = {"term_name": b.name, "field_id": b.field_id,
-             "view_name": b.view_name or "", "explore_name": b.explore_name or ""}
-    syn_a = {"term_name": a.name, "field_id": a.field_id,
-             "view_name": a.view_name or "", "explore_name": a.explore_name or ""}
-    if syn_b not in a.synonyms:
-        a.synonyms.append(syn_b)
-    if syn_a not in b.synonyms:
-        b.synonyms.append(syn_a)
+def _get_dimension_group(term: GlossaryTerm) -> str | None:
+    """Return the dimension_group name from a term's aspects, or None."""
+    for aspect in term.aspects:
+        if aspect.get("key") == "dimension_group":
+            return aspect.get("value")
+    return None
+
+
+def _find_synonyms_for_term(
+    term: GlossaryTerm,
+    candidates: list[GlossaryTerm],
+) -> None:
+    """Find synonyms for a single term using the same scoring approach as
+    related terms, but restricted to identity-level matches.
+
+    Two terms are synonyms when they represent the *same* concept in different
+    contexts — identical normalised label OR identical underlying SQL column.
+
+    Scoring mirrors ``_find_related_for_explore``:
+      • label_similarity via ``_label_similarity`` (handles normalisation,
+        substring containment, and token overlap)
+      • +0.1 bonus when the SQL expression references the same column
+      • Only pairs scoring >= 0.9 (identity) qualify
+
+    Dimension group timeframe siblings (e.g. created_date, created_week from
+    the same dimension_group in the same view) are excluded — they are
+    different timeframe slices, not synonyms.
+
+    Unlike related terms (top-K per explore), synonyms are unbounded because
+    the identity threshold is strict enough to keep the set small.
+    """
+    a_sql = (term.sql_expression or "").strip()
+    a_dg = _get_dimension_group(term)
+    for b in candidates:
+        if b.field_id == term.field_id:
+            continue
+
+        # Skip dimension group siblings in the same view — they share SQL
+        # but represent different timeframes, not the same concept.
+        if a_dg and term.view_name == b.view_name:
+            b_dg = _get_dimension_group(b)
+            if b_dg and a_dg == b_dg:
+                continue
+
+        # Score using the same label similarity function as related terms
+        score = _label_similarity(term.name, b.name)
+
+        # Boost for same underlying SQL column (same concept, different name)
+        b_sql = (b.sql_expression or "").strip()
+        if a_sql and b_sql and a_sql == b_sql:
+            score = max(score, 0.9)
+
+        if score >= _SYNONYM_IDENTITY_THRESHOLD:
+            syn = {"term_name": b.name, "field_id": b.field_id,
+                   "view_name": b.view_name or "", "explore_name": b.explore_name or ""}
+            if syn not in term.synonyms:
+                term.synonyms.append(syn)
 
 
 def find_synonyms(terms: list[GlossaryTerm]) -> None:
-    """Find synonym terms using hash-bucket indexing instead of O(n²) comparison.
+    """Find synonym terms across explores using identity-level scoring.
 
-    Two bucket strategies find most matches in O(n) average time:
-      1. Exact normalized label — fields with the same normalized name
-      2. Same view+SQL — fields sharing the underlying column
+    Mirrors the related-terms approach but works *across* explores (not within)
+    and requires identity-level matches (score >= 0.9) instead of similarity.
 
-    A token-overlap pass catches remaining near-matches for smaller buckets.
+    Candidate lookup uses hash-bucket indexing on normalised labels and SQL
+    expressions so each term only compares against plausible matches (O(n)
+    average).  Each explore group is processed in parallel.
+
     Mutates terms in-place.
     """
-    # --- Bucket 1: exact normalized label ---
+    # --- Build candidate indexes for O(n) lookup ---
+
+    # Bucket 1: normalised label → terms with that label
     label_buckets: dict[str, list[GlossaryTerm]] = defaultdict(list)
     for t in terms:
         label_buckets[_normalize(t.name)].append(t)
 
-    for bucket in label_buckets.values():
-        if len(bucket) < 2:
-            continue
-        for i in range(len(bucket)):
-            for j in range(i + 1, len(bucket)):
-                a, b = bucket[i], bucket[j]
-                if a.field_id != b.field_id:
-                    _add_synonym_pair(a, b)
-
-    # --- Bucket 2: same view + SQL expression ---
-    sql_buckets: dict[tuple[str, str], list[GlossaryTerm]] = defaultdict(list)
+    # Bucket 2: SQL expression → terms with that SQL
+    sql_buckets: dict[str, list[GlossaryTerm]] = defaultdict(list)
     for t in terms:
-        if t.view_name and t.sql_expression:
-            sql_buckets[(t.view_name, t.sql_expression)].append(t)
+        sql = (t.sql_expression or "").strip()
+        if sql:
+            sql_buckets[sql].append(t)
 
-    for bucket in sql_buckets.values():
-        if len(bucket) < 2:
-            continue
-        for i in range(len(bucket)):
-            for j in range(i + 1, len(bucket)):
-                a, b = bucket[i], bucket[j]
-                if a.field_id != b.field_id:
-                    _add_synonym_pair(a, b)
-
-    # --- Bucket 3: token-overlap for near-matches ---
-    # Index terms by each of their tokens so we only compare terms sharing
-    # at least one meaningful word (required for Jaccard >= 0.7).
+    # Bucket 3: token index for near-identity matches (substring containment)
     token_index: dict[str, list[GlossaryTerm]] = defaultdict(list)
     for t in terms:
         for tok in _tokenize(t.name):
             token_index[tok].append(t)
 
-    seen_pairs: set[tuple[str, str]] = set()
-    for candidates in token_index.values():
-        if len(candidates) < 2 or len(candidates) > 500:
-            # Skip tokens that are too common (e.g., "id") to keep O(n)-ish
-            continue
-        for i in range(len(candidates)):
-            for j in range(i + 1, len(candidates)):
-                a, b = candidates[i], candidates[j]
-                if a.field_id == b.field_id:
-                    continue
-                pair_key = (min(a.field_id, b.field_id), max(a.field_id, b.field_id))
-                if pair_key in seen_pairs:
-                    continue
-                seen_pairs.add(pair_key)
-                if _label_similarity(a.name, b.name) >= _SYNONYM_THRESHOLD:
-                    _add_synonym_pair(a, b)
+    def _get_candidates(a: GlossaryTerm) -> list[GlossaryTerm]:
+        """Collect all plausible synonym candidates from the indexes."""
+        seen: set[str] = {a.field_id}
+        result: list[GlossaryTerm] = []
+
+        # Same normalised label
+        for b in label_buckets.get(_normalize(a.name), []):
+            if b.field_id not in seen:
+                seen.add(b.field_id)
+                result.append(b)
+
+        # Same SQL expression
+        a_sql = (a.sql_expression or "").strip()
+        if a_sql:
+            for b in sql_buckets.get(a_sql, []):
+                if b.field_id not in seen:
+                    seen.add(b.field_id)
+                    result.append(b)
+
+        # Shared tokens (for substring-containment matches scoring 0.9)
+        for tok in _tokenize(a.name):
+            bucket = token_index.get(tok, [])
+            if len(bucket) > 500:
+                continue  # skip overly common tokens
+            for b in bucket:
+                if b.field_id not in seen:
+                    seen.add(b.field_id)
+                    result.append(b)
+
+        return result
+
+    # --- Process each explore group in parallel (mirrors find_related_terms) ---
+    by_explore: dict[str, list[GlossaryTerm]] = defaultdict(list)
+    for t in terms:
+        by_explore[t.explore_name or "__no_explore__"].append(t)
+
+    def _process_explore(explore_terms: list[GlossaryTerm]) -> None:
+        for a in explore_terms:
+            candidates = _get_candidates(a)
+            _find_synonyms_for_term(a, candidates)
+
+    explores = list(by_explore.values())
+    if len(explores) <= 1:
+        for et in explores:
+            _process_explore(et)
+    else:
+        with ThreadPoolExecutor() as executor:
+            futures = [executor.submit(_process_explore, et) for et in explores]
+            for f in as_completed(futures):
+                f.result()
 
 
 # ---------------------------------------------------------------------------

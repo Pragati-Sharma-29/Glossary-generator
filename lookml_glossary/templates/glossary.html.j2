@@ -56,7 +56,7 @@
     <div class="term-card" data-searchable>
         <h3><span class="badge badge-measure">Measure</span>{{ term.term_name }}</h3>
         <p>{{ term.description }}</p>
-        {% if term.table_name is defined %}<p class="meta">Table: <code>{{ term.table_name }}</code></p>{% endif %}
+        {% if term.related_entries is defined and term.related_entries %}<p class="meta">Source Table: {% for re in term.related_entries %}<code>{{ re.name }}</code>{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
         {% if term.view_name is defined %}<p class="meta">View: <code>{{ term.view_name }}</code></p>{% endif %}
         {% if term.measure_type is defined %}<p class="meta">Measure type: {{ term.measure_type }}</p>{% endif %}
         {% if term.sql_expression is defined %}<p class="meta">SQL: <code>{{ term.sql_expression }}</code></p>{% endif %}
@@ -78,7 +78,7 @@
     <div class="term-card" data-searchable>
         <h3><span class="badge badge-dimension">Dimension</span>{{ term.term_name }}</h3>
         <p>{{ term.description }}</p>
-        {% if term.table_name is defined %}<p class="meta">Table: <code>{{ term.table_name }}</code></p>{% endif %}
+        {% if term.related_entries is defined and term.related_entries %}<p class="meta">Source Table: {% for re in term.related_entries %}<code>{{ re.name }}</code>{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
         {% if term.view_name is defined %}<p class="meta">View: <code>{{ term.view_name }}</code></p>{% endif %}
         {% if term.sql_expression is defined %}<p class="meta">SQL: <code>{{ term.sql_expression }}</code></p>{% endif %}
         {{ enrichment_fields(term) }}

@@ -186,11 +186,10 @@
                     <th>Term Name</th>
                     <th>Type</th>
                     <th>Description</th>
-                    <th>Table</th>
+                    <th>Source Table</th>
                     <th>View</th>
                     <th>Synonyms</th>
                     <th>Related Terms</th>
-                    <th>Source Table</th>
                     <th>Links</th>
                 </tr>
             </thead>
@@ -213,7 +212,7 @@
                         <br><code>{{ t.sql_expression }}</code>
                         {% endif %}
                     </td>
-                    <td>{% if t.get('table_name') %}<code>{{ t.table_name }}</code>{% endif %}</td>
+                    <td>{% if t.get('related_entries') %}{% for re in t.related_entries %}<code>{{ re.name }}</code>{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</td>
                     <td>{% if t.get('view_name') %}{{ t.view_name }}{% endif %}</td>
                     <td>
                         {% if t.get('synonyms') %}
@@ -226,13 +225,6 @@
                         {% if t.get('related_terms') %}
                         {% for r in t.related_terms %}
                         <span class="field-pill">{{ r.term_name }}</span>
-                        {% endfor %}
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if t.get('related_entries') %}
-                        {% for re in t.related_entries %}
-                        <code>{{ re.name }}</code><br>
                         {% endfor %}
                         {% endif %}
                     </td>

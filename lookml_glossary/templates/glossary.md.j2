@@ -31,8 +31,8 @@
 
 - **Description:** {{ term.description }}
 - **Type:** Measure ({{ term.measure_type | default("N/A") }})
-{% if term.table_name is defined %}
-- **Table:** `{{ term.table_name }}`
+{% if term.related_entries is defined and term.related_entries %}
+- **Source Table:** {% for re in term.related_entries %}`{{ re.name }}`{% if not loop.last %}, {% endif %}{% endfor %}
 {% endif %}
 {% if term.view_name is defined %}
 - **View:** `{{ term.view_name }}`
@@ -70,8 +70,8 @@
 ### {{ term.term_name }}
 
 - **Description:** {{ term.description }}
-{% if term.table_name is defined %}
-- **Table:** `{{ term.table_name }}`
+{% if term.related_entries is defined and term.related_entries %}
+- **Source Table:** {% for re in term.related_entries %}`{{ re.name }}`{% if not loop.last %}, {% endif %}{% endfor %}
 {% endif %}
 {% if term.view_name is defined %}
 - **View:** `{{ term.view_name }}`
