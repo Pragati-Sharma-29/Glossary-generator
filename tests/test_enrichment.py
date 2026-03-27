@@ -28,39 +28,45 @@ class TestSynonymBuckets:
             explore_name=explore,
         )
 
+    def _synonyms(self, term):
+        """Return related_terms entries with relationship=='synonym'."""
+        return [r for r in term.related_terms if r.get("relationship") == "synonym"]
+
     def test_exact_label_match(self):
         a = self._term("Revenue", "v1.revenue", view="v1")
         b = self._term("Revenue", "v2.revenue", view="v2")
         find_synonyms([a, b])
-        assert len(a.synonyms) == 1
-        assert a.synonyms[0]["field_id"] == "v2.revenue"
+        syns = self._synonyms(a)
+        assert len(syns) == 1
+        assert syns[0]["field_id"] == "v2.revenue"
 
     def test_normalized_label_match(self):
         a = self._term("Total Revenue", "v1.total_revenue", view="v1")
         b = self._term("Revenue", "v2.revenue", view="v2")
         find_synonyms([a, b])
         # "total revenue" normalizes to "revenue" which matches
-        assert len(a.synonyms) == 1
+        assert len(self._synonyms(a)) == 1
 
     def test_same_sql_same_view_match(self):
         a = self._term("Field A", "v.field_a", view="v", sql="${TABLE}.col")
         b = self._term("Field B", "v.field_b", view="v", sql="${TABLE}.col")
         find_synonyms([a, b])
-        assert len(a.synonyms) == 1
-        assert a.synonyms[0]["field_id"] == "v.field_b"
+        syns = self._synonyms(a)
+        assert len(syns) == 1
+        assert syns[0]["field_id"] == "v.field_b"
 
     def test_no_false_positives(self):
         a = self._term("Revenue", "v1.revenue", view="v1")
         b = self._term("Country", "v2.country", view="v2")
         find_synonyms([a, b])
-        assert len(a.synonyms) == 0
-        assert len(b.synonyms) == 0
+        assert len(self._synonyms(a)) == 0
+        assert len(self._synonyms(b)) == 0
 
     def test_same_field_id_not_synonym(self):
         a = self._term("Revenue", "v.revenue")
         b = self._term("Revenue", "v.revenue")
         find_synonyms([a, b])
-        assert len(a.synonyms) == 0
+        assert len(self._synonyms(a)) == 0
 
     def test_large_batch_no_crash(self):
         """Verify the bucket approach handles many terms without O(n²) blowup."""

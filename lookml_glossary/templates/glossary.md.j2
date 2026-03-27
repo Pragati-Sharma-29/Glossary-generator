@@ -11,9 +11,6 @@
 ---
 
 {% macro enrichment_section(term) %}
-{% if term.synonyms is defined and term.synonyms %}
-- **Synonyms:** {{ term.synonyms | map(attribute='term_name') | join(', ') }}
-{% endif %}
 {% if term.related_terms is defined and term.related_terms %}
 - **Related Terms:** {{ term.related_terms | map(attribute='term_name') | join(', ') }}
 {% endif %}

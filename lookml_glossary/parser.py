@@ -43,7 +43,6 @@ class GlossaryTerm:
     is_metric: bool = False
     is_kpi: bool = False
     is_hidden: bool = False
-    synonyms: list[dict] = field(default_factory=list)
     related_terms: list[dict] = field(default_factory=list)
     related_entries: list[dict] = field(default_factory=list)
     aspects: list[dict] = field(default_factory=list)  # structured key-value metadata

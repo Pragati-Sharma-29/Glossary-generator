@@ -18,7 +18,7 @@ CSV_COLUMNS = [
     "measure_type", "sql_expression", "value_format", "tags",
     "is_hidden", "aspects",
     "dashboard_links", "recommended_links",
-    "synonyms", "related_terms", "related_entries",
+    "related_terms", "related_entries",
 ]
 
 
@@ -56,8 +56,6 @@ def _term_to_dict(term: GlossaryTerm) -> dict:
         entry["recommended_links"] = [
             {"title": l.title, "url": l.url} for l in term.recommended_links
         ]
-    if term.synonyms:
-        entry["synonyms"] = term.synonyms
     if term.related_terms:
         entry["related_terms"] = term.related_terms
     if term.related_entries:
@@ -97,7 +95,6 @@ def _term_to_csv_row(term: GlossaryTerm) -> dict:
         ),
         "dashboard_links": _format_links_for_csv(d.get("dashboard_links", [])),
         "recommended_links": _format_links_for_csv(d.get("recommended_links", [])),
-        "synonyms": "; ".join(s.get("term_name", "") for s in d.get("synonyms", [])),
         "related_terms": "; ".join(r.get("term_name", "") for r in d.get("related_terms", [])),
         "related_entries": "; ".join(r.get("name", "") for r in d.get("related_entries", [])),
     }
