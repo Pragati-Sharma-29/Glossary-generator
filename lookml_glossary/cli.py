@@ -5,7 +5,7 @@ import os
 import sys
 
 from .generator import generate_csv, generate_html, generate_json, generate_markdown, generate_webapp
-from .parser import parse_lookml_model
+from .parser import parse_lookml_model, GlossaryTerm
 
 
 def _add_common_args(sub: argparse.ArgumentParser) -> None:
@@ -32,9 +32,16 @@ def _validate_output_path(path: str) -> str:
     return resolved
 
 
+def _filter_hidden(terms: list[GlossaryTerm]) -> list[GlossaryTerm]:
+    """Remove hidden fields from the term list."""
+    return [t for t in terms if not t.is_hidden]
+
+
 def _cmd_generate(args: argparse.Namespace) -> None:
     """Run the generate subcommand."""
     terms = parse_lookml_model(args.model, include_paths=args.include_path)
+    if args.exclude_hidden:
+        terms = _filter_hidden(terms)
 
     if not terms:
         print("No glossary terms found.", file=sys.stderr)
@@ -135,6 +142,12 @@ def main() -> None:
         "-o", "--output",
         default=None,
         help="Output file path (default: stdout)",
+    )
+    gen_parser.add_argument(
+        "--exclude-hidden",
+        action="store_true",
+        default=False,
+        help="Exclude fields marked hidden: yes from the glossary output",
     )
 
     # --- validate subcommand --------------------------------------------------

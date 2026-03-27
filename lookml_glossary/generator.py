@@ -16,6 +16,7 @@ CSV_COLUMNS = [
     "term_name", "description", "type",
     "table_name", "view_name", "explore_name", "model_name",
     "measure_type", "sql_expression", "value_format", "tags",
+    "is_hidden", "aspects",
     "dashboard_links", "recommended_links",
     "synonyms", "related_terms", "related_entries",
 ]
@@ -63,6 +64,10 @@ def _term_to_dict(term: GlossaryTerm) -> dict:
         entry["related_terms"] = term.related_terms
     if term.related_entries:
         entry["related_entries"] = term.related_entries
+    if term.is_hidden:
+        entry["is_hidden"] = True
+    if term.aspects:
+        entry["aspects"] = term.aspects
     if term.is_dynamic_sql:
         entry["is_dynamic_sql"] = True
         entry["sql_branches"] = term.sql_branches
@@ -89,6 +94,10 @@ def _term_to_csv_row(term: GlossaryTerm) -> dict:
         "sql_expression": d.get("sql_expression", ""),
         "value_format": d.get("value_format", ""),
         "tags": "; ".join(d.get("tags", [])),
+        "is_hidden": "yes" if d.get("is_hidden") else "",
+        "aspects": "; ".join(
+            f"{a['key']}={a['value']}" for a in d.get("aspects", [])
+        ),
         "dashboard_links": _format_links_for_csv(d.get("dashboard_links", [])),
         "recommended_links": _format_links_for_csv(d.get("recommended_links", [])),
         "synonyms": "; ".join(s.get("term_name", "") for s in d.get("synonyms", [])),
@@ -227,11 +236,14 @@ def _group_terms(terms: list[GlossaryTerm]) -> dict[str, list[dict]]:
     groups: dict[str, list[dict]] = {
         "dimensions": [],
         "measures": [],
+        "parameters": [],
     }
     for t in terms:
         d = _term_to_dict(t)
         if t.term_type == "dimension":
             groups["dimensions"].append(d)
+        elif t.term_type == "parameter":
+            groups["parameters"].append(d)
         else:
             groups["measures"].append(d)
     return groups
@@ -243,4 +255,5 @@ def _build_summary(terms: list[GlossaryTerm]) -> dict:
         "total_terms": len(terms),
         "dimensions": sum(1 for t in terms if t.term_type == "dimension"),
         "measures": sum(1 for t in terms if t.term_type == "measure"),
+        "parameters": sum(1 for t in terms if t.term_type == "parameter"),
     }
