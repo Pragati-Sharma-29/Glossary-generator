@@ -1,6 +1,690 @@
 {
   "glossary": [
     {
+      "term_name": "Region Column",
+      "field_id": "dynamic_fields.region_column",
+      "description": "Region column that changes based on user attributes | View: Dynamic Fields (table: analytics.events)",
+      "type": "dimension",
+      "table_name": "analytics.events",
+      "view_name": "dynamic_fields",
+      "model_name": "ecommerce",
+      "sql_expression": "{% if _user_attributes['region'] == 'EU' %}\n        ${TABLE}.region_eu\n      {% elsif _user_attributes['region'] == 'APAC' %}\n        ${TABLE}.region_apac\n      {% else %}\n        ${TABLE}.region_global\n      {% endif %}",
+      "related_terms": [
+        {
+          "term_name": "Date Format",
+          "field_id": "dynamic_fields.date_format",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Case Example",
+          "field_id": "dynamic_fields.case_example",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Dynamic Sum",
+          "field_id": "dynamic_fields.dynamic_sum",
+          "type": "measure",
+          "view_name": "dynamic_fields"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics.events",
+          "id": "analytics.events",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics.events"
+        }
+      ],
+      "is_dynamic_sql": true,
+      "sql_branches": [
+        "${TABLE}.region_eu",
+        "${TABLE}.region_apac",
+        "${TABLE}.region_global"
+      ]
+    },
+    {
+      "term_name": "Date Format",
+      "field_id": "dynamic_fields.date_format",
+      "description": "Date formatted based on locale | View: Dynamic Fields (table: analytics.events)",
+      "type": "dimension",
+      "table_name": "analytics.events",
+      "view_name": "dynamic_fields",
+      "model_name": "ecommerce",
+      "sql_expression": "{% if _user_attributes['locale'] == 'US' %}\n        DATE_FORMAT(${TABLE}.created_at, '%m/%d/%Y')\n      {% else %}\n        DATE_FORMAT(${TABLE}.created_at, '%d/%m/%Y')\n      {% endif %}",
+      "related_terms": [
+        {
+          "term_name": "Region Column",
+          "field_id": "dynamic_fields.region_column",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Case Example",
+          "field_id": "dynamic_fields.case_example",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Dynamic Sum",
+          "field_id": "dynamic_fields.dynamic_sum",
+          "type": "measure",
+          "view_name": "dynamic_fields"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics.events",
+          "id": "analytics.events",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics.events"
+        }
+      ],
+      "is_dynamic_sql": true,
+      "sql_branches": [
+        "DATE_FORMAT(${TABLE}.created_at, '%m/%d/%Y')",
+        "DATE_FORMAT(${TABLE}.created_at, '%d/%m/%Y')"
+      ]
+    },
+    {
+      "term_name": "Case Example",
+      "field_id": "dynamic_fields.case_example",
+      "description": "Uses case/when for tier assignment | View: Dynamic Fields (table: analytics.events)",
+      "type": "dimension",
+      "table_name": "analytics.events",
+      "view_name": "dynamic_fields",
+      "model_name": "ecommerce",
+      "sql_expression": "{% case _user_attributes['tier'] %}\n        {% when 'gold' %}\n          ${TABLE}.gold_price\n        {% when 'silver' %}\n          ${TABLE}.silver_price\n        {% else %}\n          ${TABLE}.standard_price\n      {% endcase %}",
+      "related_terms": [
+        {
+          "term_name": "Region Column",
+          "field_id": "dynamic_fields.region_column",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Date Format",
+          "field_id": "dynamic_fields.date_format",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Dynamic Sum",
+          "field_id": "dynamic_fields.dynamic_sum",
+          "type": "measure",
+          "view_name": "dynamic_fields"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics.events",
+          "id": "analytics.events",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics.events"
+        }
+      ],
+      "is_dynamic_sql": true,
+      "sql_branches": [
+        "${TABLE}.gold_price",
+        "${TABLE}.silver_price",
+        "${TABLE}.standard_price"
+      ]
+    },
+    {
+      "term_name": "Dynamic Sum",
+      "field_id": "dynamic_fields.dynamic_sum",
+      "description": "Sum that varies by database dialect | View: Dynamic Fields (table: analytics.events)",
+      "type": "measure",
+      "table_name": "analytics.events",
+      "view_name": "dynamic_fields",
+      "model_name": "ecommerce",
+      "sql_expression": "{% if _dialect._name == 'bigquery' %}\n        ${TABLE}.amount_bq\n      {% elsif _dialect._name == 'snowflake' %}\n        ${TABLE}.amount_sf\n      {% else %}\n        ${TABLE}.amount\n      {% endif %}",
+      "measure_type": "sum",
+      "tags": [
+        "metric"
+      ],
+      "is_metric": true,
+      "related_terms": [
+        {
+          "term_name": "Region Column",
+          "field_id": "dynamic_fields.region_column",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Date Format",
+          "field_id": "dynamic_fields.date_format",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        },
+        {
+          "term_name": "Case Example",
+          "field_id": "dynamic_fields.case_example",
+          "type": "dimension",
+          "view_name": "dynamic_fields"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "analytics.events",
+          "id": "analytics.events",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "analytics.events"
+        }
+      ],
+      "is_dynamic_sql": true,
+      "sql_branches": [
+        "${TABLE}.amount_bq",
+        "${TABLE}.amount_sf",
+        "${TABLE}.amount"
+      ]
+    },
+    {
+      "term_name": "Id",
+      "field_id": "products.id",
+      "description": "Unique product identifier | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
+      "type": "dimension",
+      "table_name": "public.products",
+      "view_name": "products",
+      "explore_name": "products",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.id",
+      "synonyms": [
+        {
+          "term_name": "Id",
+          "field_id": "users.id",
+          "view_name": "users",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "orders.id",
+          "view_name": "orders",
+          "explore_name": "orders"
+        },
+        {
+          "term_name": "User Id",
+          "field_id": "orders.user_id",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Category",
+          "field_id": "products.category",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Is Active",
+          "field_id": "products.is_active",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Brand",
+          "field_id": "products.brand",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Product Count",
+          "field_id": "products.product_count",
+          "type": "measure",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Retail Price",
+          "field_id": "products.retail_price",
+          "type": "dimension",
+          "view_name": "products"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.products",
+          "id": "public.products",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.products"
+        }
+      ],
+      "aspects": [
+        {
+          "key": "primary_key",
+          "value": true
+        }
+      ]
+    },
+    {
+      "term_name": "Name",
+      "field_id": "products.name",
+      "description": "Product display name | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
+      "type": "dimension",
+      "table_name": "public.products",
+      "view_name": "products",
+      "explore_name": "products",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.name",
+      "synonyms": [
+        {
+          "term_name": "Name",
+          "field_id": "users.name",
+          "view_name": "users",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Category",
+          "field_id": "products.category",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Is Active",
+          "field_id": "products.is_active",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Brand",
+          "field_id": "products.brand",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Product Count",
+          "field_id": "products.product_count",
+          "type": "measure",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Retail Price",
+          "field_id": "products.retail_price",
+          "type": "dimension",
+          "view_name": "products"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.products",
+          "id": "public.products",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.products"
+        }
+      ]
+    },
+    {
+      "term_name": "Category",
+      "field_id": "products.category",
+      "description": "Product category classification | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
+      "type": "dimension",
+      "table_name": "public.products",
+      "view_name": "products",
+      "explore_name": "products",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.category",
+      "related_terms": [
+        {
+          "term_name": "Name",
+          "field_id": "products.name",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Is Active",
+          "field_id": "products.is_active",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Brand",
+          "field_id": "products.brand",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Product Count",
+          "field_id": "products.product_count",
+          "type": "measure",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Retail Price",
+          "field_id": "products.retail_price",
+          "type": "dimension",
+          "view_name": "products"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.products",
+          "id": "public.products",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.products"
+        }
+      ]
+    },
+    {
+      "term_name": "Brand",
+      "field_id": "products.brand",
+      "description": "Product brand name | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
+      "type": "dimension",
+      "table_name": "public.products",
+      "view_name": "products",
+      "explore_name": "products",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.brand",
+      "related_terms": [
+        {
+          "term_name": "Name",
+          "field_id": "products.name",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Is Active",
+          "field_id": "products.is_active",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Category",
+          "field_id": "products.category",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Product Count",
+          "field_id": "products.product_count",
+          "type": "measure",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Retail Price",
+          "field_id": "products.retail_price",
+          "type": "dimension",
+          "view_name": "products"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.products",
+          "id": "public.products",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.products"
+        }
+      ]
+    },
+    {
+      "term_name": "Is Active",
+      "field_id": "products.is_active",
+      "description": "Product availability status label | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
+      "type": "dimension",
+      "table_name": "public.products",
+      "view_name": "products",
+      "explore_name": "products",
+      "model_name": "ecommerce",
+      "sql_expression": "CASE WHEN ${TABLE}.discontinued_at IS NULL THEN 'Active' ELSE 'Discontinued' END",
+      "related_terms": [
+        {
+          "term_name": "Name",
+          "field_id": "products.name",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Brand",
+          "field_id": "products.brand",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Category",
+          "field_id": "products.category",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Product Count",
+          "field_id": "products.product_count",
+          "type": "measure",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Retail Price",
+          "field_id": "products.retail_price",
+          "type": "dimension",
+          "view_name": "products"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.products",
+          "id": "public.products",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.products"
+        }
+      ]
+    },
+    {
+      "term_name": "Retail Price",
+      "field_id": "products.retail_price",
+      "description": "Manufacturer suggested retail price | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
+      "type": "dimension",
+      "table_name": "public.products",
+      "view_name": "products",
+      "explore_name": "products",
+      "model_name": "ecommerce",
+      "sql_expression": "${TABLE}.retail_price",
+      "synonyms": [
+        {
+          "term_name": "Average Price",
+          "field_id": "products.average_price",
+          "view_name": "products",
+          "explore_name": "products"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Average Price",
+          "field_id": "products.average_price",
+          "type": "measure",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Category",
+          "field_id": "products.category",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Brand",
+          "field_id": "products.brand",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Product Count",
+          "field_id": "products.product_count",
+          "type": "measure",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Is Active",
+          "field_id": "products.is_active",
+          "type": "dimension",
+          "view_name": "products"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.products",
+          "id": "public.products",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.products"
+        }
+      ]
+    },
+    {
+      "term_name": "Product Count",
+      "field_id": "products.product_count",
+      "description": "Total number of active products in catalogue | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
+      "type": "measure",
+      "table_name": "public.products",
+      "view_name": "products",
+      "explore_name": "products",
+      "model_name": "ecommerce",
+      "measure_type": "count",
+      "is_metric": true,
+      "related_terms": [
+        {
+          "term_name": "Name",
+          "field_id": "products.name",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Brand",
+          "field_id": "products.brand",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Category",
+          "field_id": "products.category",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Retail Price",
+          "field_id": "products.retail_price",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Is Active",
+          "field_id": "products.is_active",
+          "type": "dimension",
+          "view_name": "products"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.products",
+          "id": "public.products",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.products"
+        }
+      ]
+    },
+    {
+      "term_name": "Average Price",
+      "field_id": "products.average_price",
+      "description": "Average retail price across all products | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
+      "type": "measure",
+      "table_name": "public.products",
+      "view_name": "products",
+      "explore_name": "products",
+      "model_name": "ecommerce",
+      "sql_expression": "${retail_price}",
+      "measure_type": "average",
+      "value_format": "usd",
+      "is_metric": true,
+      "synonyms": [
+        {
+          "term_name": "Retail Price",
+          "field_id": "products.retail_price",
+          "view_name": "products",
+          "explore_name": "products"
+        },
+        {
+          "term_name": "Sale Price",
+          "field_id": "orders.sale_price",
+          "view_name": "orders",
+          "explore_name": "orders"
+        }
+      ],
+      "related_terms": [
+        {
+          "term_name": "Retail Price",
+          "field_id": "products.retail_price",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Name",
+          "field_id": "products.name",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Brand",
+          "field_id": "products.brand",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Category",
+          "field_id": "products.category",
+          "type": "dimension",
+          "view_name": "products"
+        },
+        {
+          "term_name": "Is Active",
+          "field_id": "products.is_active",
+          "type": "dimension",
+          "view_name": "products"
+        }
+      ],
+      "related_entries": [
+        {
+          "type": "table",
+          "name": "public.products",
+          "id": "public.products",
+          "url": null,
+          "source_type": "physical_table",
+          "verified": false,
+          "raw_sql_table_name": "public.products"
+        }
+      ]
+    },
+    {
       "term_name": "Id",
       "field_id": "users.id",
       "description": "Unique user identifier | View: Users (table: analytics_v2.dim_users) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
@@ -923,498 +1607,6 @@
     },
     {
       "term_name": "Id",
-      "field_id": "products.id",
-      "description": "Unique product identifier | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
-      "type": "dimension",
-      "table_name": "public.products",
-      "view_name": "products",
-      "explore_name": "products",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.id",
-      "synonyms": [
-        {
-          "term_name": "Id",
-          "field_id": "users.id",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Id",
-          "field_id": "orders.id",
-          "view_name": "orders",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "User Id",
-          "field_id": "orders.user_id",
-          "view_name": "orders",
-          "explore_name": "orders"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "Category",
-          "field_id": "products.category",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Is Active",
-          "field_id": "products.is_active",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Brand",
-          "field_id": "products.brand",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Product Count",
-          "field_id": "products.product_count",
-          "type": "measure",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Retail Price",
-          "field_id": "products.retail_price",
-          "type": "dimension",
-          "view_name": "products"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.products",
-          "id": "public.products",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.products"
-        }
-      ],
-      "aspects": [
-        {
-          "key": "primary_key",
-          "value": true
-        }
-      ]
-    },
-    {
-      "term_name": "Name",
-      "field_id": "products.name",
-      "description": "Product display name | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
-      "type": "dimension",
-      "table_name": "public.products",
-      "view_name": "products",
-      "explore_name": "products",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.name",
-      "synonyms": [
-        {
-          "term_name": "Name",
-          "field_id": "users.name",
-          "view_name": "users",
-          "explore_name": "orders"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "Category",
-          "field_id": "products.category",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Is Active",
-          "field_id": "products.is_active",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Brand",
-          "field_id": "products.brand",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Product Count",
-          "field_id": "products.product_count",
-          "type": "measure",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Retail Price",
-          "field_id": "products.retail_price",
-          "type": "dimension",
-          "view_name": "products"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.products",
-          "id": "public.products",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.products"
-        }
-      ]
-    },
-    {
-      "term_name": "Category",
-      "field_id": "products.category",
-      "description": "Product category classification | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
-      "type": "dimension",
-      "table_name": "public.products",
-      "view_name": "products",
-      "explore_name": "products",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.category",
-      "related_terms": [
-        {
-          "term_name": "Name",
-          "field_id": "products.name",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Is Active",
-          "field_id": "products.is_active",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Brand",
-          "field_id": "products.brand",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Product Count",
-          "field_id": "products.product_count",
-          "type": "measure",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Retail Price",
-          "field_id": "products.retail_price",
-          "type": "dimension",
-          "view_name": "products"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.products",
-          "id": "public.products",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.products"
-        }
-      ]
-    },
-    {
-      "term_name": "Brand",
-      "field_id": "products.brand",
-      "description": "Product brand name | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
-      "type": "dimension",
-      "table_name": "public.products",
-      "view_name": "products",
-      "explore_name": "products",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.brand",
-      "related_terms": [
-        {
-          "term_name": "Name",
-          "field_id": "products.name",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Is Active",
-          "field_id": "products.is_active",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Category",
-          "field_id": "products.category",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Product Count",
-          "field_id": "products.product_count",
-          "type": "measure",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Retail Price",
-          "field_id": "products.retail_price",
-          "type": "dimension",
-          "view_name": "products"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.products",
-          "id": "public.products",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.products"
-        }
-      ]
-    },
-    {
-      "term_name": "Is Active",
-      "field_id": "products.is_active",
-      "description": "Product availability status label | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
-      "type": "dimension",
-      "table_name": "public.products",
-      "view_name": "products",
-      "explore_name": "products",
-      "model_name": "ecommerce",
-      "sql_expression": "CASE WHEN ${TABLE}.discontinued_at IS NULL THEN 'Active' ELSE 'Discontinued' END",
-      "related_terms": [
-        {
-          "term_name": "Name",
-          "field_id": "products.name",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Brand",
-          "field_id": "products.brand",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Category",
-          "field_id": "products.category",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Product Count",
-          "field_id": "products.product_count",
-          "type": "measure",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Retail Price",
-          "field_id": "products.retail_price",
-          "type": "dimension",
-          "view_name": "products"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.products",
-          "id": "public.products",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.products"
-        }
-      ]
-    },
-    {
-      "term_name": "Retail Price",
-      "field_id": "products.retail_price",
-      "description": "Manufacturer suggested retail price | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
-      "type": "dimension",
-      "table_name": "public.products",
-      "view_name": "products",
-      "explore_name": "products",
-      "model_name": "ecommerce",
-      "sql_expression": "${TABLE}.retail_price",
-      "synonyms": [
-        {
-          "term_name": "Average Price",
-          "field_id": "products.average_price",
-          "view_name": "products",
-          "explore_name": "products"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "Average Price",
-          "field_id": "products.average_price",
-          "type": "measure",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Category",
-          "field_id": "products.category",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Brand",
-          "field_id": "products.brand",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Product Count",
-          "field_id": "products.product_count",
-          "type": "measure",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Is Active",
-          "field_id": "products.is_active",
-          "type": "dimension",
-          "view_name": "products"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.products",
-          "id": "public.products",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.products"
-        }
-      ]
-    },
-    {
-      "term_name": "Product Count",
-      "field_id": "products.product_count",
-      "description": "Total number of active products in catalogue | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
-      "type": "measure",
-      "table_name": "public.products",
-      "view_name": "products",
-      "explore_name": "products",
-      "model_name": "ecommerce",
-      "measure_type": "count",
-      "is_metric": true,
-      "related_terms": [
-        {
-          "term_name": "Name",
-          "field_id": "products.name",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Brand",
-          "field_id": "products.brand",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Category",
-          "field_id": "products.category",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Retail Price",
-          "field_id": "products.retail_price",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Is Active",
-          "field_id": "products.is_active",
-          "type": "dimension",
-          "view_name": "products"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.products",
-          "id": "public.products",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.products"
-        }
-      ]
-    },
-    {
-      "term_name": "Average Price",
-      "field_id": "products.average_price",
-      "description": "Average retail price across all products | View: Products (table: public.products) | Explore: Products \u2014 Product catalogue exploration with inventory and pricing data",
-      "type": "measure",
-      "table_name": "public.products",
-      "view_name": "products",
-      "explore_name": "products",
-      "model_name": "ecommerce",
-      "sql_expression": "${retail_price}",
-      "measure_type": "average",
-      "value_format": "usd",
-      "is_metric": true,
-      "synonyms": [
-        {
-          "term_name": "Retail Price",
-          "field_id": "products.retail_price",
-          "view_name": "products",
-          "explore_name": "products"
-        },
-        {
-          "term_name": "Sale Price",
-          "field_id": "orders.sale_price",
-          "view_name": "orders",
-          "explore_name": "orders"
-        }
-      ],
-      "related_terms": [
-        {
-          "term_name": "Retail Price",
-          "field_id": "products.retail_price",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Name",
-          "field_id": "products.name",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Brand",
-          "field_id": "products.brand",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Category",
-          "field_id": "products.category",
-          "type": "dimension",
-          "view_name": "products"
-        },
-        {
-          "term_name": "Is Active",
-          "field_id": "products.is_active",
-          "type": "dimension",
-          "view_name": "products"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "public.products",
-          "id": "public.products",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "public.products"
-        }
-      ]
-    },
-    {
-      "term_name": "Id",
       "field_id": "orders.id",
       "description": "Unique order identifier | View: Orders (table: public.orders) | Explore: Orders \u2014 Explore for analysing customer orders, revenue and fulfilment metrics",
       "type": "dimension",
@@ -1426,15 +1618,15 @@
       "synonyms": [
         {
           "term_name": "Id",
-          "field_id": "users.id",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Id",
           "field_id": "products.id",
           "view_name": "products",
           "explore_name": "products"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "users.id",
+          "view_name": "users",
+          "explore_name": "orders"
         },
         {
           "term_name": "User Id",
@@ -1506,15 +1698,15 @@
       "synonyms": [
         {
           "term_name": "Id",
-          "field_id": "users.id",
-          "view_name": "users",
-          "explore_name": "orders"
-        },
-        {
-          "term_name": "Id",
           "field_id": "products.id",
           "view_name": "products",
           "explore_name": "products"
+        },
+        {
+          "term_name": "Id",
+          "field_id": "users.id",
+          "view_name": "users",
+          "explore_name": "orders"
         },
         {
           "term_name": "Id",
@@ -2333,6 +2525,16 @@
       ],
       "is_metric": true,
       "is_kpi": true,
+      "dashboard_links": [
+        {
+          "title": "Revenue Overview Dashboard",
+          "url": "/dashboards/revenue_overview"
+        },
+        {
+          "title": "Revenue Overview Dashboard",
+          "url": "/dashboards/revenue_overview"
+        }
+      ],
       "recommended_links": [
         {
           "title": "Revenue Dashboard",
@@ -2402,6 +2604,12 @@
       ],
       "is_metric": true,
       "is_kpi": true,
+      "dashboard_links": [
+        {
+          "title": "Revenue Overview Dashboard",
+          "url": "/dashboards/revenue_overview"
+        }
+      ],
       "recommended_links": [
         {
           "title": "Orders Dashboard",
@@ -2830,198 +3038,6 @@
           "verified": false,
           "raw_sql_table_name": "public.orders"
         }
-      ]
-    },
-    {
-      "term_name": "Region Column",
-      "field_id": "dynamic_fields.region_column",
-      "description": "Region column that changes based on user attributes | View: Dynamic Fields (table: analytics.events)",
-      "type": "dimension",
-      "table_name": "analytics.events",
-      "view_name": "dynamic_fields",
-      "model_name": "ecommerce",
-      "sql_expression": "{% if _user_attributes['region'] == 'EU' %}\n        ${TABLE}.region_eu\n      {% elsif _user_attributes['region'] == 'APAC' %}\n        ${TABLE}.region_apac\n      {% else %}\n        ${TABLE}.region_global\n      {% endif %}",
-      "related_terms": [
-        {
-          "term_name": "Date Format",
-          "field_id": "dynamic_fields.date_format",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        },
-        {
-          "term_name": "Case Example",
-          "field_id": "dynamic_fields.case_example",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        },
-        {
-          "term_name": "Dynamic Sum",
-          "field_id": "dynamic_fields.dynamic_sum",
-          "type": "measure",
-          "view_name": "dynamic_fields"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics.events",
-          "id": "analytics.events",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics.events"
-        }
-      ],
-      "is_dynamic_sql": true,
-      "sql_branches": [
-        "${TABLE}.region_eu",
-        "${TABLE}.region_apac",
-        "${TABLE}.region_global"
-      ]
-    },
-    {
-      "term_name": "Date Format",
-      "field_id": "dynamic_fields.date_format",
-      "description": "Date formatted based on locale | View: Dynamic Fields (table: analytics.events)",
-      "type": "dimension",
-      "table_name": "analytics.events",
-      "view_name": "dynamic_fields",
-      "model_name": "ecommerce",
-      "sql_expression": "{% if _user_attributes['locale'] == 'US' %}\n        DATE_FORMAT(${TABLE}.created_at, '%m/%d/%Y')\n      {% else %}\n        DATE_FORMAT(${TABLE}.created_at, '%d/%m/%Y')\n      {% endif %}",
-      "related_terms": [
-        {
-          "term_name": "Region Column",
-          "field_id": "dynamic_fields.region_column",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        },
-        {
-          "term_name": "Case Example",
-          "field_id": "dynamic_fields.case_example",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        },
-        {
-          "term_name": "Dynamic Sum",
-          "field_id": "dynamic_fields.dynamic_sum",
-          "type": "measure",
-          "view_name": "dynamic_fields"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics.events",
-          "id": "analytics.events",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics.events"
-        }
-      ],
-      "is_dynamic_sql": true,
-      "sql_branches": [
-        "DATE_FORMAT(${TABLE}.created_at, '%m/%d/%Y')",
-        "DATE_FORMAT(${TABLE}.created_at, '%d/%m/%Y')"
-      ]
-    },
-    {
-      "term_name": "Case Example",
-      "field_id": "dynamic_fields.case_example",
-      "description": "Uses case/when for tier assignment | View: Dynamic Fields (table: analytics.events)",
-      "type": "dimension",
-      "table_name": "analytics.events",
-      "view_name": "dynamic_fields",
-      "model_name": "ecommerce",
-      "sql_expression": "{% case _user_attributes['tier'] %}\n        {% when 'gold' %}\n          ${TABLE}.gold_price\n        {% when 'silver' %}\n          ${TABLE}.silver_price\n        {% else %}\n          ${TABLE}.standard_price\n      {% endcase %}",
-      "related_terms": [
-        {
-          "term_name": "Region Column",
-          "field_id": "dynamic_fields.region_column",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        },
-        {
-          "term_name": "Date Format",
-          "field_id": "dynamic_fields.date_format",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        },
-        {
-          "term_name": "Dynamic Sum",
-          "field_id": "dynamic_fields.dynamic_sum",
-          "type": "measure",
-          "view_name": "dynamic_fields"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics.events",
-          "id": "analytics.events",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics.events"
-        }
-      ],
-      "is_dynamic_sql": true,
-      "sql_branches": [
-        "${TABLE}.gold_price",
-        "${TABLE}.silver_price",
-        "${TABLE}.standard_price"
-      ]
-    },
-    {
-      "term_name": "Dynamic Sum",
-      "field_id": "dynamic_fields.dynamic_sum",
-      "description": "Sum that varies by database dialect | View: Dynamic Fields (table: analytics.events)",
-      "type": "measure",
-      "table_name": "analytics.events",
-      "view_name": "dynamic_fields",
-      "model_name": "ecommerce",
-      "sql_expression": "{% if _dialect._name == 'bigquery' %}\n        ${TABLE}.amount_bq\n      {% elsif _dialect._name == 'snowflake' %}\n        ${TABLE}.amount_sf\n      {% else %}\n        ${TABLE}.amount\n      {% endif %}",
-      "measure_type": "sum",
-      "tags": [
-        "metric"
-      ],
-      "is_metric": true,
-      "related_terms": [
-        {
-          "term_name": "Region Column",
-          "field_id": "dynamic_fields.region_column",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        },
-        {
-          "term_name": "Date Format",
-          "field_id": "dynamic_fields.date_format",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        },
-        {
-          "term_name": "Case Example",
-          "field_id": "dynamic_fields.case_example",
-          "type": "dimension",
-          "view_name": "dynamic_fields"
-        }
-      ],
-      "related_entries": [
-        {
-          "type": "table",
-          "name": "analytics.events",
-          "id": "analytics.events",
-          "url": null,
-          "source_type": "physical_table",
-          "verified": false,
-          "raw_sql_table_name": "analytics.events"
-        }
-      ],
-      "is_dynamic_sql": true,
-      "sql_branches": [
-        "${TABLE}.amount_bq",
-        "${TABLE}.amount_sf",
-        "${TABLE}.amount"
       ]
     }
   ],

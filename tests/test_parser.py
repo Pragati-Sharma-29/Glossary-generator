@@ -280,6 +280,56 @@ class TestDashboardLookmlExtension:
         )
 
 
+class TestYamlDashboardParsing:
+    def test_yaml_dashboard_links_extracted(self):
+        terms = parse_lookml_model(MODEL_PATH)
+        with_links = [t for t in terms if t.dashboard_links]
+        assert len(with_links) >= 1
+        # total_revenue should have a link from the YAML dashboard
+        revenue = [t for t in terms if t.field_id == "orders.total_revenue"]
+        assert len(revenue) == 1
+        dash_titles = [dl.title for dl in revenue[0].dashboard_links]
+        assert "Revenue Overview Dashboard" in dash_titles
+
+    def test_parse_yaml_dashboard_directly(self):
+        from lookml_glossary.parser import _parse_yaml_dashboard
+        dash_path = os.path.join(EXAMPLES_DIR, "revenue.dashboard.lookml")
+        result = _parse_yaml_dashboard(dash_path)
+        assert "dashboards" in result
+        assert len(result["dashboards"]) == 1
+        dash = result["dashboards"][0]
+        assert dash["name"] == "revenue_overview"
+        assert dash["title"] == "Revenue Overview Dashboard"
+        assert len(dash["elements"]) == 2
+        # First element should have 2 fields
+        assert "orders.total_revenue" in dash["elements"][0]["fields"]
+        assert "orders.order_count" in dash["elements"][0]["fields"]
+
+    def test_yaml_dashboard_empty_file(self):
+        from lookml_glossary.parser import _parse_yaml_dashboard
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix=".dashboard.lookml", mode="w", delete=False) as f:
+            f.write("")
+            tmp_path = f.name
+        try:
+            result = _parse_yaml_dashboard(tmp_path)
+            assert result == {"dashboards": []}
+        finally:
+            os.unlink(tmp_path)
+
+    def test_yaml_dashboard_invalid_yaml(self):
+        from lookml_glossary.parser import _parse_yaml_dashboard
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix=".dashboard.lookml", mode="w", delete=False) as f:
+            f.write(": : : invalid yaml {{{\n")
+            tmp_path = f.name
+        try:
+            result = _parse_yaml_dashboard(tmp_path)
+            assert result == {"dashboards": []}
+        finally:
+            os.unlink(tmp_path)
+
+
 class TestSingleView:
     def test_extract_from_view_dict(self):
         parsed = parse_lookml_file(os.path.join(EXAMPLES_DIR, "orders.view.lkml"))
