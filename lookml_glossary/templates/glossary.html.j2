@@ -39,11 +39,8 @@
     </div>
 
     {% macro enrichment_fields(term) %}
-    {% if term.synonyms is defined and term.synonyms %}
-    <p class="meta">Synonyms: {% for s in term.synonyms %}<span class="pill">{{ s.term_name }} ({{ s.view_name }})</span>{% endfor %}</p>
-    {% endif %}
     {% if term.related_terms is defined and term.related_terms %}
-    <p class="meta">Related: {% for r in term.related_terms %}<span class="pill">{{ r.term_name }}</span>{% endfor %}</p>
+    <p class="meta">Related Terms: {% for r in term.related_terms %}<a href="#term-{{ r.field_id | replace('.', '-') }}" class="pill" style="text-decoration:none">{{ r.term_name }}</a>{% endfor %}</p>
     {% endif %}
     {% if term.related_entries is defined and term.related_entries %}
     <p class="meta">Related Entries: {% for re in term.related_entries %}<code>{{ re.name }}</code> {% endfor %}</p>
@@ -53,7 +50,7 @@
     {% if grouped.measures %}
     <h2>Measures</h2>
     {% for term in grouped.measures %}
-    <div class="term-card" data-searchable>
+    <div class="term-card" data-searchable id="term-{{ term.field_id | replace('.', '-') }}">
         <h3><span class="badge badge-measure">Measure</span>{{ term.term_name }}</h3>
         <p>{{ term.description }}</p>
         {% if term.related_entries is defined and term.related_entries %}<p class="meta">Related Entries: {% for re in term.related_entries %}<code>{{ re.name }}</code>{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
@@ -75,7 +72,7 @@
     {% if grouped.dimensions %}
     <h2>Dimensions</h2>
     {% for term in grouped.dimensions %}
-    <div class="term-card" data-searchable>
+    <div class="term-card" data-searchable id="term-{{ term.field_id | replace('.', '-') }}">
         <h3><span class="badge badge-dimension">Dimension</span>{{ term.term_name }}</h3>
         <p>{{ term.description }}</p>
         {% if term.related_entries is defined and term.related_entries %}<p class="meta">Related Entries: {% for re in term.related_entries %}<code>{{ re.name }}</code>{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}

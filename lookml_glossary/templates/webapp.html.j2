@@ -187,14 +187,13 @@
                     <th>Type</th>
                     <th>Description</th>
                     <th>Related Entries</th>
-                    <th>Synonyms</th>
                     <th>Related Terms</th>
                     <th>Links</th>
                 </tr>
             </thead>
             <tbody id="terms-body">
                 {% for t in all_terms %}
-                <tr data-type="{{ t.type }}">
+                <tr data-type="{{ t.type }}" id="term-{{ t.field_id | replace('.', '-') }}">
                     <td><strong>{{ t.term_name }}</strong></td>
                     <td>
                         {% if t.type == 'dimension' %}
@@ -218,16 +217,9 @@
                     </td>
                     <td>{% if t.get('related_entries') %}{% for re in t.related_entries %}<code>{{ re.name }}</code>{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</td>
                     <td>
-                        {% if t.get('synonyms') %}
-                        {% for s in t.synonyms %}
-                        <span class="field-pill">{{ s.term_name }}</span>
-                        {% endfor %}
-                        {% endif %}
-                    </td>
-                    <td>
                         {% if t.get('related_terms') %}
                         {% for r in t.related_terms %}
-                        <span class="field-pill">{{ r.term_name }}</span>
+                        <a href="#term-{{ r.field_id | replace('.', '-') }}" class="field-pill" style="text-decoration:none;cursor:pointer">{{ r.term_name }}</a>
                         {% endfor %}
                         {% endif %}
                     </td>

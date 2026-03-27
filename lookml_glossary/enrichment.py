@@ -115,11 +115,9 @@ def _find_synonyms_for_term(
             score = max(score, 0.9)
 
         if score >= _SYNONYM_IDENTITY_THRESHOLD:
-            # Deduplicate by term_name — keep only the first occurrence per name
-            if not any(s["term_name"] == b.name for s in term.synonyms):
-                syn = {"term_name": b.name, "field_id": b.field_id,
-                       "view_name": b.view_name or "", "explore_name": b.explore_name or ""}
-                term.synonyms.append(syn)
+            # Identity-level matches are synonyms — skip them from related_terms
+            # to avoid polluting the list with near-duplicates.
+            pass
 
 
 def find_synonyms(terms: list[GlossaryTerm]) -> None:
@@ -265,10 +263,16 @@ def _find_related_for_explore(explore_terms: list[GlossaryTerm]) -> None:
                         min_score = heap[0][0]
                     tie += 1
 
-        # Extract top-K in descending order, deduplicating by term_name
+        # Extract top-K in descending order, skipping identity-level matches
+        # (synonyms) and deduplicating by term_name
         top_k = sorted(heap, key=lambda x: x[0], reverse=True)
         seen_names: set[str] = {r["term_name"] for r in a.related_terms}
+        seen_names.add(a.name)  # exclude self by name too
         for score, _, b in top_k:
+            # Skip identity-level matches — those are synonyms, not related
+            label_sim = _label_similarity(a.name, b.name)
+            if label_sim >= _SYNONYM_IDENTITY_THRESHOLD:
+                continue
             if b.name not in seen_names:
                 seen_names.add(b.name)
                 entry = {"term_name": b.name, "field_id": b.field_id,
@@ -840,6 +844,7 @@ def resolve_related_entries(
     imported_roots: list[str] | None = None,
 ) -> None:
     """Resolve source table for each glossary term and add as related_entries.
+    Also resolves tables for joined views and adds them as related_entries.
     Mutates terms in-place."""
     constants, imports = _load_manifest(project_root)
 
@@ -852,6 +857,26 @@ def resolve_related_entries(
     stats = _ResolutionStats()
     stats.constants_loaded = len(constants)
     stats.project_imports = len(imports)
+
+    # Cache: view_name -> resolved related_entry (or list of entries)
+    view_table_cache: dict[str, list[dict]] = {}
+
+    def _resolve_and_cache(view_name: str) -> list[dict]:
+        """Resolve source tables for a view, returning a list of entry dicts."""
+        if view_name in view_table_cache:
+            return view_table_cache[view_name]
+        result = _resolve_view_table(
+            view_name, project_root, constants, file_index, view_block_cache,
+        )
+        entries: list[dict] = []
+        if result is None:
+            pass
+        elif isinstance(result, dict) and result.get("_multi"):
+            entries = list(result["entries"])
+        else:
+            entries = [result]
+        view_table_cache[view_name] = entries
+        return entries
 
     for term in terms:
         stats.fields_processed += 1
@@ -889,6 +914,36 @@ def resolve_related_entries(
             elif src == "unresolved":
                 stats.view_refs_unresolved += 1
             term.related_entries.append(result)
+
+    # --- Second pass: add joined views' source tables ---
+    # Extract joined view names from each term's joins aspect
+    for term in terms:
+        joined_view_names: list[str] = []
+        for aspect in term.aspects:
+            if aspect.get("key") == "joins":
+                # Parse joined view names from the formatted string
+                # Format: "View Label (relationship), View Label2 (rel2)"
+                for part in str(aspect["value"]).split(","):
+                    part = part.strip()
+                    # Strip trailing "(relationship)" if present
+                    paren_idx = part.rfind("(")
+                    if paren_idx > 0:
+                        part = part[:paren_idx].strip()
+                    if part:
+                        # Convert label back to view name (reverse of _clean_label)
+                        vname = part.lower().replace(" ", "_")
+                        joined_view_names.append(vname)
+
+        # Resolve and add joined tables, deduplicating by name
+        existing_names = {e.get("name") for e in term.related_entries}
+        for jv in joined_view_names:
+            for entry in _resolve_and_cache(jv):
+                if entry.get("name") not in existing_names:
+                    joined_entry = dict(entry)
+                    joined_entry["source_type"] = "joined_table"
+                    joined_entry["joined_from"] = jv
+                    term.related_entries.append(joined_entry)
+                    existing_names.add(entry.get("name"))
 
     stats.log_summary()
 
