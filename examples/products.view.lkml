@@ -27,6 +27,12 @@ view: products {
     description: "Product brand name"
   }
 
+  dimension: is_active {
+    type: string
+    sql: CASE WHEN ${TABLE}.discontinued_at IS NULL THEN 'Active' ELSE 'Discontinued' END ;;
+    description: "Product availability status label"
+  }
+
   dimension: retail_price {
     type: number
     sql: ${TABLE}.retail_price ;;
@@ -36,7 +42,7 @@ view: products {
 
   measure: product_count {
     type: count
-    description: "Total number of products in catalogue"
+    description: "Total number of active products in catalogue"
   }
 
   measure: average_price {

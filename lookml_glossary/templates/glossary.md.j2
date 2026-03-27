@@ -5,25 +5,34 @@
 | Category   | Count |
 |------------|-------|
 | Total Terms | {{ summary.total_terms }} |
-| Explores   | {{ summary.explores }} |
-| Views      | {{ summary.views }} |
-| Metrics    | {{ summary.metrics }} |
-| KPIs       | {{ summary.kpis }} |
-| Dimensions | {{ summary.dimensions }} |
 | Measures   | {{ summary.measures }} |
+| Dimensions | {{ summary.dimensions }} |
 
 ---
 
-{% if grouped.kpis %}
-## Key Performance Indicators (KPIs)
+{% macro enrichment_section(term) %}
+{% if term.synonyms is defined and term.synonyms %}
+- **Synonyms:** {{ term.synonyms | map(attribute='term_name') | join(', ') }}
+{% endif %}
+{% if term.related_terms is defined and term.related_terms %}
+- **Related Terms:** {{ term.related_terms | map(attribute='term_name') | join(', ') }}
+{% endif %}
+{% if term.related_entries is defined and term.related_entries %}
+- **Source Table:** {% for re in term.related_entries %}`{{ re.name }}`{% if not loop.last %}, {% endif %}{% endfor %}
 
-{% for term in grouped.kpis %}
+{% endif %}
+{% endmacro %}
+
+{% if grouped.measures %}
+## Measures
+
+{% for term in grouped.measures %}
 ### {{ term.term_name }}
 
 - **Description:** {{ term.description }}
-- **Type:** KPI ({{ term.measure_type | default("N/A") }})
-{% if term.table_name is defined %}
-- **Table:** `{{ term.table_name }}`
+- **Type:** Measure ({{ term.measure_type | default("N/A") }})
+{% if term.related_entries is defined and term.related_entries %}
+- **Source Table:** {% for re in term.related_entries %}`{{ re.name }}`{% if not loop.last %}, {% endif %}{% endfor %}
 {% endif %}
 {% if term.view_name is defined %}
 - **View:** `{{ term.view_name }}`
@@ -37,6 +46,7 @@
 {% if term.tags is defined and term.tags %}
 - **Tags:** {{ term.tags | join(", ") }}
 {% endif %}
+{{ enrichment_section(term) }}
 {% if term.dashboard_links is defined and term.dashboard_links %}
 - **Dashboard Links:**
   {% for link in term.dashboard_links %}
@@ -48,70 +58,6 @@
   {% for link in term.recommended_links %}
   - [{{ link.title }}]({{ link.url }})
   {% endfor %}
-{% endif %}
-
-{% endfor %}
-{% endif %}
-
-{% if grouped.metrics %}
-## Metrics
-
-{% for term in grouped.metrics %}
-### {{ term.term_name }}
-
-- **Description:** {{ term.description }}
-- **Type:** Metric ({{ term.measure_type | default("N/A") }})
-{% if term.table_name is defined %}
-- **Table:** `{{ term.table_name }}`
-{% endif %}
-{% if term.view_name is defined %}
-- **View:** `{{ term.view_name }}`
-{% endif %}
-{% if term.sql_expression is defined %}
-- **SQL:** `{{ term.sql_expression }}`
-{% endif %}
-{% if term.value_format is defined and term.value_format %}
-- **Format:** {{ term.value_format }}
-{% endif %}
-{% if term.dashboard_links is defined and term.dashboard_links %}
-- **Dashboard Links:**
-  {% for link in term.dashboard_links %}
-  - [{{ link.title }}]({{ link.url }})
-  {% endfor %}
-{% endif %}
-{% if term.recommended_links is defined and term.recommended_links %}
-- **Recommended Links:**
-  {% for link in term.recommended_links %}
-  - [{{ link.title }}]({{ link.url }})
-  {% endfor %}
-{% endif %}
-
-{% endfor %}
-{% endif %}
-
-{% if grouped.explores %}
-## Explores
-
-{% for term in grouped.explores %}
-### {{ term.term_name }}
-
-- **Description:** {{ term.description }}
-{% if term.model_name is defined %}
-- **Model:** `{{ term.model_name }}`
-{% endif %}
-
-{% endfor %}
-{% endif %}
-
-{% if grouped.views %}
-## Views
-
-{% for term in grouped.views %}
-### {{ term.term_name }}
-
-- **Description:** {{ term.description }}
-{% if term.table_name is defined %}
-- **Table:** `{{ term.table_name }}`
 {% endif %}
 
 {% endfor %}
@@ -124,8 +70,8 @@
 ### {{ term.term_name }}
 
 - **Description:** {{ term.description }}
-{% if term.table_name is defined %}
-- **Table:** `{{ term.table_name }}`
+{% if term.related_entries is defined and term.related_entries %}
+- **Source Table:** {% for re in term.related_entries %}`{{ re.name }}`{% if not loop.last %}, {% endif %}{% endfor %}
 {% endif %}
 {% if term.view_name is defined %}
 - **View:** `{{ term.view_name }}`
@@ -133,31 +79,12 @@
 {% if term.sql_expression is defined %}
 - **SQL:** `{{ term.sql_expression }}`
 {% endif %}
+{{ enrichment_section(term) }}
 {% if term.recommended_links is defined and term.recommended_links %}
 - **Recommended Links:**
   {% for link in term.recommended_links %}
   - [{{ link.title }}]({{ link.url }})
   {% endfor %}
-{% endif %}
-
-{% endfor %}
-{% endif %}
-
-{% if grouped.measures %}
-## Other Measures
-
-{% for term in grouped.measures %}
-### {{ term.term_name }}
-
-- **Description:** {{ term.description }}
-{% if term.table_name is defined %}
-- **Table:** `{{ term.table_name }}`
-{% endif %}
-{% if term.view_name is defined %}
-- **View:** `{{ term.view_name }}`
-{% endif %}
-{% if term.sql_expression is defined %}
-- **SQL:** `{{ term.sql_expression }}`
 {% endif %}
 
 {% endfor %}

@@ -1,0 +1,108 @@
+name: Validate Glossary Drift
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+    paths:
+      - "**/*.lkml"
+
+jobs:
+  validate:
+    # Only run when the PR was actually merged, not just closed
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run drift validation
+        id: validate
+        run: |
+          python -m lookml_glossary validate \
+            examples/ecommerce.model.lkml \
+            -s examples/glossary_snapshot.json \
+            --severity info \
+            --fail-on error \
+            -f json \
+            -o drift_report.json
+        continue-on-error: true
+
+      - name: Display drift report
+        if: always()
+        run: |
+          if [ -f drift_report.json ]; then
+            echo "### Glossary Drift Report" >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            cat drift_report.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Post drift report as PR comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            if (!fs.existsSync('drift_report.json')) return;
+            const report = JSON.parse(fs.readFileSync('drift_report.json', 'utf8'));
+            const summary = report.summary;
+            let body = `## Glossary Drift Report\n\n`;
+            body += `| Errors | Warnings | Info |\n|--------|----------|------|\n`;
+            body += `| ${summary.errors} | ${summary.warnings} | ${summary.info} |\n\n`;
+            if (report.drift.length === 0) {
+              body += `No drift detected — glossary is up to date.\n`;
+            } else {
+              body += `| Severity | Category | Field | Message |\n`;
+              body += `|----------|----------|-------|---------|\n`;
+              for (const d of report.drift) {
+                body += `| ${d.severity} | ${d.category} | \`${d.field_id}\` | ${d.message} |\n`;
+              }
+            }
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body,
+            });
+
+      - name: Save drift report for GitHub Pages
+        if: always()
+        run: |
+          if [ -f drift_report.json ]; then
+            cp drift_report.json examples/latest_drift_report.json
+          else
+            echo '{"drift":[],"summary":{"total":0,"errors":0,"warnings":0,"info":0}}' > examples/latest_drift_report.json
+          fi
+
+      - name: Update snapshot if drift detected
+        if: steps.validate.outcome == 'failure'
+        run: |
+          python -m lookml_glossary validate \
+            examples/ecommerce.model.lkml \
+            -s examples/glossary_snapshot.json \
+            --fail-on error \
+            --update-snapshot || true
+
+      - name: Commit updated snapshot and drift report
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add examples/glossary_snapshot.json examples/latest_drift_report.json
+          git diff --cached --quiet || git commit -m "chore: update glossary snapshot and drift report after LookML changes"
+          git push

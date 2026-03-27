@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LookML Glossary</title>
     <style>
-        :root{--p:#4285f4;--kpi:#ea4335;--met:#34a853;--dim:#fbbc04;--view:#9c27b0;--exp:#1a73e8;--bg:#f8f9fa;--card:#fff;--border:#dadce0;--text:#202124;--muted:#5f6368}
+        :root{--p:#4285f4;--met:#34a853;--dim:#fbbc04;--view:#9c27b0;--exp:#1a73e8;--bg:#f8f9fa;--card:#fff;--border:#dadce0;--text:#202124;--muted:#5f6368}
         *{box-sizing:border-box;margin:0;padding:0}
         body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
         .container{max-width:1400px;margin:0 auto;padding:2rem}
@@ -39,11 +39,9 @@
         .view-table{font-size:.8rem;color:var(--muted);margin-bottom:.75rem;font-family:monospace}
         .field-section{margin-bottom:.5rem}
         .field-section-title{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.25rem;display:flex;align-items:center;gap:.4rem}
-        .field-section-title.kpi{color:var(--kpi)}
         .field-section-title.metric{color:var(--met)}
         .field-section-title.dim{color:var(--dim)}
         .field-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.75rem;margin:2px;background:#e8eaed;color:var(--text)}
-        .field-pill.kpi{background:#fce8e6;color:var(--kpi)}
         .field-pill.metric{background:#e6f4ea;color:#1e8e3e}
         .field-pill.dim{background:#fef7e0;color:#e37400}
         /* Table */
@@ -62,18 +60,31 @@
         td{padding:.75rem 1rem;border-top:1px solid #f1f3f4;font-size:.9rem;vertical-align:top}
         tr:hover td{background:#f8f9fa}
         .badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:.72rem;font-weight:600;color:#fff}
-        .badge-kpi{background:var(--kpi)}
-        .badge-metric{background:var(--met)}
+        .badge-measure{background:var(--met)}
         .badge-dimension{background:var(--dim);color:var(--text)}
-        .badge-explore{background:var(--exp)}
-        .badge-view{background:var(--view)}
-        .badge-measure{background:var(--muted)}
         td code{background:#e8eaed;padding:1px 5px;border-radius:4px;font-size:.82rem}
         td a{color:var(--p);text-decoration:none}
         td a:hover{text-decoration:underline}
         .links-list{list-style:none;padding:0;margin:0}
         .links-list li{margin:2px 0}
         .empty-state{text-align:center;padding:3rem;color:var(--muted)}
+        /* Drift notification banner */
+        .drift-banner{display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:1rem 1.5rem;margin-bottom:1.5rem;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+        .drift-banner.has-errors{background:#f8d7da;border-color:#f5c2c7}
+        .drift-banner.no-drift{background:#d1e7dd;border-color:#badbcc}
+        .drift-banner-title{font-weight:700;font-size:1rem;margin-bottom:.25rem;display:flex;align-items:center;gap:.5rem}
+        .drift-banner-title .icon{font-size:1.2rem}
+        .drift-banner .dismiss{position:absolute;top:.75rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted);line-height:1}
+        .drift-banner .dismiss:hover{color:var(--text)}
+        .drift-summary{font-size:.9rem;color:var(--muted);margin-bottom:.5rem}
+        .drift-details{margin-top:.5rem}
+        .drift-details summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--p);user-select:none}
+        .drift-table{width:100%;border-collapse:collapse;margin-top:.5rem;font-size:.82rem}
+        .drift-table th{text-align:left;padding:4px 8px;background:#e8eaed;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+        .drift-table td{padding:4px 8px;border-top:1px solid #f1f3f4}
+        .drift-table .sev-error{color:#dc3545;font-weight:600}
+        .drift-table .sev-warning{color:#e37400;font-weight:600}
+        .drift-table .sev-info{color:var(--p);font-weight:600}
     </style>
 </head>
 <body>
@@ -81,13 +92,20 @@
     <h1>LookML Glossary</h1>
     <p class="subtitle">Auto-generated from LookML model &mdash; {{ summary.total_terms }} terms</p>
 
+    <div class="drift-banner" id="drift-banner">
+        <button class="dismiss" id="drift-dismiss" title="Dismiss">&times;</button>
+        <div class="drift-banner-title">
+            <span class="icon" id="drift-icon"></span>
+            <span id="drift-title"></span>
+        </div>
+        <div class="drift-summary" id="drift-summary"></div>
+        <div class="drift-details" id="drift-details"></div>
+    </div>
+
     <div class="summary">
         <div class="s-card"><div class="num">{{ summary.total_terms }}</div><div class="lbl">Total Terms</div></div>
-        <div class="s-card"><div class="num">{{ summary.kpis }}</div><div class="lbl">KPIs</div></div>
-        <div class="s-card"><div class="num">{{ summary.metrics }}</div><div class="lbl">Metrics</div></div>
+        <div class="s-card"><div class="num">{{ summary.measures }}</div><div class="lbl">Measures</div></div>
         <div class="s-card"><div class="num">{{ summary.dimensions }}</div><div class="lbl">Dimensions</div></div>
-        <div class="s-card"><div class="num">{{ summary.views }}</div><div class="lbl">Views</div></div>
-        <div class="s-card"><div class="num">{{ summary.explores }}</div><div class="lbl">Explores</div></div>
     </div>
 
     <div class="tabs">
@@ -124,19 +142,10 @@
                             <div class="view-table">{{ view.table_name }}</div>
                             {% endif %}
 
-                            {% if view.kpis %}
+                            {% if view.measures %}
                             <div class="field-section">
-                                <div class="field-section-title kpi">&#9679; KPIs ({{ view.kpis | length }})</div>
-                                {% for f in view.kpis %}
-                                <span class="field-pill kpi">{{ f.name }}</span>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-
-                            {% if view.metrics %}
-                            <div class="field-section">
-                                <div class="field-section-title metric">&#9679; Metrics ({{ view.metrics | length }})</div>
-                                {% for f in view.metrics %}
+                                <div class="field-section-title metric">&#9679; Measures ({{ view.measures | length }})</div>
+                                {% for f in view.measures %}
                                 <span class="field-pill metric">{{ f.name }}</span>
                                 {% endfor %}
                             </div>
@@ -165,11 +174,8 @@
             <input type="text" class="search-box" id="search" placeholder="Search terms...">
             <div class="filter-group">
                 <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="kpi">KPIs</button>
-                <button class="filter-btn" data-filter="metric">Metrics</button>
+                <button class="filter-btn" data-filter="measure">Measures</button>
                 <button class="filter-btn" data-filter="dimension">Dimensions</button>
-                <button class="filter-btn" data-filter="view">Views</button>
-                <button class="filter-btn" data-filter="explore">Explores</button>
             </div>
             <button class="btn btn-primary" id="download-csv">&#11123; Download CSV</button>
         </div>
@@ -180,26 +186,20 @@
                     <th>Term Name</th>
                     <th>Type</th>
                     <th>Description</th>
-                    <th>Table</th>
+                    <th>Source Table</th>
                     <th>View</th>
+                    <th>Synonyms</th>
+                    <th>Related Terms</th>
                     <th>Links</th>
                 </tr>
             </thead>
             <tbody id="terms-body">
                 {% for t in all_terms %}
-                <tr data-type="{{ t.type }}" data-metric="{{ t.get('is_metric', '') }}" data-kpi="{{ t.get('is_kpi', '') }}">
+                <tr data-type="{{ t.type }}">
                     <td><strong>{{ t.term_name }}</strong></td>
                     <td>
-                        {% if t.get('is_kpi') %}
-                        <span class="badge badge-kpi">KPI</span>
-                        {% elif t.get('is_metric') %}
-                        <span class="badge badge-metric">Metric</span>
-                        {% elif t.type == 'dimension' %}
+                        {% if t.type == 'dimension' %}
                         <span class="badge badge-dimension">Dimension</span>
-                        {% elif t.type == 'explore' %}
-                        <span class="badge badge-explore">Explore</span>
-                        {% elif t.type == 'view' %}
-                        <span class="badge badge-view">View</span>
                         {% else %}
                         <span class="badge badge-measure">Measure</span>
                         {% endif %}
@@ -212,8 +212,22 @@
                         <br><code>{{ t.sql_expression }}</code>
                         {% endif %}
                     </td>
-                    <td>{% if t.get('table_name') %}<code>{{ t.table_name }}</code>{% endif %}</td>
+                    <td>{% if t.get('related_entries') %}{% for re in t.related_entries %}<code>{{ re.name }}</code>{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</td>
                     <td>{% if t.get('view_name') %}{{ t.view_name }}{% endif %}</td>
+                    <td>
+                        {% if t.get('synonyms') %}
+                        {% for s in t.synonyms %}
+                        <span class="field-pill">{{ s.term_name }}</span>
+                        {% endfor %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if t.get('related_terms') %}
+                        {% for r in t.related_terms %}
+                        <span class="field-pill">{{ r.term_name }}</span>
+                        {% endfor %}
+                        {% endif %}
+                    </td>
                     <td>
                         {% if t.get('dashboard_links') %}
                         <ul class="links-list">
@@ -257,12 +271,7 @@ function applyFilters() {
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
         const type = row.dataset.type;
-        const isKpi = row.dataset.kpi === 'True';
-        const isMetric = row.dataset.metric === 'True';
-        let typeMatch = activeFilter === 'all';
-        if (activeFilter === 'kpi') typeMatch = isKpi;
-        else if (activeFilter === 'metric') typeMatch = isMetric || type === 'metric';
-        else if (activeFilter !== 'all') typeMatch = type === activeFilter;
+        let typeMatch = activeFilter === 'all' || type === activeFilter;
         row.style.display = (text.includes(q) && typeMatch) ? '' : 'none';
     });
 }
@@ -295,6 +304,70 @@ document.getElementById('download-csv').addEventListener('click', () => {
     link.click();
     URL.revokeObjectURL(link.href);
 });
+
+// Drift notification
+(function() {
+    const banner = document.getElementById('drift-banner');
+    const dismissBtn = document.getElementById('drift-dismiss');
+
+    dismissBtn.addEventListener('click', function() {
+        banner.style.display = 'none';
+        try { sessionStorage.setItem('drift-dismissed', '1'); } catch(e) {}
+    });
+
+    if (sessionStorage.getItem('drift-dismissed') === '1') return;
+
+    fetch('drift_report.json')
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(data) {
+            if (!data || !data.summary) return;
+            var s = data.summary;
+            var drift = data.drift || [];
+
+            banner.style.display = 'block';
+
+            if (s.total === 0) {
+                banner.className = 'drift-banner no-drift';
+                document.getElementById('drift-icon').textContent = '\u2705';
+                document.getElementById('drift-title').textContent = 'Glossary is up to date';
+                document.getElementById('drift-summary').textContent = 'No drift detected \u2014 all terms match the current LookML source.';
+                return;
+            }
+
+            if (s.errors > 0) {
+                banner.className = 'drift-banner has-errors';
+                document.getElementById('drift-icon').textContent = '\u26A0\uFE0F';
+                document.getElementById('drift-title').textContent = 'Glossary drift detected';
+            } else {
+                banner.className = 'drift-banner';
+                document.getElementById('drift-icon').textContent = '\u2139\uFE0F';
+                document.getElementById('drift-title').textContent = 'Glossary updated';
+            }
+
+            var parts = [];
+            if (s.errors > 0) parts.push(s.errors + ' error' + (s.errors > 1 ? 's' : ''));
+            if (s.warnings > 0) parts.push(s.warnings + ' warning' + (s.warnings > 1 ? 's' : ''));
+            if (s.info > 0) parts.push(s.info + ' info');
+            document.getElementById('drift-summary').textContent =
+                'The LookML model changed since the last glossary snapshot: ' + parts.join(', ') + '. The glossary has been regenerated to reflect the latest state.';
+
+            if (drift.length > 0) {
+                var html = '<details><summary>View ' + drift.length + ' change' + (drift.length > 1 ? 's' : '') + '</summary>';
+                html += '<table class="drift-table"><thead><tr><th>Severity</th><th>Category</th><th>Field</th><th>Message</th></tr></thead><tbody>';
+                for (var i = 0; i < drift.length; i++) {
+                    var d = drift[i];
+                    var cls = 'sev-' + d.severity;
+                    html += '<tr><td class="' + cls + '">' + d.severity + '</td>';
+                    html += '<td>' + d.category + '</td>';
+                    html += '<td><code>' + d.field_id + '</code></td>';
+                    html += '<td>' + d.message + '</td></tr>';
+                }
+                html += '</tbody></table></details>';
+                document.getElementById('drift-details').innerHTML = html;
+            }
+        })
+        .catch(function() {});
+})();
 </script>
 </body>
 </html>

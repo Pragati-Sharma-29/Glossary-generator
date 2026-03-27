@@ -28,13 +28,81 @@ jobs:
         run: pip install -r requirements.txt
       
       - name: Ensure output directory exists
-        run: mkdir -p _site
+        run: mkdir -p _site/healthcare_demo
 
-      - name: Generate glossary webapp
-        run: python -m lookml_glossary examples/ecommerce.model.lkml -f webapp -o _site/index.html
+      - name: Generate ecommerce glossary webapp
+        run: python -m lookml_glossary examples/ecommerce.model.lkml -f webapp -o _site/ecommerce.html
 
-      - name: Generate glossary JSON
-        run: python -m lookml_glossary examples/ecommerce.model.lkml -f json -o _site/glossary.json
+      - name: Generate ecommerce glossary JSON
+        run: python -m lookml_glossary examples/ecommerce.model.lkml -f json -o _site/ecommerce.json
+
+      - name: Generate healthcare demo glossary webapp
+        run: python -m lookml_glossary healthcare_demo/healthcare.model.lkml -f webapp -o _site/healthcare_demo/index.html
+
+      - name: Generate healthcare demo glossary JSON
+        run: python -m lookml_glossary healthcare_demo/healthcare.model.lkml -f json -o _site/healthcare_demo/glossary.json
+
+      - name: Generate landing page
+        run: |
+          cat > _site/index.html << 'LANDING'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>LookML Glossary Generator</title>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; color: #1a1a2e; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+              .container { max-width: 720px; width: 100%; padding: 2rem; }
+              h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+              .subtitle { color: #666; margin-bottom: 2rem; font-size: 1.1rem; }
+              .card { background: #fff; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.15s, box-shadow 0.15s; text-decoration: none; display: block; color: inherit; }
+              .card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+              .card h2 { font-size: 1.25rem; margin-bottom: 0.4rem; color: #1a73e8; }
+              .card p { color: #555; font-size: 0.95rem; line-height: 1.5; }
+              .badge { display: inline-block; background: #e8f0fe; color: #1a73e8; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; margin-top: 0.5rem; }
+              .links { margin-top: 0.5rem; }
+              .links a { font-size: 0.85rem; color: #1a73e8; margin-right: 1rem; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>LookML Glossary Generator</h1>
+              <p class="subtitle">Auto-generated glossaries from LookML models</p>
+
+              <a class="card" href="healthcare_demo/">
+                <h2>Healthcare Demo</h2>
+                <p>Glossary generated from the <strong>looker-open-source/healthcare_demo</strong> LookML project. Includes encounters, patients, observations, conditions, vitals, and more.</p>
+                <span class="badge">516 terms</span>
+                <span class="badge">YAML dashboards</span>
+                <div class="links" onclick="event.stopPropagation()">
+                  <a href="healthcare_demo/glossary.json">JSON</a>
+                </div>
+              </a>
+
+              <a class="card" href="ecommerce.html">
+                <h2>E-Commerce Demo</h2>
+                <p>Glossary generated from the sample ecommerce LookML model with orders, users, and products views. Includes drift detection examples.</p>
+                <span class="badge">42 terms</span>
+                <span class="badge">drift detection</span>
+                <div class="links" onclick="event.stopPropagation()">
+                  <a href="ecommerce.json">JSON</a>
+                  <a href="drift_report.json">Drift Report</a>
+                </div>
+              </a>
+            </div>
+          </body>
+          </html>
+          LANDING
+
+      - name: Include drift report if available
+        run: |
+          if [ -f examples/latest_drift_report.json ]; then
+            cp examples/latest_drift_report.json _site/drift_report.json
+          else
+            echo '{"drift":[],"summary":{"total":0,"errors":0,"warnings":0,"info":0}}' > _site/drift_report.json
+          fi
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

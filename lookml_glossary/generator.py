@@ -13,10 +13,12 @@ from .parser import GlossaryTerm
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "templates")
 
 CSV_COLUMNS = [
-    "term_name", "description", "type", "is_metric", "is_kpi",
-    "table_name", "view_name", "explore_name", "model_name",
+    "term_name", "description", "type",
+    "view_name", "explore_name", "model_name",
     "measure_type", "sql_expression", "value_format", "tags",
+    "is_hidden", "aspects",
     "dashboard_links", "recommended_links",
+    "synonyms", "related_terms", "related_entries",
 ]
 
 
@@ -24,11 +26,10 @@ def _term_to_dict(term: GlossaryTerm) -> dict:
     """Convert a GlossaryTerm to a serialisable dictionary."""
     entry = {
         "term_name": term.name,
+        "field_id": term.field_id,
         "description": term.description,
         "type": term.term_type,
     }
-    if term.table_name:
-        entry["table_name"] = term.table_name
     if term.view_name:
         entry["view_name"] = term.view_name
     if term.explore_name:
@@ -55,6 +56,19 @@ def _term_to_dict(term: GlossaryTerm) -> dict:
         entry["recommended_links"] = [
             {"title": l.title, "url": l.url} for l in term.recommended_links
         ]
+    if term.synonyms:
+        entry["synonyms"] = term.synonyms
+    if term.related_terms:
+        entry["related_terms"] = term.related_terms
+    if term.related_entries:
+        entry["related_entries"] = term.related_entries
+    if term.is_hidden:
+        entry["is_hidden"] = True
+    if term.aspects:
+        entry["aspects"] = term.aspects
+    if term.is_dynamic_sql:
+        entry["is_dynamic_sql"] = True
+        entry["sql_branches"] = term.sql_branches
     return entry
 
 
@@ -70,9 +84,6 @@ def _term_to_csv_row(term: GlossaryTerm) -> dict:
         "term_name": d.get("term_name", ""),
         "description": d.get("description", ""),
         "type": d.get("type", ""),
-        "is_metric": "Yes" if d.get("is_metric") else "",
-        "is_kpi": "Yes" if d.get("is_kpi") else "",
-        "table_name": d.get("table_name", ""),
         "view_name": d.get("view_name", ""),
         "explore_name": d.get("explore_name", ""),
         "model_name": d.get("model_name", ""),
@@ -80,8 +91,15 @@ def _term_to_csv_row(term: GlossaryTerm) -> dict:
         "sql_expression": d.get("sql_expression", ""),
         "value_format": d.get("value_format", ""),
         "tags": "; ".join(d.get("tags", [])),
+        "is_hidden": "yes" if d.get("is_hidden") else "",
+        "aspects": "; ".join(
+            f"{a['key']}={a['value']}" for a in d.get("aspects", [])
+        ),
         "dashboard_links": _format_links_for_csv(d.get("dashboard_links", [])),
         "recommended_links": _format_links_for_csv(d.get("recommended_links", [])),
+        "synonyms": "; ".join(s.get("term_name", "") for s in d.get("synonyms", [])),
+        "related_terms": "; ".join(r.get("term_name", "") for r in d.get("related_terms", [])),
+        "related_entries": "; ".join(r.get("name", "") for r in d.get("related_entries", [])),
     }
 
 
@@ -106,7 +124,7 @@ def generate_markdown(terms: list[GlossaryTerm], output: TextIO) -> None:
     """Write glossary terms as Markdown."""
     env = Environment(
         loader=FileSystemLoader(TEMPLATE_DIR),
-        autoescape=select_autoescape([]),
+        autoescape=select_autoescape(["j2"]),
         trim_blocks=True,
         lstrip_blocks=True,
     )
@@ -154,40 +172,51 @@ def generate_webapp(terms: list[GlossaryTerm], output: TextIO) -> None:
     ))
 
 
-def _build_hierarchy(terms: list[GlossaryTerm]) -> dict:
-    """Build the model->explore->view->fields hierarchy for the diagram."""
+def _build_hierarchy(terms: list[GlossaryTerm]) -> list:
+    """Build the model->explore->view->fields hierarchy for the diagram.
+
+    Views and explores are derived from field-level metadata since dedicated
+    view/explore terms no longer exist.
+    """
     models: dict[str, dict] = {}
     for t in terms:
         model = t.model_name or "unknown"
         if model not in models:
             models[model] = {"name": model, "explores": {}, "views": {}}
 
-        if t.term_type == "explore":
+        # Auto-create explore entries from field metadata
+        if t.explore_name and t.explore_name not in models[model]["explores"]:
             models[model]["explores"][t.explore_name] = {
                 "name": t.explore_name,
-                "label": t.name,
-                "description": t.description,
+                "label": _clean_label(t.explore_name),
+                "description": "",
             }
-        elif t.term_type == "view":
-            models[model]["views"][t.view_name] = {
-                "name": t.view_name,
-                "label": t.name,
-                "table_name": t.table_name or "",
+
+        # Auto-create view entries from field metadata
+        vname = t.view_name or ""
+        if vname and vname not in models[model]["views"]:
+            # Derive table name from related_entries if available
+            source_table = ""
+            for re_entry in t.related_entries:
+                if re_entry.get("source_type") in ("physical_table", "implicit"):
+                    source_table = re_entry.get("name", "")
+                    break
+            models[model]["views"][vname] = {
+                "name": vname,
+                "label": _clean_label(vname),
+                "table_name": source_table,
                 "explore": t.explore_name or "",
                 "dimensions": [],
-                "metrics": [],
-                "kpis": [],
+                "measures": [],
             }
-        else:
-            vname = t.view_name or ""
-            if vname and vname in models[model]["views"]:
-                entry = {"name": t.name, "type": t.term_type}
-                if t.is_kpi:
-                    models[model]["views"][vname]["kpis"].append(entry)
-                elif t.is_metric or t.term_type == "metric":
-                    models[model]["views"][vname]["metrics"].append(entry)
-                elif t.term_type == "dimension":
-                    models[model]["views"][vname]["dimensions"].append(entry)
+
+        # Add field to its view
+        if vname and vname in models[model]["views"]:
+            entry = {"name": t.name, "type": t.term_type}
+            if t.term_type == "dimension":
+                models[model]["views"][vname]["dimensions"].append(entry)
+            elif t.term_type == "measure":
+                models[model]["views"][vname]["measures"].append(entry)
 
     # Convert inner dicts to lists for the template
     result = []
@@ -200,28 +229,24 @@ def _build_hierarchy(terms: list[GlossaryTerm]) -> dict:
     return result
 
 
+def _clean_label(name: str) -> str:
+    """Convert a LookML identifier to a human-readable label."""
+    return name.replace("_", " ").strip().title()
+
+
 def _group_terms(terms: list[GlossaryTerm]) -> dict[str, list[dict]]:
     """Group terms by type for templated output."""
     groups: dict[str, list[dict]] = {
-        "explores": [],
-        "views": [],
-        "metrics": [],
-        "kpis": [],
         "dimensions": [],
         "measures": [],
+        "parameters": [],
     }
     for t in terms:
         d = _term_to_dict(t)
-        if t.term_type == "explore":
-            groups["explores"].append(d)
-        elif t.term_type == "view":
-            groups["views"].append(d)
-        elif t.term_type == "kpi":
-            groups["kpis"].append(d)
-        elif t.is_metric or t.term_type == "metric":
-            groups["metrics"].append(d)
-        elif t.term_type == "dimension":
+        if t.term_type == "dimension":
             groups["dimensions"].append(d)
+        elif t.term_type == "parameter":
+            groups["parameters"].append(d)
         else:
             groups["measures"].append(d)
     return groups
@@ -231,10 +256,7 @@ def _build_summary(terms: list[GlossaryTerm]) -> dict:
     """Build a summary of the glossary contents."""
     return {
         "total_terms": len(terms),
-        "explores": sum(1 for t in terms if t.term_type == "explore"),
-        "views": sum(1 for t in terms if t.term_type == "view"),
-        "metrics": sum(1 for t in terms if t.is_metric),
-        "kpis": sum(1 for t in terms if t.is_kpi),
         "dimensions": sum(1 for t in terms if t.term_type == "dimension"),
-        "measures": sum(1 for t in terms if t.term_type in ("measure", "metric", "kpi")),
+        "measures": sum(1 for t in terms if t.term_type == "measure"),
+        "parameters": sum(1 for t in terms if t.term_type == "parameter"),
     }
