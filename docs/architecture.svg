@@ -149,81 +149,82 @@
   <line x1="360" y1="390" x2="360" y2="406" stroke="#f472b6" stroke-width="1.5" marker-end="url(#arrowPink)"/>
 
   <!-- ==================== STAGE 3: ENRICH ==================== -->
-  <rect x="560" y="115" width="280" height="310" rx="12" fill="#0f172a" stroke="#8b5cf6" stroke-width="1.2" opacity="0.9" filter="url(#shadow)"/>
+  <rect x="560" y="115" width="280" height="340" rx="12" fill="#0f172a" stroke="#8b5cf6" stroke-width="1.2" opacity="0.9" filter="url(#shadow)"/>
   <rect x="560" y="115" width="280" height="36" rx="12" fill="url(#enrichGrad)"/>
   <rect x="560" y="135" width="280" height="16" fill="url(#enrichGrad)"/>
   <text x="575" y="138" fill="#fff" font-size="13" font-weight="700">3</text>
   <circle cx="575" cy="133" r="11" fill="none" stroke="#fff" stroke-width="1.5"/>
   <text x="700" y="138" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">ENRICH</text>
 
-  <text x="580" y="172" fill="#c4b5fd" font-size="11" font-weight="600">Synonym detection</text>
-  <text x="580" y="188" fill="#94a3b8" font-size="10">Hash buckets on normalized labels</text>
-  <text x="580" y="202" fill="#94a3b8" font-size="10">View+SQL key &amp; token overlap</text>
-  <rect x="790" y="172" width="40" height="18" rx="4" fill="#7c3aed" opacity="0.3"/>
-  <text x="810" y="184" text-anchor="middle" fill="#c4b5fd" font-size="9" font-weight="600">O(n)</text>
+  <text x="580" y="172" fill="#c4b5fd" font-size="11" font-weight="600">Related terms</text>
+  <text x="580" y="188" fill="#94a3b8" font-size="10">Per-explore bounded min-heap (top 5)</text>
+  <text x="580" y="202" fill="#94a3b8" font-size="10">Identity matches excluded, hyperlinked</text>
 
-  <text x="580" y="228" fill="#c4b5fd" font-size="11" font-weight="600">Related terms</text>
-  <text x="580" y="244" fill="#94a3b8" font-size="10">Per-explore bounded min-heap (top 5)</text>
-  <text x="580" y="258" fill="#94a3b8" font-size="10">Same-view scoring, cross-view pruning</text>
+  <text x="580" y="224" fill="#c4b5fd" font-size="11" font-weight="600">Related entries resolution</text>
+  <text x="580" y="240" fill="#94a3b8" font-size="10">sql_table_name / derived_table / implicit</text>
+  <text x="580" y="254" fill="#94a3b8" font-size="10">+ joined view tables (source_type: joined_table)</text>
+  <rect x="790" y="224" width="40" height="18" rx="4" fill="#7c3aed" opacity="0.3"/>
+  <text x="810" y="236" text-anchor="middle" fill="#c4b5fd" font-size="9" font-weight="600">O(1)</text>
 
-  <text x="580" y="284" fill="#c4b5fd" font-size="11" font-weight="600">Source table resolution</text>
-  <text x="580" y="300" fill="#94a3b8" font-size="10">sql_table_name / derived_table / implicit</text>
-  <text x="580" y="314" fill="#94a3b8" font-size="10">sqlparse for SQL-based PDTs</text>
-  <rect x="790" y="284" width="40" height="18" rx="4" fill="#7c3aed" opacity="0.3"/>
-  <text x="810" y="296" text-anchor="middle" fill="#c4b5fd" font-size="9" font-weight="600">O(1)</text>
+  <text x="580" y="280" fill="#c4b5fd" font-size="11" font-weight="600">NL join descriptions</text>
+  <text x="580" y="296" fill="#94a3b8" font-size="10">Plain-English join logic in descriptions</text>
+  <text x="580" y="310" fill="#94a3b8" font-size="10">Relationship type &amp; linked field refs</text>
 
-  <text x="580" y="340" fill="#c4b5fd" font-size="11" font-weight="600">Liquid branch merging</text>
-  <text x="580" y="356" fill="#94a3b8" font-size="10">Attach sql_branches &amp; is_dynamic_sql</text>
+  <text x="580" y="336" fill="#c4b5fd" font-size="11" font-weight="600">Unique term names</text>
+  <text x="580" y="352" fill="#94a3b8" font-size="10">Aggregation prefix + view suffix dedup</text>
 
-  <text x="580" y="382" fill="#c4b5fd" font-size="11" font-weight="600">Dashboard link resolution</text>
-  <text x="580" y="398" fill="#94a3b8" font-size="10">Map fields to dashboard references</text>
+  <text x="580" y="378" fill="#c4b5fd" font-size="11" font-weight="600">Liquid branch merging</text>
+  <text x="580" y="394" fill="#94a3b8" font-size="10">Attach sql_branches &amp; is_dynamic_sql</text>
+
+  <text x="580" y="420" fill="#c4b5fd" font-size="11" font-weight="600">Dashboard link resolution</text>
+  <text x="580" y="436" fill="#94a3b8" font-size="10">Map fields to dashboard references</text>
 
   <!-- Arrow: parse to enrich -->
   <line x1="500" y1="250" x2="558" y2="250" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowPurple)"/>
 
   <!-- Arrow: liquid to enrich -->
-  <path d="M 500 490 Q 530 490 530 400 Q 530 380 558 380" fill="none" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowPurple)"/>
+  <path d="M 500 490 Q 530 490 530 420 Q 530 400 558 400" fill="none" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowPurple)"/>
 
   <!-- ==================== STAGE 4: GENERATE ==================== -->
-  <rect x="560" y="445" width="280" height="135" rx="12" fill="#0f172a" stroke="#10b981" stroke-width="1.2" opacity="0.9" filter="url(#shadow)"/>
-  <rect x="560" y="445" width="280" height="36" rx="12" fill="url(#genGrad)"/>
-  <rect x="560" y="465" width="280" height="16" fill="url(#genGrad)"/>
-  <text x="575" y="468" fill="#fff" font-size="13" font-weight="700">4</text>
-  <circle cx="575" cy="463" r="11" fill="none" stroke="#fff" stroke-width="1.5"/>
-  <text x="700" y="468" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">GENERATE</text>
+  <rect x="560" y="475" width="280" height="135" rx="12" fill="#0f172a" stroke="#10b981" stroke-width="1.2" opacity="0.9" filter="url(#shadow)"/>
+  <rect x="560" y="475" width="280" height="36" rx="12" fill="url(#genGrad)"/>
+  <rect x="560" y="495" width="280" height="16" fill="url(#genGrad)"/>
+  <text x="575" y="498" fill="#fff" font-size="13" font-weight="700">4</text>
+  <circle cx="575" cy="493" r="11" fill="none" stroke="#fff" stroke-width="1.5"/>
+  <text x="700" y="498" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">GENERATE</text>
 
-  <text x="580" y="502" fill="#6ee7b7" font-size="11" font-weight="600">Format glossary terms</text>
-  <text x="580" y="518" fill="#94a3b8" font-size="10">Jinja2 templates per output format</text>
+  <text x="580" y="532" fill="#6ee7b7" font-size="11" font-weight="600">Format glossary terms</text>
+  <text x="580" y="548" fill="#94a3b8" font-size="10">Jinja2 templates per output format</text>
 
-  <text x="580" y="540" fill="#6ee7b7" font-size="11" font-weight="600">Render output files</text>
-  <text x="580" y="556" fill="#94a3b8" font-size="10">JSON / CSV / HTML</text>
-  <text x="580" y="570" fill="#94a3b8" font-size="10">Interactive model diagram (HTML)</text>
+  <text x="580" y="570" fill="#6ee7b7" font-size="11" font-weight="600">Render output files</text>
+  <text x="580" y="586" fill="#94a3b8" font-size="10">JSON / CSV / HTML</text>
+  <text x="580" y="600" fill="#94a3b8" font-size="10">Interactive model diagram (HTML)</text>
 
   <!-- Arrow: enrich to generate -->
-  <line x1="700" y1="425" x2="700" y2="443" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  <line x1="700" y1="455" x2="700" y2="473" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
 
   <!-- ==================== STAGE 5: VALIDATE ==================== -->
-  <rect x="560" y="600" width="280" height="145" rx="12" fill="#0f172a" stroke="#f59e0b" stroke-width="1.2" opacity="0.9" filter="url(#shadow)"/>
-  <rect x="560" y="600" width="280" height="36" rx="12" fill="url(#driftGrad)"/>
-  <rect x="560" y="620" width="280" height="16" fill="url(#driftGrad)"/>
-  <text x="575" y="623" fill="#fff" font-size="13" font-weight="700">5</text>
-  <circle cx="575" cy="618" r="11" fill="none" stroke="#fff" stroke-width="1.5"/>
-  <text x="700" y="623" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">VALIDATE DRIFT</text>
+  <rect x="560" y="630" width="280" height="145" rx="12" fill="#0f172a" stroke="#f59e0b" stroke-width="1.2" opacity="0.9" filter="url(#shadow)"/>
+  <rect x="560" y="630" width="280" height="36" rx="12" fill="url(#driftGrad)"/>
+  <rect x="560" y="650" width="280" height="16" fill="url(#driftGrad)"/>
+  <text x="575" y="653" fill="#fff" font-size="13" font-weight="700">5</text>
+  <circle cx="575" cy="648" r="11" fill="none" stroke="#fff" stroke-width="1.5"/>
+  <text x="700" y="653" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">VALIDATE DRIFT</text>
 
-  <text x="580" y="658" fill="#fde68a" font-size="11" font-weight="600">Compare against snapshot</text>
-  <text x="580" y="674" fill="#94a3b8" font-size="10">Field-by-field diffing</text>
+  <text x="580" y="688" fill="#fde68a" font-size="11" font-weight="600">Compare against snapshot</text>
+  <text x="580" y="704" fill="#94a3b8" font-size="10">Field-by-field diffing</text>
 
-  <text x="580" y="696" fill="#fde68a" font-size="11" font-weight="600">Classify changes</text>
-  <text x="580" y="712" fill="#94a3b8" font-size="10">10 drift categories (error/warn/info)</text>
+  <text x="580" y="726" fill="#fde68a" font-size="11" font-weight="600">Classify changes</text>
+  <text x="580" y="742" fill="#94a3b8" font-size="10">10 drift categories (error/warn/info)</text>
 
-  <text x="580" y="734" fill="#fde68a" font-size="11" font-weight="600">Auto-update snapshot</text>
+  <text x="580" y="764" fill="#fde68a" font-size="11" font-weight="600">Auto-update snapshot</text>
 
   <!-- Arrow: generate to validate (optional) -->
-  <line x1="700" y1="580" x2="700" y2="598" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowAmber)"/>
-  <text x="714" y="592" fill="#64748b" font-size="8" font-style="italic">optional</text>
+  <line x1="700" y1="610" x2="700" y2="628" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowAmber)"/>
+  <text x="714" y="622" fill="#64748b" font-size="8" font-style="italic">optional</text>
 
   <!-- Arrow: snapshot to validate -->
-  <path d="M 95 428 L 95 675 L 558 675" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowAmber)"/>
+  <path d="M 95 428 L 95 705 L 558 705" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowAmber)"/>
 
   <!-- ==================== OUTPUTS (column) ==================== -->
 
@@ -246,19 +247,19 @@
   <text x="930" y="380" text-anchor="middle" fill="#64748b" font-size="9">glossary.html</text>
 
   <!-- Drift Report output -->
-  <rect x="870" y="620" width="120" height="70" rx="10" fill="#1c1917" stroke="#f59e0b" stroke-width="1.5" filter="url(#shadow)"/>
-  <text x="930" y="650" text-anchor="middle" fill="#fde68a" font-size="14" font-weight="700">DIFF</text>
-  <text x="930" y="670" text-anchor="middle" fill="#fde68a" font-size="11" font-weight="600">Drift Report</text>
-  <text x="930" y="684" text-anchor="middle" fill="#64748b" font-size="9">text / json</text>
+  <rect x="870" y="650" width="120" height="70" rx="10" fill="#1c1917" stroke="#f59e0b" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="930" y="680" text-anchor="middle" fill="#fde68a" font-size="14" font-weight="700">DIFF</text>
+  <text x="930" y="700" text-anchor="middle" fill="#fde68a" font-size="11" font-weight="600">Drift Report</text>
+  <text x="930" y="714" text-anchor="middle" fill="#64748b" font-size="9">text / json</text>
 
   <!-- Arrows: generate to outputs -->
-  <line x1="840" y1="510" x2="855" y2="510" stroke="#34d399" stroke-width="1" opacity="0"/>
-  <path d="M 840 510 L 855 510 L 855 175 L 868 175" fill="none" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  <line x1="840" y1="540" x2="855" y2="540" stroke="#34d399" stroke-width="1" opacity="0"/>
+  <path d="M 840 540 L 855 540 L 855 175 L 868 175" fill="none" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
   <path d="M 855 265 L 868 265" fill="none" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
   <path d="M 855 355 L 868 355" fill="none" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
 
   <!-- Arrow: validate to drift report -->
-  <line x1="840" y1="660" x2="868" y2="660" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrowAmber)"/>
+  <line x1="840" y1="690" x2="868" y2="690" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrowAmber)"/>
 
 
   <!-- ==================== GLOSSARY TERM CARD ==================== -->
@@ -277,28 +278,28 @@
   <text x="370" y="685" fill="#94a3b8" font-size="9">${TABLE}.revenue</text>
 
   <text x="240" y="700" fill="#64748b" font-size="9">aspects</text>
-  <text x="370" y="700" fill="#60a5fa" font-size="9">[{group_label, drill_fields, ...}]</text>
+  <text x="370" y="700" fill="#60a5fa" font-size="9">[{group_label, joins, drill_fields, ...}]</text>
 
   <text x="240" y="715" fill="#64748b" font-size="9">is_hidden</text>
   <text x="370" y="715" fill="#94a3b8" font-size="9">false (filterable via --exclude-hidden)</text>
 
-  <text x="240" y="730" fill="#64748b" font-size="9">synonyms</text>
-  <text x="370" y="730" fill="#a78bfa" font-size="9">["Revenue", "Sales Total"]</text>
+  <text x="240" y="730" fill="#64748b" font-size="9">related_terms</text>
+  <text x="370" y="730" fill="#a78bfa" font-size="9">[top 5, hyperlinked, no identity matches]</text>
 
-  <text x="240" y="745" fill="#64748b" font-size="9">related_terms</text>
-  <text x="370" y="745" fill="#a78bfa" font-size="9">[top 5 by similarity]</text>
+  <text x="240" y="745" fill="#64748b" font-size="9">related_entries</text>
+  <text x="370" y="745" fill="#6ee7b7" font-size="9">[source + joined tables]</text>
 
-  <text x="240" y="760" fill="#64748b" font-size="9">source_table</text>
-  <text x="370" y="760" fill="#6ee7b7" font-size="9">schema.order_items</text>
+  <text x="240" y="760" fill="#64748b" font-size="9">sql_branches</text>
+  <text x="370" y="760" fill="#f9a8d4" font-size="9">[all Liquid variants]</text>
 
-  <text x="240" y="775" fill="#64748b" font-size="9">sql_branches</text>
-  <text x="370" y="775" fill="#f9a8d4" font-size="9">[all Liquid variants]</text>
+  <text x="240" y="775" fill="#64748b" font-size="9">dashboard_links</text>
+  <text x="370" y="775" fill="#93c5fd" font-size="9">[from .lkml &amp; .lookml dashboards]</text>
 
-  <text x="240" y="790" fill="#64748b" font-size="9">dashboard_links</text>
-  <text x="370" y="790" fill="#93c5fd" font-size="9">[from .lkml &amp; .lookml dashboards]</text>
+  <text x="240" y="790" fill="#64748b" font-size="9">description</text>
+  <text x="370" y="790" fill="#94a3b8" font-size="9">NL text with join context</text>
 
   <!-- Arrow: enrich to term card -->
-  <path d="M 620 425 L 620 440 Q 620 445 500 445 Q 440 445 440 608" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrowWhite)"/>
+  <path d="M 620 455 L 620 470 Q 620 475 500 475 Q 440 475 440 608" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrowWhite)"/>
 
   <!-- ==================== BOTTOM: KEY CAPABILITIES ==================== -->
   <rect x="30" y="840" width="960" height="100" rx="12" fill="#0f172a" stroke="#334155" stroke-width="1" filter="url(#shadow)"/>
@@ -308,7 +309,7 @@
   <text x="99" y="894" text-anchor="middle" fill="#93c5fd" font-size="9" font-weight="600">Parallel I/O</text>
 
   <rect x="164" y="876" width="114" height="28" rx="14" fill="#2e1065" stroke="#8b5cf6" stroke-width="1"/>
-  <text x="221" y="894" text-anchor="middle" fill="#c4b5fd" font-size="9" font-weight="600">O(n) Synonyms</text>
+  <text x="221" y="894" text-anchor="middle" fill="#c4b5fd" font-size="9" font-weight="600">Unique Names</text>
 
   <rect x="286" y="876" width="114" height="28" rx="14" fill="#4a0d2e" stroke="#ec4899" stroke-width="1"/>
   <text x="343" y="894" text-anchor="middle" fill="#f9a8d4" font-size="9" font-weight="600">Liquid AST</text>
@@ -320,12 +321,12 @@
   <text x="587" y="894" text-anchor="middle" fill="#fde68a" font-size="9" font-weight="600">CI Drift Guard</text>
 
   <rect x="652" y="876" width="114" height="28" rx="14" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1"/>
-  <text x="709" y="894" text-anchor="middle" fill="#93c5fd" font-size="9" font-weight="600">YAML Dashboards</text>
+  <text x="709" y="894" text-anchor="middle" fill="#93c5fd" font-size="9" font-weight="600">NL Joins</text>
 
   <rect x="774" y="876" width="114" height="28" rx="14" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1"/>
   <text x="831" y="894" text-anchor="middle" fill="#93c5fd" font-size="9" font-weight="600">Explore Extends</text>
 
   <rect x="896" y="876" width="114" height="28" rx="14" fill="#2e1065" stroke="#8b5cf6" stroke-width="1"/>
-  <text x="953" y="894" text-anchor="middle" fill="#c4b5fd" font-size="9" font-weight="600">Aspects Model</text>
+  <text x="953" y="894" text-anchor="middle" fill="#c4b5fd" font-size="9" font-weight="600">Join Tables</text>
 
 </svg>
