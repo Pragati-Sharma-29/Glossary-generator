@@ -187,7 +187,6 @@
                     <th>Type</th>
                     <th>Description</th>
                     <th>Related Entries</th>
-                    <th>Synonyms</th>
                     <th>Related Terms</th>
                     <th>Links</th>
                 </tr>
@@ -218,16 +217,9 @@
                     </td>
                     <td>{% if t.get('related_entries') %}{% for re in t.related_entries %}<code>{{ re.name }}</code>{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</td>
                     <td>
-                        {% if t.get('synonyms') %}
-                        {% for s in t.synonyms %}
-                        <span class="field-pill">{{ s.term_name }}</span>
-                        {% endfor %}
-                        {% endif %}
-                    </td>
-                    <td>
                         {% if t.get('related_terms') %}
                         {% for r in t.related_terms %}
-                        <span class="field-pill">{{ r.term_name }}</span>
+                        <span class="field-pill{% if r.get('relationship') == 'synonym' %}" style="background:#e8f5e9;color:#2e7d32{% endif %}">{{ r.term_name }}</span>
                         {% endfor %}
                         {% endif %}
                     </td>

@@ -39,11 +39,8 @@
     </div>
 
     {% macro enrichment_fields(term) %}
-    {% if term.synonyms is defined and term.synonyms %}
-    <p class="meta">Synonyms: {% for s in term.synonyms %}<span class="pill">{{ s.term_name }} ({{ s.view_name }})</span>{% endfor %}</p>
-    {% endif %}
     {% if term.related_terms is defined and term.related_terms %}
-    <p class="meta">Related: {% for r in term.related_terms %}<span class="pill">{{ r.term_name }}</span>{% endfor %}</p>
+    <p class="meta">Related Terms: {% for r in term.related_terms %}<span class="pill{% if r.get('relationship') == 'synonym' %}" style="background:#e8f5e9;color:#2e7d32{% endif %}">{{ r.term_name }}</span>{% endfor %}</p>
     {% endif %}
     {% if term.related_entries is defined and term.related_entries %}
     <p class="meta">Related Entries: {% for re in term.related_entries %}<code>{{ re.name }}</code> {% endfor %}</p>
